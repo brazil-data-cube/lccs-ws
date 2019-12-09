@@ -9,8 +9,10 @@
 
 from bdc_core.decorators.validators import require_model
 from bdc_core.utils.flask import APIResource
-from flask import jsonify, request
 from flask_restplus import Namespace
+
+from lccs_ws.forms import LucClassificationSystemSchema, LucClassSchema
+from lccs_ws.models import LucClass, LucClassificationSystem
 
 api = Namespace('lccs_ws', description='status')
 
@@ -20,5 +22,16 @@ class ClassificationSystemResource(APIResource):
 
     def get(self):
         """Retrieve all land user cover classification system."""
-        data = {"nome":"prodes"}
-        return jsonify(data)
+        retval = LucClassificationSystem.filter()
+
+        return LucClassificationSystemSchema().dump(retval, many=True)
+
+@api.route('/land_cover_class')
+class LucClassResource(APIResource):
+    """URL Handler for Land User Cover Classification System through REST API."""
+
+    def get(self):
+        """Retrieve all land user cover class."""
+        retval = LucClass.filter()
+
+        return LucClassSchema().dump(retval, many=True)

@@ -14,6 +14,7 @@ from flask_cors import CORS
 
 from lccs_ws.blueprint import blueprint
 from lccs_ws.config import get_settings
+from lccs_ws.models import db
 
 from .version import __version__
 
@@ -33,6 +34,8 @@ def create_app(config_name):
     with internal_app.app_context():
         internal_app.config.from_object(config_name)
         internal_app.register_blueprint(blueprint)
+
+        db.init_model(internal_app.config.get('SQLALCHEMY_URI'))
 
     return internal_app
 
