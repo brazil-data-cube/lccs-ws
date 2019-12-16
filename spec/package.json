@@ -1,0 +1,14 @@
+{
+  "name": "lccs_ws-spec",
+  "version": "0.2.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "redoc-cli bundle api/v1.0/lccs_ws.yaml --output dist/index.html"
+  },
+  "author": "Fabiana Zioti",
+  "license": "MIT",
+  "dependencies": {
+    "redoc-cli": "^0.9.4"
+  }
+}

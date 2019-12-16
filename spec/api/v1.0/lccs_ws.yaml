@@ -1,0 +1,126 @@
+openapi: 3.0.0
+
+info:
+  description: >
+    Land Cover Classification System Service. You can find out more about LCCS-WS at [https://github.com/brazil-data-cube/lccs-ws](https://github.com/brazil-data-cube/lccs-ws)
+
+  version: '0.2.0'
+
+  title: Land Cover Classification System Service
+
+  contact:
+    name: Fabiana Zioti
+    email: fabi.zioti@gmail.com
+
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+
+servers:
+  - url: 'https://localhost/lccs-ws'
+    description: Production server
+
+
+paths:
+
+  '/classification_systems':
+    get:
+      summary: List Classification System.
+      description: Retrieve list of available classification systems.
+      responses:
+        '200':
+          description: Array of classification system.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassificationSystemsList'
+
+  '/classification_system/{name}':
+
+    parameters:
+       - $ref: '#/components/parameters/Classification_name'
+
+    get:
+      summary: Retrives metadata of classification system by name.
+      description: Returns information of classification system by name.
+      operationId: getClassificationSysByName
+      responses:
+        200:
+          description: Classification System metadata
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ClassificationSystemDescription'
+    delete:
+      summary: Deletes the classification system with the specified name.
+      responses:
+        '204':
+          description: Classification System was deleted.
+        '400':
+          description: Invalid Name supplied
+        '404':
+          description: Classification System not found
+
+
+components:
+
+  #-------------------------------
+  # Reusable operation parameters
+  #-------------------------------
+
+  parameters:
+
+    Classification_name:
+      in: path
+      name: name
+      required: true
+      description: Classification System Name
+      schema:
+        type: string
+
+  #-------------------------------
+  # Reusable schemas (data models)
+  #-------------------------------
+
+  schemas:
+
+    ClassificationSystemsList:
+      type: object
+      properties:
+        classyfication_systems:
+          type: array
+          items:
+            type: string
+
+    ClassificationSystemDescription:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        authority_name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        class:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              name:
+                type: string
+              code:
+                type: string
+              description:
+                type: string
+              style:
+                type: string
+              parent_id:
+                type: number
