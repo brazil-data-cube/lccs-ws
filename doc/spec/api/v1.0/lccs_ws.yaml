@@ -2,11 +2,11 @@ openapi: 3.0.0
 
 info:
   description: >
-    Land Cover Classification System Service. You can find out more about LCCS-WS at [https://github.com/brazil-data-cube/lccs-ws](https://github.com/brazil-data-cube/lccs-ws)
+    Land Cover Classification System Web Service. You can find out more about LCCS-WS at [https://github.com/brazil-data-cube/lccs-ws](https://github.com/brazil-data-cube/lccs-ws)
 
   version: '0.2.0'
 
-  title: Land Cover Classification System Service
+  title: Land Cover Classification System Web Service
 
   contact:
     name: Fabiana Zioti
@@ -24,6 +24,7 @@ servers:
 paths:
 
   '/classification_systems':
+
     get:
       summary: List Classification System.
       description: Retrieve list of available classification systems.
@@ -61,6 +62,56 @@ paths:
         '404':
           description: Classification System not found
 
+  '/classification_system/{name}/{class_name}':
+
+    parameters:
+      - $ref: '#/components/parameters/Classification_name'
+      - $ref: '#/components/parameters/Class_name'
+
+    get:
+      summary: Retrives metadata of classification system class by name.
+      description: Returns information of classification system class by name.
+      operationId: getClassificationSysClassByName
+      responses:
+        200:
+          description: Classification System Class metadata
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ClassificationSystemClassDescription'
+
+
+  '/classification_system_mapping/{class_name_source}/{class_name_target}':
+
+     parameters:
+        - name: class_name_source
+          in: path
+          description: Source Classification System Class Name
+          required: true
+          schema:
+            type: string
+
+        - name: class_name_target
+          in: path
+          description: Target Classification System Class Name
+          required: true
+          schema:
+            type: string
+
+     get:
+      summary: Retrives metadata of classification systems mapping
+      description: Returns information of classification systems mapping.
+      operationId: getClassificationSysMapping
+      responses:
+        200:
+          description: Classification System Mapping
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ClassificationSystemMapping'
+
+
+
 
 components:
 
@@ -78,6 +129,14 @@ components:
       schema:
         type: string
 
+    Class_name:
+      in: path
+      name: class_name
+      required: true
+      description: Class Name
+      schema:
+        type: string
+
   #-------------------------------
   # Reusable schemas (data models)
   #-------------------------------
@@ -87,7 +146,7 @@ components:
     ClassificationSystemsList:
       type: object
       properties:
-        classyfication_systems:
+        classification_systems:
           type: array
           items:
             type: string
@@ -123,4 +182,41 @@ components:
               style:
                 type: string
               parent_id:
+                type: number
+
+    ClassificationSystemClassDescription:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        style:
+          type: string
+        parent_id:
+          type: integer
+
+
+    ClassificationSystemMapping:
+      type: array
+      items:
+            type: object
+            properties:
+              source_class_id:
+                type: number
+              source_class_name:
+                type: string
+              target_class_id:
+                type: number
+              target_class_name:
+                type: string
+              description:
+                type: string
+              degree_of_similarity:
                 type: number
