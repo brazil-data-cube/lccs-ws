@@ -99,7 +99,7 @@ paths:
             type: string
 
      get:
-      summary: Retrives metadata of classification systems mapping
+      summary: Retrives classification systems mapping
       description: Returns information of classification systems mapping.
       operationId: getClassificationSysMapping
       responses:
