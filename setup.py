@@ -52,6 +52,7 @@ install_requires = [
     'shapely>=1.6',
     'SQLAlchemy==1.3.4',
     'bdc-core @ git+git://github.com/brazil-data-cube/bdc-core.git#egg=bdc-core',
+    'lccs-db @ git+git://github.com/brazil-data-cube/lccs-db.git#egg=lccs-db',
 ]
 
 packages = find_packages()

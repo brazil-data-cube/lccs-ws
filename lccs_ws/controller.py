@@ -10,28 +10,64 @@
 from bdc_core.decorators.validators import require_model
 from bdc_core.utils.flask import APIResource
 from flask_restplus import Namespace
+from flask import jsonify
+from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.exceptions import BadRequest, NotFound
 
-from lccs_ws.forms import LucClassificationSystemSchema, LucClassSchema
-from lccs_ws.models import LucClass, LucClassificationSystem
+from lccs_ws.forms import LucClassificationSystemsSchema, LucClassSchema
+
+from lccs_db.models import LucClass, LucClassificationSystem, ClassMapping, db
 
 api = Namespace('lccs_ws', description='status')
 
-@api.route('/classification_system')
-class ClassificationSystemResource(APIResource):
-    """URL Handler for Land User Cover Classification System through REST API."""
+@api.route('/classification_systems')
+class ClassificationSystemsResource(APIResource):
+    """URL Handler for Classification Systems through REST API."""
 
     def get(self):
-        """Retrieve all land user cover classification system."""
+        """Retrieve all classification systems."""
         retval = LucClassificationSystem.filter()
 
-        return LucClassificationSystemSchema().dump(retval, many=True)
+        result = LucClassificationSystemsSchema(only=['name']).dump(retval, many=True)
 
-@api.route('/land_cover_class')
-class LucClassResource(APIResource):
+        return {"classification_systems": [item["name"] for item in result]}
+
+@api.route('/classification_system/<name>')
+class ClassificationSystemResource(APIResource):
+    """URL Handler for Classification Systems through REST API."""
+
+    def get(self, name):
+        """Retrives metadata of classification system by nam."""
+        try:
+            retval = LucClassificationSystem.get(name=name)
+
+        except NoResultFound:
+            raise NotFound('Classification system "{}" not found'.format(
+                name))
+
+        result_class = LucClassSchema().dump(LucClass.filter(classification_system_id = retval.id), many=True)
+
+        cls_systm = LucClassificationSystemsSchema().dump(retval, many=False)
+
+        if result_class is None:
+            cls_systm.update({"classes": []})
+
+        else:
+            cls_systm.update()
+
+        return cls_systm
+
+
+
+@api.route('/classification_system/<name>/<class_name>')
+class CSClass(APIResource):
     """URL Handler for Land User Cover Classification System through REST API."""
 
-    def get(self):
+    def get(self, name, class_name):
         """Retrieve all land user cover class."""
-        retval = LucClass.filter()
 
-        return LucClassSchema().dump(retval, many=True)
+        classification_system = LucClassificationSystem.get(name=name)
+
+        result_classes = LucClass.filter(classification_system_id=classification_system.id, name=class_name)
+
+        return LucClassSchema().dump(result_classes, many=True)[0]

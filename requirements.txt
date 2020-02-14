@@ -12,3 +12,4 @@ Sphinx==2.1.2
 requests==2.22.0
 git+https://github.com/brazil-data-cube/bdc-readthedocs-theme@master
 git+https://github.com/brazil-data-cube/bdc-core@master
+git+https://github.com/brazil-data-cube/lccs-db@master

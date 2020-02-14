@@ -8,18 +8,18 @@
 """Defines Marshmallow Forms for LCCSWS abstractions."""
 
 from marshmallow_sqlalchemy import ModelSchema
+from marshmallow import fields
 
-from lccs_ws.models import ClassMapping, LucClass, LucClassificationSystem
+from lccs_db.models import LucClass, LucClassificationSystem, ClassMapping
 
-
-class LucClassificationSystemSchema(ModelSchema):
+class LucClassificationSystemsSchema(ModelSchema):
     """Marshmallow Forms for LucClassificationSystem."""
 
     class Meta:
         """Generate marshmallow Schemas from model."""
 
         model = LucClassificationSystem
-
+        exclude = ('created_at', 'updated_at', )
 
 class LucClassSchema(ModelSchema):
     """Marshmallow Forms for LucClass."""
@@ -28,3 +28,4 @@ class LucClassSchema(ModelSchema):
         """Generate marshmallow Schemas from model."""
 
         model = LucClass
+        exclude = ('created_at', 'updated_at',)
