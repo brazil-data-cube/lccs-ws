@@ -60,6 +60,7 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 def setup(app):
+    """Add css style."""
     app.add_stylesheet('lccs_ws.css')
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.

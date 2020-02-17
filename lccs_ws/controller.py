@@ -10,13 +10,11 @@
 from bdc_core.decorators.validators import require_model
 from bdc_core.utils.flask import APIResource
 from flask_restplus import Namespace
-from flask import jsonify
+from lccs_db.models import LucClass, LucClassificationSystem
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import BadRequest, NotFound
 
 from lccs_ws.forms import LucClassificationSystemsSchema, LucClassSchema
-
-from lccs_db.models import LucClass, LucClassificationSystem, ClassMapping, db
 
 api = Namespace('lccs_ws', description='status')
 
@@ -65,7 +63,6 @@ class CSClass(APIResource):
 
     def get(self, name, class_name):
         """Retrieve all land user cover class."""
-
         classification_system = LucClassificationSystem.get(name=name)
 
         result_classes = LucClass.filter(classification_system_id=classification_system.id, name=class_name)

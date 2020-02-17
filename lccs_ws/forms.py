@@ -7,10 +7,9 @@
 #
 """Defines Marshmallow Forms for LCCSWS abstractions."""
 
+from lccs_db.models import ClassMapping, LucClass, LucClassificationSystem
 from marshmallow_sqlalchemy import ModelSchema
-from marshmallow import fields
 
-from lccs_db.models import LucClass, LucClassificationSystem, ClassMapping
 
 class LucClassificationSystemsSchema(ModelSchema):
     """Marshmallow Forms for LucClassificationSystem."""

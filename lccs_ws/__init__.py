@@ -11,10 +11,11 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
-
 from lccs_db.models import db
+
 from lccs_ws.blueprint import blueprint
 from lccs_ws.config import get_settings
+
 from .version import __version__
 
 
