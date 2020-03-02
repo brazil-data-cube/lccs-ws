@@ -10,7 +10,7 @@
 from bdc_core.decorators.validators import require_model
 from bdc_core.utils.flask import APIResource
 from flask_restplus import Namespace
-from lccs_db.models import LucClass, LucClassificationSystem
+from lccs_db.models import LucClass, LucClassificationSystem, ParentClasses
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import BadRequest, NotFound
 
@@ -30,7 +30,7 @@ class ClassificationSystemsResource(APIResource):
 
         return {"classification_systems": [item["name"] for item in result]}
 
-@api.route('/classification_system/<name>')
+@api.route('/<name>')
 class ClassificationSystemResource(APIResource):
     """URL Handler for Classification Systems through REST API."""
 
@@ -43,7 +43,7 @@ class ClassificationSystemResource(APIResource):
             raise NotFound('Classification system "{}" not found'.format(
                 name))
 
-        result_class = LucClassSchema().dump(LucClass.filter(classification_system_id = retval.id), many=True)
+        result_class = LucClassSchema().dump(LucClass.filter(class_system_id = retval.id), many=True)
 
         cls_systm = LucClassificationSystemsSchema().dump(retval, many=False)
 
@@ -51,13 +51,13 @@ class ClassificationSystemResource(APIResource):
             cls_systm.update({"classes": []})
 
         else:
-            cls_systm.update()
+            cls_systm.update({"classes": result_class})
 
         return cls_systm
 
 
 
-@api.route('/classification_system/<name>/<class_name>')
+@api.route('/<name>/<class_name>')
 class CSClass(APIResource):
     """URL Handler for Land User Cover Classification System through REST API."""
 
@@ -65,6 +65,20 @@ class CSClass(APIResource):
         """Retrieve all land user cover class."""
         classification_system = LucClassificationSystem.get(name=name)
 
-        result_classes = LucClass.filter(classification_system_id=classification_system.id, name=class_name)
+        result_classes = LucClass.filter(class_system_id=classification_system.id, name=class_name)
 
-        return LucClassSchema().dump(result_classes, many=True)[0]
+        parents = ParentClasses.filter(class_id=result_classes[0].id)
+
+        parents_id = list()
+
+        for cls_id in parents:
+            parents_id.append(LucClassSchema().dump(LucClass.filter(id=cls_id.class_parent_id), many=True)[0])
+
+        classe_metainfo = LucClassSchema().dump(result_classes, many=True)[0]
+
+        if parents_id :
+            classe_metainfo.update({"parent": parents_id})
+
+        return classe_metainfo
+
+        # return LucClassSchema().dump(result_classes, many=True)[0]
