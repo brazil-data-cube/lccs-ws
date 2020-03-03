@@ -43,19 +43,14 @@ class ClassificationSystemResource(APIResource):
             raise NotFound('Classification system "{}" not found'.format(
                 name))
 
-        result_class = LucClassSchema().dump(LucClass.filter(class_system_id = retval.id), many=True)
+        result_class = LucClassSchema(only=['id', 'name']).dump(LucClass.filter(class_system_id=retval.id), many=True)
 
         cls_systm = LucClassificationSystemsSchema().dump(retval, many=False)
 
-        if result_class is None:
-            cls_systm.update({"classes": []})
-
-        else:
+        if result_class:
             cls_systm.update({"classes": result_class})
 
         return cls_systm
-
-
 
 @api.route('/<name>/<class_name>')
 class CSClass(APIResource):
@@ -72,13 +67,11 @@ class CSClass(APIResource):
         parents_id = list()
 
         for cls_id in parents:
-            parents_id.append(LucClassSchema().dump(LucClass.filter(id=cls_id.class_parent_id), many=True)[0])
+            parents_id.append(LucClassSchema(only=['id', 'name']).dump(LucClass.filter(id=cls_id.class_parent_id), many=True)[0])
 
         classe_metainfo = LucClassSchema().dump(result_classes, many=True)[0]
 
-        if parents_id :
+        if parents_id:
             classe_metainfo.update({"parent": parents_id})
 
         return classe_metainfo
-
-        # return LucClassSchema().dump(result_classes, many=True)[0]
