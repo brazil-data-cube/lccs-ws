@@ -7,8 +7,8 @@
 #
 """Controllers of Land Cover Classification System Web Service."""
 
-from bdc_core.decorators.validators import require_model
 from bdc_core.utils.flask import APIResource
+from flask import jsonify, request
 from flask_restplus import Namespace
 from lccs_db.models import LucClass, LucClassificationSystem, ParentClasses
 from sqlalchemy.orm.exc import NoResultFound
@@ -16,7 +16,25 @@ from werkzeug.exceptions import BadRequest, NotFound
 
 from lccs_ws.forms import LucClassificationSystemsSchema, LucClassSchema
 
+from .config import Config
+
 api = Namespace('lccs_ws', description='status')
+
+BASE_URL = Config.SERVER_HOST + ":" + Config.PORT + "/lccs_ws"
+
+
+@api.route('/')
+class Index(APIResource):
+    """URL Handler for Land User Cover Classification System through REST API."""
+
+    def get(self):
+        """Retrieve all routes of api."""
+        links = [{"href": "{}".format(request.base_url), "rel": "self"},
+                 {"href": "{}docs".format(request.base_url), "rel": "service"},
+                 {"href":  "{}classification_systems".format(request.base_url), "rel": "classification_systems"}, ]
+
+        return jsonify(links)
+
 
 @api.route('/classification_systems')
 class ClassificationSystemsResource(APIResource):
@@ -28,57 +46,109 @@ class ClassificationSystemsResource(APIResource):
 
         result = LucClassificationSystemsSchema(only=['name']).dump(retval, many=True)
 
-        return {"classification_systems": [item["name"] for item in result]}
+        links = [{"href": "{}/classification_systems".format(BASE_URL), "rel": "self"},
+                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
 
-@api.route('/<name>')
+        for cls_system in result:
+            links.append({"href": "{}/{}".format(request.base_url, cls_system["name"]), "rel": "child",
+                          "title": cls_system["name"]})
+
+        classification_systems = dict()
+
+        classification_systems["links"] = links
+
+        return jsonify(classification_systems)
+
+
+@api.route('/classification_systems/<system_id>')
 class ClassificationSystemResource(APIResource):
     """URL Handler for Classification Systems through REST API."""
 
-    def get(self, name):
-        """Retrives metadata of classification system by nam."""
+    def get(self, system_id):
+        """Retrives metadata of classification system by name."""
         try:
-            retval = LucClassificationSystem.get(name=name)
-
+            retval = LucClassificationSystem.get(name=system_id)
         except NoResultFound:
             raise NotFound('Classification system "{}" not found'.format(
-                name))
-
-        result_class = LucClassSchema().dump(LucClass.filter(class_system_id = retval.id), many=True)
+                system_id))
 
         cls_systm = LucClassificationSystemsSchema().dump(retval, many=False)
 
-        if result_class is None:
-            cls_systm.update({"classes": []})
+        links = [{"href": "{}".format(request.base_url), "rel": "self"},
+                 {"href": "{}/classification_systems/{}/classes".format(BASE_URL, system_id), "rel": "classes"},
+                 {"href": "{}/classification_systems".format(BASE_URL), "rel": "parent"},
+                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
 
-        else:
-            cls_systm.update({"classes": result_class})
+        cls_systm['links'] = links
 
         return cls_systm
 
 
+@api.route('/classification_systems/<system_id>/classes')
+class ClassesResource(APIResource):
+    """URL Handler for Classification Systems through REST API."""
 
-@api.route('/<name>/<class_name>')
-class CSClass(APIResource):
+    def get(self, system_id):
+        """Retrives metadata of classification system by nam."""
+        try:
+            class_sys = LucClassificationSystem.get(name=system_id)
+
+        except NoResultFound:
+            raise NotFound('Classification system "{}" not found'.format(system_id))
+
+        retclasses = LucClassSchema(only=['name']).dump(LucClass.filter(class_system_id=class_sys.id), many=True)
+
+        links = [{"href": "{}/classification_systems/{}/classes".format(BASE_URL, system_id), "rel": "self"},
+                 {"href": "{}/classification_systems/{}".format(BASE_URL, system_id), "rel": "parent"},
+                 {"href": "{}/classification_systems".format(BASE_URL), "rel": "classification_systems"},
+                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
+
+        for class_id in retclasses:
+            links.append({"href": "{}/{}".format(request.base_url, class_id["name"]), "rel": "child",
+                          "title": class_id["name"]})
+
+        classes = dict()
+
+        classes["links"] = links
+
+        return jsonify(classes)
+
+        return classes
+
+
+@api.route('/classification_systems/<system_id>/classes/<classe_id>')
+class ClasseResource(APIResource):
     """URL Handler for Land User Cover Classification System through REST API."""
 
-    def get(self, name, class_name):
+    def get(self, system_id, classe_id):
         """Retrieve all land user cover class."""
-        classification_system = LucClassificationSystem.get(name=name)
+        classification_system = LucClassificationSystem.get(name=system_id)
 
-        result_classes = LucClass.filter(class_system_id=classification_system.id, name=class_name)
+        try:
+            result_classe = LucClass.get(class_system_id=classification_system.id, name=classe_id)
+        except NoResultFound:
+            raise NotFound('Invalid Classification system Id "{}" for classe id{}'.format(system_id, classe_id))
 
-        parents = ParentClasses.filter(class_id=result_classes[0].id)
+        classe_info = LucClassSchema().dump(result_classe)
 
-        parents_id = list()
+        parents = ParentClasses.filter(class_id=result_classe.id)
 
-        for cls_id in parents:
-            parents_id.append(LucClassSchema().dump(LucClass.filter(id=cls_id.class_parent_id), many=True)[0])
+        parent = list()
 
-        classe_metainfo = LucClassSchema().dump(result_classes, many=True)[0]
+        for parent_id in parents:
 
-        if parents_id :
-            classe_metainfo.update({"parent": parents_id})
+            data = LucClass.get(id=parent_id.class_parent_id)
+            parent.append({"href": "{}/classification_systems/{}/classes/{}".format(BASE_URL, system_id, data.name),
+                           "rel": "child", "title": data.name})
 
-        return classe_metainfo
+        links = [{"href": "{}/classification_systems/{}/classes/{}".format(BASE_URL, system_id, classe_id),
+                  "rel": "self"},
+                 {"href": "{}/classification_systems/{}/classes".format(BASE_URL, system_id), "rel": "parent"},
+                 {"href": "{}/classification_systems/{}".format(BASE_URL, system_id), "rel": system_id},
+                 {"href": "{}/classification_systems".format(BASE_URL), "rel": "classification_systems"},
+                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
 
-        # return LucClassSchema().dump(result_classes, many=True)[0]
+        classe_info['link'] = links
+        classe_info['parent'] = parent
+
+        return classe_info

@@ -9,12 +9,13 @@
 
 import os
 
+from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
 from lccs_db.models import db
 
 from lccs_ws.blueprint import blueprint
-from lccs_ws.config import get_settings
+from lccs_ws.config import Config, get_settings
 
 from .version import __version__
 
@@ -31,6 +32,7 @@ def create_app(config_name):
     """
     internal_app = Flask(__name__)
 
+
     with internal_app.app_context():
         internal_app.config.from_object(config_name)
         internal_app.register_blueprint(blueprint)
@@ -40,6 +42,14 @@ def create_app(config_name):
     return internal_app
 
 app = create_app(get_settings(os.environ.get('ENVIRONMENT', 'DevelopmentConfig')))
+
+app.config['SWAGGER'] = {
+    "openapi": "3.0.0",
+    "title": "Land Cover Classification System Web Service",
+    "specs_route": "/lccs_ws/docs",
+}
+
+swagger = Swagger(app, template_file="spec/api/lccs_ws.yaml")
 
 CORS(app, resorces={r'/d/*': {"origins": '*'}})
 
