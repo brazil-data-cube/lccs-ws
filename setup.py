@@ -34,7 +34,7 @@ extras_require = {
     'tests': tests_require,
 }
 
-extras_require['all'] = [ req for exts, reqs in extras_require.items() for req in reqs ]
+extras_require['all'] = [req for exts, reqs in extras_require.items() for req in reqs]
 
 setup_requires = [
     'pytest-runner>=5.2',
@@ -46,10 +46,7 @@ install_requires = [
     'Flask-Script>=2.0.6',
     'Flask-Migrate>=2.5.2',
     'Flask-SQLAlchemy>=2.4.1',
-    'GeoAlchemy2>=0.6.2',
-    'psycopg2>=2.8.3',
     'requests>=2.9.1',
-    'shapely>=1.6',
     'SQLAlchemy==1.3.4',
     'marshmallow-sqlalchemy==0.18.0',
     'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777
