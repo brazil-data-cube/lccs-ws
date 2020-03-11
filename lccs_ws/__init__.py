@@ -12,15 +12,15 @@ import os
 from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
-from lccs_db.models import db
+from lccs_db.ext import LCCSDatabase
 
 from lccs_ws.blueprint import blueprint
-from lccs_ws.config import Config, get_settings
+from lccs_ws.config import get_settings
 
 from .version import __version__
 
 
-def create_app(config_name):
+def create_app(config_name='DevelopmentConfig'):
     """
     Create Brazil Data Cube LCCSWS application from config object.
 
@@ -30,27 +30,28 @@ def create_app(config_name):
     :returns: config instance scope.
     :rtype: Flask Application
     """
-    internal_app = Flask(__name__)
+    app = Flask(__name__)
 
+    conf = config.get_settings(config_name)
+    app.config.from_object(conf)
 
-    with internal_app.app_context():
-        internal_app.config.from_object(config_name)
-        internal_app.register_blueprint(blueprint)
+    app.config['SWAGGER'] = {
+        "openapi": "3.0.0",
+        "title": "Land Cover Classification System Web Service",
+        "specs_route": "/lccs_ws/docs",
+    }
 
-        db.init_model(internal_app.config.get('SQLALCHEMY_URI'))
+    with app.app_context():
 
-    return internal_app
+        CORS(app, resorces={r'/d/*': {"origins": '*'}})
 
-app = create_app(get_settings(os.environ.get('ENVIRONMENT', 'DevelopmentConfig')))
+        # Initialize Flask SQLAlchemy
+        LCCSDatabase(app)
 
-app.config['SWAGGER'] = {
-    "openapi": "3.0.0",
-    "title": "Land Cover Classification System Web Service",
-    "specs_route": "/lccs_ws/docs",
-}
+        app.register_blueprint(blueprint)
 
-swagger = Swagger(app, template_file="spec/api/lccs_ws.yaml")
+        Swagger(app, template_file="spec/api/lccs_ws.yaml")
 
-CORS(app, resorces={r'/d/*': {"origins": '*'}})
+    return app
 
-__all__ = ( '__version__', )
+__all__ = ('__version__', 'create_app')

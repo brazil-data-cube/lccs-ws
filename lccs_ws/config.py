@@ -24,10 +24,10 @@ class Config():
     TESTING = False
     CSRF_ENABLED = False
     WTF_CSRF_ENABLED = False
-    SQLALCHEMY_URI = os.environ.get('SQLALCHEMY_URI', 'postgresql://postgres:mysecretpassword@localhost:5442/sampledb')
     SECRET_KEY = "APi-Users-123456"
-    SERVER_HOST = "http://localhost"
-    PORT = "5000"
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_URI')
+    SERVER_HOST = os.environ.get('SERVER_HOST')
+    PORT = os.environ.get('PORT')
 
 
 class ProductionConfig(Config):

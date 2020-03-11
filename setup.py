@@ -51,7 +51,7 @@ install_requires = [
     'marshmallow-sqlalchemy==0.18.0',
     'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777
     'bdc-core @ git+git://github.com/brazil-data-cube/bdc-core.git#egg=bdc-core',
-    'lccs-db @ git+git://github.com/brazil-data-cube/lccs-db.git#egg=lccs-db',
+    'lccs-db @ git+git://github.com/fabianazioti/lccs-db.git@flask-alembic#egg=lccs-db',
 ]
 
 packages = find_packages()
@@ -76,6 +76,9 @@ setup(
     include_package_data=True,
     platforms='any',
     entry_points={
+        'console_scripts': [
+            'lccs_ws = lccs_ws.cli:cli'
+        ]
     },
     extras_require=extras_require,
     install_requires=install_requires,
