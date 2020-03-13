@@ -8,14 +8,16 @@
 """Controllers of Land Cover Classification System Web Service."""
 
 from bdc_core.utils.flask import APIResource
-from flask import jsonify, request
+from flask import jsonify, request, render_template, make_response, Response
 from flask_restplus import Namespace
-from lccs_db.models import LucClass, LucClassificationSystem, ParentClasses
+from lccs_db.models import LucClass, LucClassificationSystem, ParentClasses, ApplicationsStyle
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import BadRequest, NotFound
+from json import dumps
 
 from lccs_ws.forms import LucClassificationSystemsSchema, LucClassSchema
 
+from .data import get_application_style, get_mappings
 from .config import Config
 
 api = Namespace('lccs_ws', description='status')
@@ -31,9 +33,19 @@ class Index(APIResource):
         """Retrieve all routes of api."""
         links = [{"href": "{}".format(request.base_url), "rel": "self"},
                  {"href": "{}docs".format(request.base_url), "rel": "service"},
-                 {"href":  "{}classification_systems".format(request.base_url), "rel": "classification_systems"}, ]
+                 {"href": "{}classification_systems".format(request.base_url), "rel": "classification_systems"}, ]
 
         return jsonify(links)
+
+
+@api.route('/docs')
+class Docs(APIResource):
+    """URL Handler for Land User Cover Classification System through REST API."""
+
+    def get(self):
+        """Render docs page."""
+        headers = {'Content-Type': 'text/html'}
+        return make_response(render_template('docs.html'), 200, headers)
 
 
 @api.route('/classification_systems')
@@ -60,6 +72,19 @@ class ClassificationSystemsResource(APIResource):
         return jsonify(classification_systems)
 
 
+@api.route('/classification_systems/getfile/<file_id>')
+class StyleFileResource(APIResource):
+    """URL Handler for Classification Systems through REST API."""
+    def get(self, file_id):
+        """Retrives json file of application style by name."""
+
+        apl_style = ApplicationsStyle.get(name=file_id)
+
+        return Response(dumps(apl_style.file),
+                        mimetype="text/plain",
+                        headers={"Content-Disposition": "attachment;filename=application_style.json"})
+
+
 @api.route('/classification_systems/<system_id>')
 class ClassificationSystemResource(APIResource):
     """URL Handler for Classification Systems through REST API."""
@@ -81,6 +106,14 @@ class ClassificationSystemResource(APIResource):
 
         cls_systm['links'] = links
 
+        style = get_application_style(retval.id)
+        all_style = list()
+
+        for stl in style:
+            all_style.append({"href": "{}/classification_systems/getfile/{}".format(BASE_URL, stl.name),
+                              "rel": "child", "title": stl.name})
+
+        cls_systm['style'] = all_style
         return cls_systm
 
 
@@ -136,7 +169,6 @@ class ClasseResource(APIResource):
         parent = list()
 
         for parent_id in parents:
-
             data = LucClass.get(id=parent_id.class_parent_id)
             parent.append({"href": "{}/classification_systems/{}/classes/{}".format(BASE_URL, system_id, data.name),
                            "rel": "child", "title": data.name})
@@ -152,3 +184,53 @@ class ClasseResource(APIResource):
         classe_info['parent'] = parent
 
         return classe_info
+
+
+@api.route('/mappings/<system_id_source>/<system_id_target>')
+class MappingResource(APIResource):
+    """URL Handler for Land User Cover Classification System through REST API."""
+
+    def get(self, system_id_source, system_id_target):
+        """Retrieve all land user cover classes mappings."""
+
+        try:
+            system_source = LucClassificationSystem.get(name=system_id_source)
+        except NoResultFound:
+            raise NotFound('Classification system Source"{}" not found'.format(
+                system_id_source))
+        try:
+            system_target = LucClassificationSystem.get(name=system_id_target)
+        except NoResultFound:
+            raise NotFound('Classification system Source"{}" not found'.format(
+                system_id_target))
+
+        result = list()
+
+        classes_source = LucClass.filter(class_system_id=system_source.id)
+        classes_target = LucClass.filter(class_system_id=system_target.id)
+
+        mappings = get_mappings(classes_source, classes_target)
+
+        for mapping in mappings:
+
+            source_class_name = LucClass.get(id=mapping.source_class_id).name
+            target_class_name = LucClass.get(id=mapping.target_class_id).name
+
+            result.append({'description': mapping.description,
+                           'degree_of_similarity': mapping.degree_of_similarity,
+                           'links': [
+                               {"href": "{}/classification_systems/{}/"
+                                        "classes/{}".format(BASE_URL, system_id_source,
+                                                            source_class_name),
+                                "rel": "source_class",
+                                "title": source_class_name},
+                               {"href": "{}/classification_systems/{}/"
+                                "classes/{}".format(BASE_URL,
+                                                    system_id_target,
+                                                    target_class_name),
+                                "rel": "target_class",
+                                "title": target_class_name},
+                               {"href": "{}/".format(BASE_URL), "rel": "root"}]
+                           })
+
+        return result

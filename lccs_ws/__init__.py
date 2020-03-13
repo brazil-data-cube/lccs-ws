@@ -50,8 +50,6 @@ def create_app(config_name='DevelopmentConfig'):
 
         app.register_blueprint(blueprint)
 
-        Swagger(app, template_file="spec/api/lccs_ws.yaml")
-
     return app
 
 __all__ = ('__version__', 'create_app')

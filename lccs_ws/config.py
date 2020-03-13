@@ -17,7 +17,7 @@ def get_settings(env):
     return CONFIG.get(env)
 
 
-class Config():
+class Config:
     """Base configuration with default flags."""
 
     DEBUG = False
