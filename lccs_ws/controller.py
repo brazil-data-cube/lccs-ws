@@ -6,19 +6,20 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Controllers of Land Cover Classification System Web Service."""
+from json import dumps
 
 from bdc_core.utils.flask import APIResource
-from flask import jsonify, request, render_template, make_response, Response
+from flask import Response, jsonify, request
 from flask_restplus import Namespace
-from lccs_db.models import LucClass, LucClassificationSystem, ParentClasses, ApplicationsStyle
+from lccs_db.models import (ApplicationsStyle, LucClass,
+                            LucClassificationSystem, ParentClasses)
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import BadRequest, NotFound
-from json import dumps
 
 from lccs_ws.forms import LucClassificationSystemsSchema, LucClassSchema
 
-from .data import get_application_style, get_mappings
 from .config import Config
+from .data import get_application_style, get_mappings
 
 api = Namespace('lccs_ws', description='status')
 
@@ -36,16 +37,6 @@ class Index(APIResource):
                  {"href": "{}classification_systems".format(request.base_url), "rel": "classification_systems"}, ]
 
         return jsonify(links)
-
-
-@api.route('/docs')
-class Docs(APIResource):
-    """URL Handler for Land User Cover Classification System through REST API."""
-
-    def get(self):
-        """Render docs page."""
-        headers = {'Content-Type': 'text/html'}
-        return make_response(render_template('docs.html'), 200, headers)
 
 
 @api.route('/classification_systems')
@@ -75,9 +66,9 @@ class ClassificationSystemsResource(APIResource):
 @api.route('/classification_systems/getfile/<file_id>')
 class StyleFileResource(APIResource):
     """URL Handler for Classification Systems through REST API."""
+
     def get(self, file_id):
         """Retrives json file of application style by name."""
-
         apl_style = ApplicationsStyle.get(name=file_id)
 
         return Response(dumps(apl_style.file),
@@ -192,7 +183,6 @@ class MappingResource(APIResource):
 
     def get(self, system_id_source, system_id_target):
         """Retrieve all land user cover classes mappings."""
-
         try:
             system_source = LucClassificationSystem.get(name=system_id_source)
         except NoResultFound:

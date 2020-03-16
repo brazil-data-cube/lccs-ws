@@ -7,13 +7,13 @@
 #
 """Data module of Land Cover Classification System Web Service."""
 
-from lccs_db.models import ApplicationsStyle, ClassMapping, db, Style
+from lccs_db.models import ClassMapping, Style, db
 
 session = db.session
 
 
 def get_mappings(classes_source, classes_target):
-
+    """Filter all mapping."""
     if classes_source is not None:
         where = [ClassMapping.source_class_id.in_([value.id for value in classes_source])]
     if classes_target is not None:
@@ -23,7 +23,7 @@ def get_mappings(classes_source, classes_target):
 
 
 def get_application_style(sytem_id):
-
+    """Get Application Style given a system_id."""
     result = list()
     style = Style.filter(class_system_id=sytem_id)
 

@@ -7,11 +7,9 @@
 #
 """Python Land Cover Classification System Web Service."""
 
-import os
-
-from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
+from flask_redoc import Redoc
 from lccs_db.ext import LCCSDatabase
 
 from lccs_ws.blueprint import blueprint
@@ -35,11 +33,10 @@ def create_app(config_name='DevelopmentConfig'):
     conf = config.get_settings(config_name)
     app.config.from_object(conf)
 
-    app.config['SWAGGER'] = {
-        "openapi": "3.0.0",
-        "title": "Land Cover Classification System Web Service",
-        "specs_route": "/lccs_ws/docs",
-    }
+    app.config['REDOC'] = {'spec_route': '/lccs_ws/docs',
+                           'title': 'LCCS-WS'}
+
+    Redoc('spec/api/lccs_ws.yaml', app)
 
     with app.app_context():
 

@@ -14,6 +14,7 @@ from . import create_app
 
 def create_cli(create_app=None):
     """Define a Wrapper creation of Flask App in order to attach into flask click.
+
     Args:
          create_app (function) - Create app factory (Flask)
     """
