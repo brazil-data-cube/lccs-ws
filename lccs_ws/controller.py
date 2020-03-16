@@ -171,7 +171,7 @@ class ClasseResource(APIResource):
                  {"href": "{}/classification_systems".format(BASE_URL), "rel": "classification_systems"},
                  {"href": "{}/".format(BASE_URL), "rel": "root"}]
 
-        classe_info['link'] = links
+        classe_info['links'] = links
         classe_info['parent'] = parent
 
         return classe_info
