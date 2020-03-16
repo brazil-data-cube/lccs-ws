@@ -12,10 +12,12 @@ include *.txt
 include *.py
 include LICENSE
 include pytest.ini
-recursive-include spec *.json
 recursive-include tests *.py
 recursive-include spec *.rst
-recursive-include spec *.yaml
+recursive-include lccs_ws/spec
+recursive-include lccs_ws/spec/api
+recursive-include lccs_ws/spec/api/lccs_ws.yaml
+recursive-include lccs_ws *.yaml
 recursive-include lccs_ws *.json
 recursive-include lccs_ws *.py
 recursive-include lccs_ws *.bat
