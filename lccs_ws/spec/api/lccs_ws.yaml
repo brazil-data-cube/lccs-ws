@@ -27,7 +27,7 @@ paths:
     get:
       tags:
         - Classification Systems
-      summary: List Classification System.
+      summary: List of Classification System.
       description: Retrieve list of available classification systems.
       operationId: getClassificationSystems
       responses:
@@ -36,14 +36,14 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  '/classification_systems/{systemId}':
+  '/classification_systems/{system_id}':
     parameters:
-       - $ref: '#/components/parameters/systemId'
+       - $ref: '#/components/parameters/system_id'
     get:
       tags:
         - Classification Systems
       summary: >
-        Describe the classification system with id `systemId`
+        Describe the classification system with id `system_id`
       description: Returns information of classification system by Id.
       operationId: describeClassificationSystem
       responses:
@@ -54,19 +54,17 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  '/classification_systems/{systemId}/classes':
+  '/classification_systems/{system_id}/classes':
     get:
       tags:
         - Classes
       summary: fetch classes
       description: >
-        Fetch classes of the classification with id `systemId`.
+        Fetch classes of the classification with id `system_id`.
       operationId: getClasses
       parameters:
-        - $ref: '#/components/parameters/systemId'
+        - $ref: '#/components/parameters/system_id'
       responses:
-        '400':
-          $ref: '#/components/responses/InvalidParameter'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -74,18 +72,18 @@ paths:
         '200':
           $ref: '#/components/responses/Classes'
 
-  '/classification_systems/{systemId}/classes/{classeId}':
+  '/classification_systems/{system_id}/classes/{classe_id}':
     get:
       tags:
         - Classes
       summary: fetch a single classe
       description: >
-          Fetch the classe with id `classeId` in the classification system
-          with id `systemId`.
+          Fetch the classe with id `classe_id` in the classification system
+          with id `system_id`.
       operationId: getClasse
       parameters:
-          - $ref: '#/components/parameters/systemId'
-          - $ref: '#/components/parameters/classeId'
+          - $ref: '#/components/parameters/system_id'
+          - $ref: '#/components/parameters/classe_id'
       responses:
         '404':
           $ref: '#/components/responses/NotFound'
@@ -94,16 +92,16 @@ paths:
         '200':
           $ref: '#/components/responses/Classe'
 
-  '/mappings/{systemIdSource}/{systemIdTarget}':
+  '/mappings/{system_id_source}/{system_id_target}':
     get:
       tags:
-        - Classification Systems
+        - Mappings
       summary: Retrives classification systems mappings
       description: Mapping of classification systems.
       operationId: getMapping
       parameters:
-        - $ref: '#/components/parameters/systemIdSource'
-        - $ref: '#/components/parameters/systemIdTarget'
+        - $ref: '#/components/parameters/system_id_source'
+        - $ref: '#/components/parameters/system_id_target'
       responses:
         '404':
           $ref: '#/components/responses/NotFound'
@@ -120,32 +118,32 @@ components:
 
   parameters:
 
-    systemId:
-      name: systemId
+    system_id:
+      name: system_id
       in: path
       description: Identifier (name) of a classification system
       required: true
       schema:
         type: string
 
-    classeId:
-      name: classeId
+    classe_id:
+      name: classe_id
       in: path
       description: Identifier (name) of a class
       required: true
       schema:
         type: string
 
-    systemIdSource:
-      name: systemIdSource
+    system_id_source:
+      name: system_id_source
       in: path
       description: Identifier (name) of a source classification system
       required: true
       schema:
         type: string
 
-    systemIdTarget:
-      name: systemIdTarget
+    system_id_target:
+      name: system_id_target
       in: path
       description: Identifier (name) of a target classification system
       required: true
@@ -176,6 +174,14 @@ components:
           type: string
         version:
           type: string
+        styles:
+          type: array
+          items:
+            $ref: "#/components/schemas/link"
+          example:
+            - href: http://data.example.com/buildings
+              rel: item
+              title: Qgis
         links:
           type: array
           items:
@@ -189,27 +195,17 @@ components:
       type: object
       required:
         - links
-        - classification_system
       properties:
         links:
           type: array
           items:
             $ref: "#/components/schemas/link"
-        collections:
-          type: array
-          items:
-            $ref: "#/components/schemas/classification_system"
-
 
     classes:
       type: object
       required:
-        - classes
+        - links
       properties:
-        classe:
-          type: array
-          items:
-            $ref: "#/components/schemas/classe"
         links:
           type: array
           items:
@@ -228,8 +224,6 @@ components:
         code:
           type: string
         description:
-          type: string
-        style:
           type: string
         parent:
           type: object
@@ -280,9 +274,6 @@ components:
         rel:
           type: string
           example: child
-        type:
-          type: string
-          example: application/json
         title:
           type: string
           example: Child
@@ -312,7 +303,7 @@ components:
 
     ClassificationSystem:
       description: >
-        Information about classification system id `systemId`.
+        Information about classification system id `system_id`.
       content:
         application/json:
           schema:
@@ -328,8 +319,8 @@ components:
 
     Classe:
       description: >
-        fetch the classe with id `classeId` in the classification system
-        with id `systemId`
+        fetch the classe with id `classe_id` in the classification system
+        with id `system_id`
       content:
         application/json:
           schema:
