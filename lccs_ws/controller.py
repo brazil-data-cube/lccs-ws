@@ -9,10 +9,10 @@
 from json import dumps
 
 from bdc_core.utils.flask import APIResource
-from flask import Response, jsonify, request
+from flask import Response, abort, jsonify, request
 from flask_restplus import Namespace
 from lccs_db.models import (ApplicationsStyle, LucClass,
-                            LucClassificationSystem, ParentClasses)
+                            LucClassificationSystem, ParentClasses, db)
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import BadRequest, NotFound
 
@@ -62,6 +62,25 @@ class ClassificationSystemsResource(APIResource):
 
         return jsonify(classification_systems)
 
+    def post(self):
+        """Create new Classification system."""
+        if request.is_json:
+
+            data = request.get_json()
+
+            # Create form attached to the Model
+            form = LucClassificationSystemsSchema(session=db.session)
+
+            # Loads the form data into form (performs validation)
+            luc_classification_system = form.load(data)
+
+            # Once everything ok, just save
+            luc_classification_system.save()
+
+            return form.dump(luc_classification_system), 201
+        else:
+            abort(400, "POST Request must be an current_application/json")
+
 
 @api.route('/classification_systems/getfile/<file_id>')
 class StyleFileResource(APIResource):
@@ -105,6 +124,7 @@ class ClassificationSystemResource(APIResource):
                               "rel": "child", "title": stl.name})
 
         cls_systm['style'] = all_style
+
         return cls_systm
 
 
@@ -137,7 +157,45 @@ class ClassesResource(APIResource):
 
         return jsonify(classes)
 
-        return classes
+    def post(self, system_id):
+        """Create new Class."""
+        if request.is_json:
+
+            try:
+                luc_class_system = LucClassificationSystem.get(name=system_id)
+
+            except NoResultFound:
+                raise NotFound('Classification system "{}" not found'.format(system_id))
+
+            request_json = request.get_json()
+
+            name = request_json.get('name')
+            code = request_json.get('code')
+            description = request_json.get('description')
+
+            luc_class = LucClass(name=name, description=description, code=code,
+                                 class_system_id = luc_class_system.id)
+
+            luc_class.save()
+
+            class_form = LucClassSchema()
+
+            parent = request_json.get('parent', None)
+
+            if parent is not None:
+                try:
+                    parent_id = LucClass.get(class_system_id=luc_class_system.id, name=parent)
+                except NoResultFound:
+                    raise NotFound('Class Parent "{}" not found'.format(parent))
+
+                parents = ParentClasses(class_id=luc_class.id, class_parent_id=parent_id.id)
+
+                parents.save()
+
+            return class_form.dump(luc_class), 201
+
+        else:
+            abort(400, "POST Request must be an current_application/json")
 
 
 @api.route('/classification_systems/<system_id>/classes/<classe_id>')

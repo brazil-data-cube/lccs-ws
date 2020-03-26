@@ -28,7 +28,8 @@ class LucClassSchema(ModelSchema):
         """Generate marshmallow Schemas from model."""
 
         model = LucClass
-        exclude = ('created_at', 'updated_at',)
+        include_fk = True
+        exclude = ('created_at', 'updated_at', 'classification_system')
 
 
 class ClassMappingSchema(ModelSchema):
@@ -38,4 +39,5 @@ class ClassMappingSchema(ModelSchema):
         """Generate marshmallow Schemas from model."""
 
         model = ClassMapping
+        include_fk = True
         exclude = ('created_at', 'updated_at',)

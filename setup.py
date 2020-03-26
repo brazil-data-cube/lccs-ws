@@ -48,6 +48,7 @@ install_requires = [
     'Flask-SQLAlchemy>=2.4.1',
     'requests>=2.9.1',
     'SQLAlchemy==1.3.4',
+    'psycopg2>=2.8.3',
     'flask-redoc>=0.1.0',
     'marshmallow-sqlalchemy==0.18.0',
     'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777
