@@ -12,6 +12,7 @@ include *.txt
 include *.py
 include LICENSE
 include pytest.ini
+recursive-include spec *.json
 recursive-include tests *.py
 recursive-include spec *.rst
 recursive-include lccs_ws/spec

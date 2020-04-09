@@ -12,8 +12,6 @@ pytest==4.6.3
 pytest-cov==2.7.1
 Sphinx==2.1.2
 requests==2.22.0
-Werkzeug>=0.16.1,<1
-marshmallow-sqlalchemy==0.18.0
 git+https://github.com/brazil-data-cube/bdc-readthedocs-theme@master
 git+https://github.com/brazil-data-cube/bdc-core@master
 git+https://github.com/brazil-data-cube/lccs-db@master

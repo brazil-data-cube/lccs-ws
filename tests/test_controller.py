@@ -7,3 +7,7 @@
 #
 
 """Unit-test for lccs_wc model."""
+
+
+def test_query():
+    pass
