@@ -46,12 +46,11 @@ install_requires = [
     'Flask-Script>=2.0.6',
     'Flask-Migrate>=2.5.2',
     'Flask-SQLAlchemy>=2.4.1',
-    'GeoAlchemy2>=0.6.2',
     'psycopg2>=2.8.3',
     'requests>=2.9.1',
-    'shapely>=1.6',
     'SQLAlchemy==1.3.4',
     'bdc-core @ git+git://github.com/brazil-data-cube/bdc-core.git#egg=bdc-core',
+    'lccs-db @ git+git://github.com/brazil-data-cube/lccs-db.git#egg=lccs-db',
 ]
 
 packages = find_packages()
