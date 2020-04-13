@@ -80,6 +80,9 @@ setup(
     include_package_data=True,
     platforms='any',
     entry_points={
+        'console_scripts': [
+            'lccs_ws = lccs_ws.cli:cli'
+        ]
     },
     extras_require=extras_require,
     install_requires=install_requires,
