@@ -7,19 +7,17 @@
 #
 """Python Land Cover Classification System Web Service."""
 
-import os
-
 from flask import Flask
 from flask_cors import CORS
+from lccs_db.ext import LCCSDatabase
 
 from lccs_ws.blueprint import blueprint
 from lccs_ws.config import get_settings
-from lccs_ws.models import db
 
 from .version import __version__
 
 
-def create_app(config_name):
+def create_app(config_name='DevelopmentConfig'):
     """
     Create Brazil Data Cube LCCSWS application from config object.
 
@@ -29,18 +27,20 @@ def create_app(config_name):
     :returns: config instance scope.
     :rtype: Flask Application
     """
-    internal_app = Flask(__name__)
+    app = Flask(__name__)
 
-    with internal_app.app_context():
-        internal_app.config.from_object(config_name)
-        internal_app.register_blueprint(blueprint)
+    conf = config.get_settings(config_name)
+    app.config.from_object(conf)
 
-        db.init_model(internal_app.config.get('SQLALCHEMY_URI'))
+    with app.app_context():
 
-    return internal_app
+        CORS(app, resorces={r'/d/*': {"origins": '*'}})
 
-app = create_app(get_settings(os.environ.get('ENVIRONMENT', 'DevelopmentConfig')))
+        # Initialize Flask SQLAlchemy
+        LCCSDatabase(app)
 
-CORS(app, resorces={r'/d/*': {"origins": '*'}})
+        app.register_blueprint(blueprint)
 
-__all__ = ( '__version__', )
+    return app
+
+__all__ = ('__version__', 'create_app')
