@@ -8,11 +8,12 @@
 """Controllers of Land Cover Classification System Web Service."""
 
 from bdc_core.utils.flask import APIResource
-from flask import Response, abort, jsonify, request
+from flask import abort, jsonify, request
 from flask_restplus import Namespace
-from lccs_db.models import LucClass, LucClassificationSystem, db
+from lccs_db.models import (LucClass, LucClassificationSystem, StyleFormats,
+                            Styles)
 from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import NotFound
 
 from lccs_ws.forms import ClassesSchema, ClassificationSystemSchema
 
@@ -293,3 +294,27 @@ class MappingResource(APIResource):
                            })
 
         return result
+
+@api.route('/classification_systems/<system_id>/styles')
+class StyleFileResource(APIResource):
+    """URL Handler for Classification Systems through REST API."""
+
+    def get(self, system_id):
+        """Retrives json file of application style by name."""
+        try:
+            system = LucClassificationSystem.get(name=system_id)
+        except NoResultFound:
+            return abort(500, "Classification system Source {} not found".format(system_id))
+
+        styles = Styles.get(class_system_id=system.id)
+
+        links = list()
+        for style in styles:
+
+            links.append({"href": "{}/classification_systems/{}/styles/{}".format(BASE_URL, system_id,
+                                                                                  StyleFormats.get(
+                                                                                      id=styles.style_format_id).name
+                                                                                  ),
+                  "rel": "self"})
+
+        return links
