@@ -12,7 +12,7 @@ from flask_restplus import Api
 
 from lccs_ws.controller import api as lccs_ns
 
-blueprint = Blueprint('lccs_ws', __name__)
+blueprint = Blueprint('lccs', __name__)
 
 api = Api(blueprint, doc='')
 

@@ -19,9 +19,9 @@ from lccs_ws.forms import ClassesSchema, ClassificationSystemSchema
 from .config import Config
 from .data import get_mappings
 
-api = Namespace('lccs_ws', description='status')
+api = Namespace('lccs', description='status')
 
-BASE_URL = Config.BASE_URL + "/lccs_ws"
+BASE_URL = Config.BASE_URL + "/lccs"
 
 @api.route('/')
 class Index(APIResource):
@@ -75,7 +75,7 @@ class ClassificationSystemResource(APIResource):
 
             class_system.save()
 
-            return ClassificationSystemSchema().dump(class_system), 201
+            return ClassificationSystemSchema(exclude=['id']).dump(class_system), 201
         else:
             abort(400, "POST Request must be an current_application/json")
 
@@ -152,7 +152,7 @@ class ClassesResource(APIResource):
             name = request_json.get('name')
             code = request_json.get('code')
             description = request_json.get('description')
-            parent = request_json.get('parent', None)
+            parent = request_json.get('parent_name', None)
 
             if parent is not None:
                 try:
@@ -165,7 +165,11 @@ class ClassesResource(APIResource):
                                          class_parent_id=parent_class.id)
                     classes.save()
 
-                    return ClassesSchema().dump(classes), 201
+                    schema = ClassesSchema(exclude=['id', 'class_system_id', 'class_parent_id']).dump(classes)
+
+                    schema['parent_name'] = parent_class.name
+
+                    return schema, 201
 
                 except NoResultFound:
                     abort(404 , "Class Parent Not Found")
@@ -175,7 +179,11 @@ class ClassesResource(APIResource):
                                    code=code, class_system_id=luc_class_system.id)
                 classes.save()
 
-                return ClassesSchema().dump(classes), 201
+                schema = ClassesSchema(exclude=['id', 'class_system_id', 'class_parent_id']).dump(classes)
+
+                schema['parent_name'] = None
+
+                return schema, 201
 
 
         else:
@@ -186,7 +194,7 @@ class ClasseResource(APIResource):
     """URL Handler for Land User Cover Classification System through REST API."""
 
     def get(self, system_id, classe_id):
-        """Retrieve all land user cover class."""
+        """Retrieve land user cover class."""
         classification_system = LucClassificationSystem.get(name=system_id)
 
         try:
@@ -194,14 +202,15 @@ class ClasseResource(APIResource):
         except NoResultFound:
             raise NotFound('Invalid Classification system Id "{}" for classe id{}'.format(system_id, classe_id))
 
-        classe_info = ClassesSchema().dump(result_classe)
+        classe_info = ClassesSchema(exclude=['class_system_id', 'class_parent_id']).dump(result_classe)
 
         parent = LucClass.get(id=result_classe.id)
 
         if (parent):
-            classe_info['parent'] = {"href": "{}/classification_systems/{}/classes/{}".format(BASE_URL, system_id,
-                                                                                              parent.name),
-                                     "rel": "child", "title": "Parent Class"}
+            classe_info['parent'] = ClassesSchema(exclude=['class_system_id', 'class_parent_id']).dump(parent)
+        else:
+            classe_info['parent'] = None
+
 
         links = [{"href": "{}/classification_systems/{}/classes/{}".format(BASE_URL, system_id, classe_id),
                   "rel": "self"},
@@ -213,6 +222,31 @@ class ClasseResource(APIResource):
         classe_info['links'] = links
 
         return classe_info
+
+@api.route('/mappings/<system_id_source>/')
+class MappingResource(APIResource):
+    """URL Handler for Land User Cover Classification System through REST API."""
+
+    def get(self, system_id_source):
+        """Retrieve all mappings."""
+        try:
+            system_source = LucClassificationSystem.get(name=system_id_source)
+        except NoResultFound:
+            return abort(500, "Classification system Source {} not found".format(system_id_source))
+
+        result = list()
+
+        classes_source = LucClass.filter(class_system_id=system_source.id)
+
+        mappings = get_mappings(classes_source, None)
+
+        for mapping in mappings:
+            target_class_name = LucClass.get(id=mapping.target_class_id)
+            system = LucClassificationSystem.get(id=target_class_name.class_system_id)
+
+            result.append({"href": "{}/classification_systems/{}".format(BASE_URL, system.name),
+                      "rel": system.name})
+        return result
 
 @api.route('/mappings/<system_id_source>/<system_id_target>')
 class MappingResource(APIResource):
