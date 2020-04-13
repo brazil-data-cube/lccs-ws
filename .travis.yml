@@ -11,6 +11,10 @@ dist: bionic
 python:
     - "3.7"
 
+env:
+  matrix:
+  - BASE_URL="http://localhost:5000"
+
 before_install:
     - pip install --upgrade pip
     - pip install --upgrade setuptools
