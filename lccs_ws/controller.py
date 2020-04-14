@@ -6,15 +6,15 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Controllers of Land Cover Classification System Web Service."""
+from json import dumps
 
 from bdc_core.utils.flask import APIResource
-from flask import abort, jsonify, request, render_template, make_response, Response
+from flask import Response, abort, jsonify, request
 from flask_restplus import Namespace
 from lccs_db.models import (LucClass, LucClassificationSystem, StyleFormats,
                             Styles)
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import NotFound
-from json import dumps
 
 from lccs_ws.forms import ClassesSchema, ClassificationSystemSchema
 
