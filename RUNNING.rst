@@ -21,13 +21,13 @@ In the source code folder, enter the following command:
 
     FLASK_ENV="development" \
     SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname" \
-    BASE_URI="http://localhost:5000" \
+    LCCS_URL="http://localhost:5000" \
     flask run
 
 You may need to replace the definition of some environment variables:
 
     - ``FLASK_ENV="development``: used to tell Flask to run in `Debug` mode.
-    - ``BASE_URI="http://localhost:5000"``: Base URI of the service.
+    - ``LCCS_URL="http://localhost:5000"``: Base URI of the service.
     - ``SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used.
 
 The above command should output some messages in the console as showed below:

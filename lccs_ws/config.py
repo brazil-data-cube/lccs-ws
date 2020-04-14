@@ -26,7 +26,7 @@ class Config():
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "APi-Users-123456"
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_URI')
-    BASE_URL = os.environ.get('BASE_URL')
+    LCCS_URL = os.getenv('LCCS_URL', 'http://localhost:5000')
 
 class ProductionConfig(Config):
     """Production Mode."""

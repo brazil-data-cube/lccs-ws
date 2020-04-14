@@ -22,7 +22,6 @@ from .data import get_mappings
 
 api = Namespace('lccs', description='status')
 
-BASE_URL = Config.BASE_URL + "/lccs"
 
 @api.route('/')
 class Index(APIResource):
@@ -47,8 +46,8 @@ class ClassificationSystemsResource(APIResource):
 
             systems_result = ClassificationSystemSchema(only=['name']).dump(retval, many=True)
 
-            links = [{"href": "{}/classification_systems".format(BASE_URL), "rel": "self"},
-                     {"href": "{}/".format(BASE_URL), "rel": "root"}]
+            links = [{"href": "{}/lccs/classification_systems".format(Config.LCCS_URL), "rel": "self"},
+                     {"href": "{}/lccs/".format(Config.LCCS_URL), "rel": "root"}]
 
             for systems in systems_result:
                 links.append({"href": "{}/{}".format(request.base_url, systems["name"]), "rel": "child",
@@ -99,15 +98,15 @@ class ClassificationSystemResource(APIResource):
         systems = ClassificationSystemSchema().dump(retval, many=False)
 
         links = [{"href": "{}".format(request.base_url), "rel": "self"},
-                 {"href": "{}/classification_systems/{}/classes".format(BASE_URL, system_id), "rel": "classes"},
-                 {"href": "{}/classification_systems".format(BASE_URL), "rel": "parent"},
-                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
+                 {"href": "{}/lccs/classification_systems/{}/classes".format(Config.LCCS_URL, system_id), "rel": "classes"},
+                 {"href": "{}/lccs/classification_systems".format(Config.LCCS_URL), "rel": "parent"},
+                 {"href": "{}/lccs/".format(Config.LCCS_URL), "rel": "root"}]
 
         systems['links'] = links
 
         all_style = list()
 
-        all_style.append({"href": "{}/classification_systems/{}/styles/".format(BASE_URL, system_id),
+        all_style.append({"href": "{}/lccs/classification_systems/{}/styles/".format(Config.LCCS_URL, system_id),
                               "rel": "child", "title": "Styles"})
 
         systems['styles'] = all_style
@@ -128,10 +127,10 @@ class ClassesResource(APIResource):
 
         retval = ClassesSchema(only=['name']).dump(LucClass.filter(class_system_id=class_sys.id), many=True)
 
-        links = [{"href": "{}/classification_systems/{}/classes".format(BASE_URL, system_id), "rel": "self"},
-                 {"href": "{}/classification_systems/{}".format(BASE_URL, system_id), "rel": "parent"},
-                 {"href": "{}/classification_systems".format(BASE_URL), "rel": "classification_systems"},
-                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
+        links = [{"href": "{}/lccs/classification_systems/{}/classes".format(Config.LCCS_URL, system_id), "rel": "self"},
+                 {"href": "{}/lccs/classification_systems/{}".format(Config.LCCS_URL, system_id), "rel": "parent"},
+                 {"href": "{}/lccs/classification_systems".format(Config.LCCS_URL), "rel": "classification_systems"},
+                 {"href": "{}/lccs/".format(Config.LCCS_URL), "rel": "root"}]
 
         for class_result in retval:
             links.append({"href": "{}/{}".format(request.base_url, class_result["name"]), "rel": "child",
@@ -217,12 +216,12 @@ class ClassResource(APIResource):
             classe_info['parent'] = None
 
 
-        links = [{"href": "{}/classification_systems/{}/classes/{}".format(BASE_URL, system_id, classe_id),
+        links = [{"href": "{}/lccs/classification_systems/{}/classes/{}".format(Config.LCCS_URL, system_id, classe_id),
                   "rel": "self"},
-                 {"href": "{}/classification_systems/{}/classes".format(BASE_URL, system_id), "rel": "parent"},
-                 {"href": "{}/classification_systems/{}".format(BASE_URL, system_id), "rel": system_id},
-                 {"href": "{}/classification_systems".format(BASE_URL), "rel": "classification_systems"},
-                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
+                 {"href": "{}/lccs/classification_systems/{}/classes".format(Config.LCCS_URL, system_id), "rel": "parent"},
+                 {"href": "{}/lccs/classification_systems/{}".format(Config.LCCS_URL, system_id), "rel": system_id},
+                 {"href": "{}/lccs/classification_systems".format(Config.LCCS_URL), "rel": "classification_systems"},
+                 {"href": "{}/lccs/".format(Config.LCCS_URL), "rel": "root"}]
 
         classe_info['links'] = links
 
@@ -249,7 +248,7 @@ class AllMappingResource(APIResource):
             target_class_name = LucClass.get(id=mapping.target_class_id)
             system = LucClassificationSystem.get(id=target_class_name.class_system_id)
 
-            result.append({"href": "{}/classification_systems/{}".format(BASE_URL, system.name),
+            result.append({"href": "{}/lccs/classification_systems/{}".format(Config.LCCS_URL, system.name),
                       "rel": system.name})
         return result
 
@@ -283,18 +282,18 @@ class MappingResource(APIResource):
             result.append({'description': mapping.description,
                            'degree_of_similarity': mapping.degree_of_similarity,
                            'links': [
-                               {"href": "{}/classification_systems/{}/"
-                                        "classes/{}".format(BASE_URL, system_id_source,
+                               {"href": "{}/lccs/classification_systems/{}/"
+                                        "classes/{}".format(Config.LCCS_URL, system_id_source,
                                                             source_class_name),
                                 "rel": "source_class",
                                 "title": source_class_name},
-                               {"href": "{}/classification_systems/{}/"
-                                "classes/{}".format(BASE_URL,
+                               {"href": "{}/lccs/classification_systems/{}/"
+                                "classes/{}".format(Config.LCCS_URL,
                                                     system_id_target,
                                                     target_class_name),
                                 "rel": "target_class",
                                 "title": target_class_name},
-                               {"href": "{}/".format(BASE_URL), "rel": "root"}]
+                               {"href": "{}/lccs/".format(Config.LCCS_URL), "rel": "root"}]
                            })
 
         return result
@@ -315,7 +314,7 @@ class StyleFileResource(APIResource):
         links = list()
         for style in styles:
 
-            links.append({"href": "{}/classification_systems/{}/styles/{}".format(BASE_URL, system_id,
+            links.append({"href": "{}/lccs/classification_systems/{}/styles/{}".format(Config.LCCS_URL, system_id,
                                                                                   StyleFormats.get(
                                                                                       id=style.style_format_id).name
                                                                                   ),
