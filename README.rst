@@ -25,6 +25,10 @@ Land Cover Classification System Web Service
 .. image:: https://img.shields.io/badge/lifecycle-experimental-orange.svg
         :target: https://www.tidyverse.org/lifecycle/#experimental
 
+.. image:: https://badges.gitter.im/brazil-data-cube/community.svg
+        :target: https://gitter.im/brazil-data-cube/community#
+        :alt: Join the chat
+
 This is the server application.
 
 About
@@ -41,8 +45,13 @@ Free and Open Source implementations based on this service can be found in the `
 Installation
 ============
 
-**Under Development!**
+See `INSTALL.rst <./INSTALL.rst>`_.
 
+
+Running
+=======
+
+See `RUNNING.rst <./RUNNING.rst>`_.
 
 Developer Documentation
 =======================
