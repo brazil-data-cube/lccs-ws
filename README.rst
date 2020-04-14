@@ -42,6 +42,14 @@ In this context, the **LCCS-WS** (**L**\ and **C**\ over **C**\ lassification **
 
 Free and Open Source implementations based on this service can be found in the `lccs-ws <https://github.com/brazil-data-cube/lccs-ws>`_ (server) and `lccs.py <https://github.com/brazil-data-cube/lccs.py>`_ (Python client). See also the service **W**\eb **L**\and **T**\rajectory **S**\ystem (`WLTS <https://github.com/brazil-data-cube/wlts-spec>`_), which uses LCCS-WS to represent the classes associated with the features retrieved in its queries.
 
+For more information on LCCS-WS, see:
+
+- `LCCS-WS Specification <https://github.com/brazil-data-cube/lccs-ws-spec>`_: the LCCS specification using `OpenAPI 3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md>`_ notation.
+
+- `LCCS.py <https://github.com/brazil-data-cube/lccs.py>`_: Python Client Library for Land Cover Classification System Web Service.
+
+- `WLTS <https://github.com/brazil-data-cube/lccs.py>`_: Web Land Trajectory Service.
+
 Installation
 ============
 
