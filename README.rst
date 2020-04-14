@@ -27,21 +27,16 @@ Land Cover Classification System Web Service
 
 This is the server application.
 
-.. role:: raw-html(raw)
-    :format: html
+About
+=====
+
+Currently, there are several data sets on regional, national and global scales with information on land use and land cover that aim to support a large number of applications, including the management of natural resources, climate change and its impacts, and biodiversity conservation. These data products are generated using different approaches and methodologies, which present information about different classes of the earth's surface, such as forests, agricultural plantations, among others. Initiatives that generate land use and land cover maps normally develop their own classification system, with different nomenclatures and meanings of the classes used.
 
 
-O que é o LCCS-WS?
-==================
+In this context, the **LCCS-WS** (**L**\ and **C**\ over **C**\ lassification **S**\ystem **W**\eb **S**\ ervice) aims to provide a simple interface to access the various classification systems in use and their respective classes. Therefore, this service proposes a representation for the classification systems and provides an API to access the classes and their symbolizations. It is also possible to stablish mappings between classes of different systems.
 
-:raw-html:`<br />`
-Atualmente existem diversos conjuntos de dados em escalas regionais, nacionais e globais com informação sobre uso e cobertura da terra, que visam atender a um grande número de aplicações, entre elas a gestão de recursos naturais, mudanças do clima e seus impactos e conservação da biodiversidade. Esses produtos de dados são gerados utilizando diferentes abordagens e metodologias, que apresentam informações sobre diferentes classes da superfície da terra, como florestas, plantações agrícolas, entre outras. As iniciativas que geram mapas de uso e cobertura da terra, normalmente desenvolvem seu próprio sistema de classificação, com diferentes nomenclatura e significados das classes utilizadas.
 
-:raw-html:`<br />`
-A medida que mais dados de uso e cobertura da terra são disponibilizados, há também maiores variações nas definições de classes destes mapas. Surgindo obstáculos significantes no uso conjunto desses dados. Demanda grande esforço dos pesquisadores, alunos e especialistas realizar análises comparativas e validações de diferentes mapas de uso e cobertura da terra e com diferentes que possuem diferentes sistemas de classificação. Existem diversos estudos e técnicas que visam verificar a similaridade entre classes para obter sistemas de classificação harmonizados e assim realizar análises conjunta de diversos produtos de mapeamento.
-
-:raw-html:`<br />`
-O **LCCS-WS** (**L**\ and **C**\ over **C**\ lassification **S**\ystem **W**\ eb\  **S**\ service) é um serviço web que disponibiliza as informações sobre os sistemas de classificação empregados nos projetos que disponibilizam mapas de uso e cobertura da terra no Brasil: Prodes, Deter, TerraClass e MapBiomas. O LCCS-WS utiliza o modelo de dados fornecido pelo pacote `LCCS-DB <https://github.com/brazil-data-cube/lccs-db>`_. O objetivo do serviço é facilitar o acesso e visualização das classes e suas simbologias em cada sistema de classificação e os mapeamentos realizados entre as classes dos sistemas de classificação de maneira a simplificar análise conjunta dos dados.
+Free and Open Source implementations based on this service can be found in the `lccs-ws <https://github.com/brazil-data-cube/lccs-ws>`_ (server) and `lccs.py <https://github.com/brazil-data-cube/lccs.py>`_ (Python client). See also the service **W**\eb **L**\and **T**\rajectory **S**\ystem (`WLTS <https://github.com/brazil-data-cube/wlts-spec>`_), which uses LCCS-WS to represent the classes associated with the features retrieved in its queries.
 
 Installation
 ============
