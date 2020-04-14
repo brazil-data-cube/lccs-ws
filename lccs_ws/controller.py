@@ -8,12 +8,13 @@
 """Controllers of Land Cover Classification System Web Service."""
 
 from bdc_core.utils.flask import APIResource
-from flask import abort, jsonify, request
+from flask import abort, jsonify, request, render_template, make_response, Response
 from flask_restplus import Namespace
 from lccs_db.models import (LucClass, LucClassificationSystem, StyleFormats,
                             Styles)
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import NotFound
+from json import dumps
 
 from lccs_ws.forms import ClassesSchema, ClassificationSystemSchema
 
@@ -309,15 +310,38 @@ class StyleFileResource(APIResource):
         except NoResultFound:
             return abort(500, "Classification system Source {} not found".format(system_id))
 
-        styles = Styles.get(class_system_id=system.id)
+        styles = Styles.filter(class_system_id=system.id)
 
         links = list()
+        result = dict()
+
         for style in styles:
 
+            style_name =   StyleFormats.get(id=style.style_format_id).name
             links.append({"href": "{}/lccs/classification_systems/{}/styles/{}".format(Config.LCCS_URL, system_id,
-                                                                                  StyleFormats.get(
-                                                                                      id=style.style_format_id).name
-                                                                                  ),
-                  "rel": "self"})
+                                                                                style_name),
+                  "rel": "self", "title":style_name})
 
-        return links
+        result['links'] = links
+
+        return result
+
+@api.route('/classification_systems/<system_id>/styles/<style_format>')
+class FileResource(APIResource):
+    """URL Handler for Classification Systems Style through REST API."""
+
+    def get(self, system_id, style_format):
+        """Retrives json file of application style by name."""
+        system = LucClassificationSystem.get(name=system_id)
+        style_format = StyleFormats.get(name=style_format)
+        styles = Styles.get(class_system_id=system.id, style_format_id=style_format.id)
+
+
+        if styles.style:
+            return Response(dumps(styles.style),
+                        mimetype="text/plain",
+                        headers={"Content-Disposition": "attachment;filename={}_style_{}.json".format(system.name,
+                                                                                                      style_format.name)})
+
+        else:
+            return abort(500, "File Format {} not found".format(style_format.name))
