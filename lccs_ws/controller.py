@@ -36,27 +36,32 @@ class Index(APIResource):
         return jsonify(links)
 
 @api.route('/classification_systems')
-class ClassificationSystemResource(APIResource):
+class ClassificationSystemsResource(APIResource):
     """URL Handler for Land User Cover Classification System through REST API."""
 
     def get(self):
         """Retrieve all land user cover classification system."""
-        retval = LucClassificationSystem.filter()
+        try:
 
-        systems_result = ClassificationSystemSchema(only=['name']).dump(retval, many=True)
+            retval = LucClassificationSystem.filter()
 
-        links = [{"href": "{}/classification_systems".format(BASE_URL), "rel": "self"},
-                 {"href": "{}/".format(BASE_URL), "rel": "root"}]
+            systems_result = ClassificationSystemSchema(only=['name']).dump(retval, many=True)
 
-        for systems in systems_result:
-            links.append({"href": "{}/{}".format(request.base_url, systems["name"]), "rel": "child",
-                          "title": systems["name"]})
+            links = [{"href": "{}/classification_systems".format(BASE_URL), "rel": "self"},
+                     {"href": "{}/".format(BASE_URL), "rel": "root"}]
 
-        classification_systems = dict()
+            for systems in systems_result:
+                links.append({"href": "{}/{}".format(request.base_url, systems["name"]), "rel": "child",
+                              "title": systems["name"]})
 
-        classification_systems["links"] = links
+            classification_systems = dict()
 
-        return jsonify(classification_systems)
+            classification_systems["links"] = links
+
+            return jsonify(classification_systems)
+        except:
+            abort(500, "Classification Systems Error")
+
 
     def post(self):
         """Create new Classification system."""
@@ -89,8 +94,7 @@ class ClassificationSystemResource(APIResource):
         try:
             retval = LucClassificationSystem.get(name=system_id)
         except NoResultFound:
-            raise NotFound('Classification system "{}" not found'.format(
-                system_id))
+            abort(500, 'Classification system "{}" not found'.format(system_id))
 
         systems = ClassificationSystemSchema().dump(retval, many=False)
 
@@ -120,7 +124,7 @@ class ClassesResource(APIResource):
             class_sys = LucClassificationSystem.get(name=system_id)
 
         except NoResultFound:
-            raise NotFound('Classification system "{}" not found'.format(system_id))
+            abort(500, 'Classification system "{}" not found'.format(system_id))
 
         retval = ClassesSchema(only=['name']).dump(LucClass.filter(class_system_id=class_sys.id), many=True)
 
@@ -191,7 +195,7 @@ class ClassesResource(APIResource):
            abort(400, "POST Request must be an current_application/json")
 
 @api.route('/classification_systems/<system_id>/classes/<classe_id>')
-class ClasseResource(APIResource):
+class ClassResource(APIResource):
     """URL Handler for Land User Cover Classification System through REST API."""
 
     def get(self, system_id, classe_id):
@@ -201,7 +205,7 @@ class ClasseResource(APIResource):
         try:
             result_classe = LucClass.get(class_system_id=classification_system.id, name=classe_id)
         except NoResultFound:
-            raise NotFound('Invalid Classification system Id "{}" for classe id{}'.format(system_id, classe_id))
+            abort(500, 'Invalid Classification system Id "{}" for classe id {}'.format(system_id, classe_id))
 
         classe_info = ClassesSchema(exclude=['class_system_id', 'class_parent_id']).dump(result_classe)
 
@@ -225,7 +229,7 @@ class ClasseResource(APIResource):
         return classe_info
 
 @api.route('/mappings/<system_id_source>/')
-class MappingResource(APIResource):
+class AllMappingResource(APIResource):
     """URL Handler for Land User Cover Classification System through REST API."""
 
     def get(self, system_id_source):
@@ -313,7 +317,7 @@ class StyleFileResource(APIResource):
 
             links.append({"href": "{}/classification_systems/{}/styles/{}".format(BASE_URL, system_id,
                                                                                   StyleFormats.get(
-                                                                                      id=styles.style_format_id).name
+                                                                                      id=style.style_format_id).name
                                                                                   ),
                   "rel": "self"})
 
