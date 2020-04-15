@@ -209,12 +209,14 @@ class ClassResource(APIResource):
 
         classe_info = ClassesSchema(exclude=['class_system_id', 'class_parent_id']).dump(result_classe)
 
-        parent = LucClass.get(id=result_classe.id)
+        if result_classe.class_parent_id is not None:
 
-        if (parent):
+            parent = LucClass.get(id=result_classe.class_parent_id)
+
             classe_info['parent'] = ClassesSchema(exclude=['class_system_id', 'class_parent_id']).dump(parent)
+
         else:
-            classe_info['parent'] = None
+            classe_info['parent'] = {}
 
 
         links = [{"href": "{}/lccs/classification_systems/{}/classes/{}".format(Config.LCCS_URL, system_id, classe_id),
