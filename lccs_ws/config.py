@@ -24,9 +24,9 @@ class Config():
     TESTING = False
     CSRF_ENABLED = False
     WTF_CSRF_ENABLED = False
-    SQLALCHEMY_URI = os.environ.get('SQLALCHEMY_URI', 'postgresql://postgres:mysecretpassword@localhost:5442/sampledb')
     SECRET_KEY = "APi-Users-123456"
-
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_URI')
+    LCCS_URL = os.getenv('LCCS_URL', 'http://localhost:5000')
 
 class ProductionConfig(Config):
     """Production Mode."""

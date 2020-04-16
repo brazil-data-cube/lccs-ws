@@ -49,6 +49,9 @@ install_requires = [
     'psycopg2>=2.8.3',
     'requests>=2.9.1',
     'SQLAlchemy==1.3.4',
+    'flask-redoc>=0.1.0',
+    'marshmallow-sqlalchemy==0.18.0',
+    'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777
     'bdc-core @ git+git://github.com/brazil-data-cube/bdc-core.git#egg=bdc-core',
     'lccs-db @ git+git://github.com/brazil-data-cube/lccs-db.git#egg=lccs-db',
 ]
@@ -75,6 +78,9 @@ setup(
     include_package_data=True,
     platforms='any',
     entry_points={
+        'console_scripts': [
+            'lccs_ws = lccs_ws.cli:cli'
+        ]
     },
     extras_require=extras_require,
     install_requires=install_requires,
