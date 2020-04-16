@@ -10,4 +10,20 @@
 Changes
 =======
 
-**Under Development!**
+
+Version 0.2.0
+-------------
+
+Released 2020-04-16
+
+- First experimental version.
+- Support for: Class Systems, Classes, Styles and Class Mappings.
+- Support for the `LCCS-WS specification version 0.2.0 <https://github.com/brazil-data-cube/lccs-ws-spec>`_.
+- Compatibility with `LCC-DB Version 0.2.0 <https://github.com/brazil-data-cube/lccs-db>`_.
+- Documentation system based on Sphinx.
+- Documentation integrated to ``Read the Docs``.
+- Package support through Setuptools.
+- Installation and use instructions.
+- Support for dynamic loading of model classes derived from LCCS-DB.
+- Source code versioning based on `Semantic Versioning 2.0.0 <https://semver.org/>`_.
+- License: `MIT <https://raw.githubusercontent.com/brazil-data-cube/lccs-ws/v0.2.0/LICENSE>`_.

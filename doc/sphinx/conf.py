@@ -55,7 +55,7 @@ html_static_path = ['_static']
 
 def setup(app):
     """Add css style."""
-    app.add_stylesheet('lccs_ws.css')
+    app.add_css_file('lccs_ws.css')
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True

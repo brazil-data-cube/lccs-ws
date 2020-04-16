@@ -10,6 +10,9 @@ Welcome to Land Cover Classification System Web Service documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   deploy
+   installation
+   api
    license
 
 Indices and tables

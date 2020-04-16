@@ -12,24 +12,32 @@ Land Cover Classification System Web Service
 
 .. image:: https://img.shields.io/badge/license-MIT-green
         :target: https://github.com//brazil-data-cube/lccs-ws/blob/master/LICENSE
+        :alt: Software License
 
-.. image:: https://img.shields.io/badge/build-todo-success
+.. image:: https://travis-ci.org/brazil-data-cube/lccs-ws.svg?branch=master
         :target: https://travis-ci.org/brazil-data-cube/lccs-ws
-
-.. image:: https://img.shields.io/badge/tests-0%20passed,%200%20failed-critical
-        :target: https://travis-ci.org/brazil-data-cube/lccs-ws
+        :alt: Build Status
 
 .. image:: https://coveralls.io/repos/github/brazil-data-cube/lccs-ws/badge.svg?branch=master
         :target: https://coveralls.io/github/brazil-data-cube/lccs-ws?branch=master
+        :alt: Code Coverage Test
+
+.. image:: https://readthedocs.org/projects/lccs-ws/badge/?version=master
+        :target: https://lccs-ws.readthedocs.io/en/master/
+        :alt: Documentation Status
 
 .. image:: https://img.shields.io/badge/lifecycle-experimental-orange.svg
         :target: https://www.tidyverse.org/lifecycle/#experimental
+        :alt: Software Life Cycle
 
-.. image:: https://badges.gitter.im/brazil-data-cube/community.svg
+.. image:: https://img.shields.io/github/tag/brazil-data-cube/lccs-ws.svg
+        :target: https://github.com/brazil-data-cube/lccs-ws/releases
+        :alt: Release
+
+.. image:: https://badges.gitter.im/brazil-data-cube/community.svg/
         :target: https://gitter.im/brazil-data-cube/community#
         :alt: Join the chat
 
-This is the server application.
 
 About
 =====
@@ -40,8 +48,6 @@ Currently, there are several data sets on regional, national and global scales w
 In this context, the **LCCS-WS** (**L**\ and **C**\ over **C**\ lassification **S**\ystem **W**\eb **S**\ ervice) aims to provide a simple interface to access the various classification systems in use and their respective classes. Therefore, this service proposes a representation for the classification systems and provides an API to access the classes and their symbolizations. It is also possible to stablish mappings between classes of different systems.
 
 
-Free and Open Source implementations based on this service can be found in the `lccs-ws <https://github.com/brazil-data-cube/lccs-ws>`_ (server) and `lccs.py <https://github.com/brazil-data-cube/lccs.py>`_ (Python client). See also the service **W**\eb **L**\and **T**\rajectory **S**\ystem (`WLTS <https://github.com/brazil-data-cube/wlts-spec>`_), which uses LCCS-WS to represent the classes associated with the features retrieved in its queries.
-
 For more information on LCCS-WS, see:
 
 - `LCCS-WS Specification <https://github.com/brazil-data-cube/lccs-ws-spec>`_: the LCCS specification using `OpenAPI 3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md>`_ notation.
@@ -50,21 +56,23 @@ For more information on LCCS-WS, see:
 
 - `WLTS <https://github.com/brazil-data-cube/lccs.py>`_: Web Land Trajectory Service.
 
+
 Installation
 ============
 
 See `INSTALL.rst <./INSTALL.rst>`_.
 
 
-Running
-=======
+Deploying
+=========
 
-See `RUNNING.rst <./RUNNING.rst>`_.
+See `RUNNING.rst <./DEPLOY.rst>`_.
+
 
 Developer Documentation
 =======================
 
-**Under Development!**
+See https://lccs-ws.readthedocs.io/en/latest.
 
 
 License

@@ -1,10 +1,13 @@
-sudo: false
-
 language: python
 
 cache:
     directories:
         - $HOME/.cache/pip
+
+branches:
+    only:
+        - master
+        - b-0.2
 
 dist: bionic
 
