@@ -26,4 +26,4 @@ Released 2020-04-16
 - Installation and use instructions.
 - Support for dynamic loading of model classes derived from LCCS-DB.
 - Source code versioning based on `Semantic Versioning 2.0.0 <https://semver.org/>`_.
-- License: `MIT <https://raw.githubusercontent.com/brazil-data-cube/lccs-ws/v0.2.0/LICENSE>`_.
+- License: `MIT <https://raw.githubusercontent.com/brazil-data-cube/lccs-ws/v0.2.0-0/LICENSE>`_.
