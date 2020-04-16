@@ -11,19 +11,19 @@ Land Cover Classification System Web Service
 ============================================
 
 .. image:: https://img.shields.io/badge/license-MIT-green
-        :target: https://github.com//brazil-data-cube/lccs-ws/blob/b-0.2.0/LICENSE
+        :target: https://github.com//brazil-data-cube/lccs-ws/blob/master/LICENSE
         :alt: Software License
 
-.. image:: https://travis-ci.org/brazil-data-cube/lccs-ws.svg?branch=b-0.2.0
+.. image:: https://travis-ci.org/brazil-data-cube/lccs-ws.svg?branch=master
         :target: https://travis-ci.org/brazil-data-cube/lccs-ws
         :alt: Build Status
 
 .. image:: https://coveralls.io/repos/github/brazil-data-cube/lccs-ws/badge.svg?branch=b-0.2.0
-        :target: https://coveralls.io/github/brazil-data-cube/lccs-ws?branch=b-0.2.0
+        :target: https://coveralls.io/github/brazil-data-cube/lccs-ws?branch=master
         :alt: Code Coverage Test
 
-.. image:: https://readthedocs.org/projects/lccs-ws/badge/?version=b-0.2.0
-        :target: https://lccs-ws.readthedocs.io/en/b-0.2.0/
+.. image:: https://readthedocs.org/projects/lccs-ws/badge/?version=latest
+        :target: https://lccs-ws.readthedocs.io/en/latest/
         :alt: Documentation Status
 
 .. image:: https://img.shields.io/badge/lifecycle-experimental-orange.svg
@@ -72,7 +72,7 @@ See `DEPLOY.rst <./DEPLOY.rst>`_.
 Developer Documentation
 =======================
 
-See https://lccs-ws.readthedocs.io/en/b-0.2.0.
+See https://lccs-ws.readthedocs.io/en/latest.
 
 
 License
