@@ -66,7 +66,7 @@ See `INSTALL.rst <./INSTALL.rst>`_.
 Deploying
 =========
 
-See `RUNNING.rst <./DEPLOY.rst>`_.
+See `DEPLOY.rst <./DEPLOY.rst>`_.
 
 
 Developer Documentation
