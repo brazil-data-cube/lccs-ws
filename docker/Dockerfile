@@ -1,5 +1,3 @@
-# FROM brazildatacube/base:0.1
-
 FROM python:3.7-slim-buster
 
 RUN apt-get update && apt-get install -y libpq-dev build-essential git
