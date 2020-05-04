@@ -8,10 +8,14 @@
 
 exclude doc/spec
 exclude doc/sphinx/_build
+exclude docker
+exclude .dockerignore
+
 include *.rst
 include *.sh
 include *.txt
 include *.py
+include *.yml
 include LICENSE
 include pytest.ini
 recursive-include spec *.json
@@ -27,3 +31,4 @@ recursive-include doc *.py
 recursive-include doc *.rst
 recursive-include doc *.xml
 recursive-include doc Makefile
+recursive-exclude docker *
