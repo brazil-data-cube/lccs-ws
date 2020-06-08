@@ -14,7 +14,7 @@ from flask_restplus import Namespace
 from lccs_db.models import (LucClass, LucClassificationSystem, StyleFormats,
                             Styles)
 from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
 from lccs_ws.forms import ClassesSchema, ClassificationSystemSchema
 
@@ -74,18 +74,18 @@ class ClassificationSystemsResource(APIResource):
 
             class_system = verify_class_system_exist(classification_system['name'])
 
-            if  class_system is None:
-                return abort(204, "No Content: Classification System Alredy Exists")
+            if  class_system is not None:
+                raise InternalServerError('Classification System Alredy Exists')
 
             if ('authority_name' not in classification_system or
                     'description' not in classification_system or
                     'version' not in classification_system ):
-                return abort(204, "No Content")
+                raise BadRequest('Error creating Classification System!')
 
             class_system = insert_classification_systems(classification_system)
 
             if class_system is None:
-                raise NotFound('Error creating Class System!')
+                raise BadRequest('Error creating Class System!')
 
             else:
                 classes = request_json.get('classes')
@@ -98,11 +98,11 @@ class ClassificationSystemsResource(APIResource):
                     class_result = insert_class(class_system, class_info)
 
                     if class_result is None:
-                        return abort(404, "Class Parent {} Not Found".format(class_info['parent']))
+                        raise BadRequest(404, "Class Parent {} Not Found".format(class_info['parent']))
 
                 return ClassificationSystemSchema(exclude=['id']).dump(class_system), 201
         else:
-            abort(400, "POST Request must be an current_application/json")
+            raise BadRequest(400, "POST Request must be an current_application/json")
 
 
 @api.route('/classification_systems/<system_id>')

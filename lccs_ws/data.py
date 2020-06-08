@@ -35,8 +35,8 @@ def verify_style_format(style_name):
 def verify_class_system_exist(name):
     """Verify if classification system exist in server."""
     try:
-        style = LucClassificationSystem.get(name=name)
-        return style
+        class_system = LucClassificationSystem.get(name=name)
+        return class_system
     except:
         return None
 
