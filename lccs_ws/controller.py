@@ -14,12 +14,13 @@ from flask_restplus import Namespace
 from lccs_db.models import (LucClass, LucClassificationSystem, StyleFormats,
                             Styles)
 from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
 from lccs_ws.forms import ClassesSchema, ClassificationSystemSchema
 
 from .config import Config
-from .data import get_mappings
+from .data import (get_mappings, insert_class, insert_classification_systems,
+                   verify_class_system_exist)
 
 api = Namespace('lccs', description='status')
 
@@ -69,21 +70,40 @@ class ClassificationSystemsResource(APIResource):
 
             request_json = request.get_json()
 
-            name = request_json.get('name')
-            description = request_json.get('description')
-            authority_name = request_json.get('authority_name')
-            version = request_json.get('version')
+            classification_system = request_json.get('classification_system')
 
-            class_system = LucClassificationSystem(name=name,
-                                                   description=description,
-                                                   authority_name=authority_name,
-                                                   version=version)
+            class_system = verify_class_system_exist(classification_system['name'])
 
-            class_system.save()
+            if  class_system is not None:
+                raise InternalServerError('Classification System Alredy Exists')
 
-            return ClassificationSystemSchema(exclude=['id']).dump(class_system), 201
+            if ('authority_name' not in classification_system or
+                    'description' not in classification_system or
+                    'version' not in classification_system ):
+                raise BadRequest('Error creating Classification System!')
+
+            class_system = insert_classification_systems(classification_system)
+
+            if class_system is None:
+                raise BadRequest('Error creating Class System!')
+
+            else:
+                classes = request_json.get('classes')
+
+                for class_info in classes:
+
+                    if ('code' not in class_info ) or ('name' not in class_info):
+                           return abort(204, "No Content")
+
+                    class_result = insert_class(class_system, class_info)
+
+                    if class_result is None:
+                        raise BadRequest(404, "Class Parent {} Not Found".format(class_info['parent']))
+
+                return ClassificationSystemSchema(exclude=['id']).dump(class_system), 201
         else:
-            abort(400, "POST Request must be an current_application/json")
+            raise BadRequest(400, "POST Request must be an current_application/json")
+
 
 @api.route('/classification_systems/<system_id>')
 class ClassificationSystemResource(APIResource):
@@ -94,7 +114,7 @@ class ClassificationSystemResource(APIResource):
         try:
             retval = LucClassificationSystem.get(name=system_id)
         except NoResultFound:
-            abort(500, 'Classification system "{}" not found'.format(system_id))
+            return abort(500, 'Classification system "{}" not found'.format(system_id))
 
         systems = ClassificationSystemSchema().dump(retval, many=False)
 
@@ -124,7 +144,7 @@ class ClassesResource(APIResource):
             class_sys = LucClassificationSystem.get(name=system_id)
 
         except NoResultFound:
-            abort(500, 'Classification system "{}" not found'.format(system_id))
+            return abort(500, 'Classification system "{}" not found'.format(system_id))
 
         retval = ClassesSchema(only=['name']).dump(LucClass.filter(class_system_id=class_sys.id), many=True)
 
@@ -205,7 +225,7 @@ class ClassResource(APIResource):
         try:
             result_classe = LucClass.get(class_system_id=classification_system.id, name=classe_id)
         except NoResultFound:
-            abort(500, 'Invalid Classification system Id "{}" for classe id {}'.format(system_id, classe_id))
+            return abort(500, 'Invalid Classification system Id "{}" for classe id {}'.format(system_id, classe_id))
 
         classe_info = ClassesSchema(exclude=['class_system_id', 'class_parent_id']).dump(result_classe)
 

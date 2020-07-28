@@ -26,9 +26,9 @@ On the command line use the `docker build` command to create the docker image fo
 
 .. code-block:: shell
 
-        $ docker build -t lccs-ws:0.4.0-0 -f docker/Dockerfile . --no-cache
+        $ docker build -t lccs-ws:0.2.0-0 -f docker/Dockerfile . --no-cache
 
-The above command will create a Docker image named `lccs-ws` and tag `0.4.0-0`, as one can see with the `docker images` command:
+The above command will create a Docker image named `lccs-ws` and tag `0.2.0-0`, as one can see with the `docker images` command:
 
 .. code-block:: shell
 
@@ -61,7 +61,7 @@ In the above command, we are supposing that your database container is named `bd
 Launching the Docker Container with the LCCS-WS
 -----------------------------------------------
 
-The `docker run` command can be used to launch a container from the image `lccs-ws:0.4.0-0`. The command below shows an example on how to accomplish the launch of a container:
+The `docker run` command can be used to launch a container from the image `lccs-ws:0.2.0-0`. The command below shows an example on how to accomplish the launch of a container:
 
 .. code-block:: shell
 
@@ -71,7 +71,7 @@ The `docker run` command can be used to launch a container from the image `lccs-
              --network=bdc_net \
              --env SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname" \
              --env LCCS_URL="http://localhost:8080" \
-             lccs-ws:0.4.0-0
+             lccs-ws:0.2.0-0
 
 Let's take a look at each parameter in the above command:/
 
@@ -87,7 +87,7 @@ Let's take a look at each parameter in the above command:/
 
     - ``--env LCCS_URL="http://localhost:8080"``: Base URI of the service.
 
-    - ``lccs-ws:0.4.0-0``: the name of the base Docker image used to create the container.
+    - ``lccs-ws:0.2.0-0``: the name of the base Docker image used to create the container.
 
 If you have launched the container, you can check if the service has initialized:
 
@@ -104,9 +104,9 @@ Finally, to test if it is listening, use the ``curl`` command:
 
 .. code-block:: shell
 
-        $ curl curl localhost:8090/lccs/
+        $ curl localhost:8080/lccs/
 
-        [{"href":"http://localhost:8090/lccs/","rel":"self"},{"href":"http://localhost:8090/lccs/classification_systems","rel":"classification_systems"}]
+        [{"href":"http://localhost:8080/lccs/","rel":"self"},{"href":"http://localhost:8080/lccs/classification_systems","rel":"classification_systems"}]
 
 
 .. rubric:: Footnotes
