@@ -61,7 +61,7 @@ You may need to replace the definition of some environment variables:
 
   - ``LCCS_URL="http://localhost:5000"``: Base URI of the service.
 
-  - ``SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
+  - ``SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
 
 
 The above command should output some messages in the console as showed below:
