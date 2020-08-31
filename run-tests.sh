@@ -8,7 +8,7 @@
 #
 
 pydocstyle lccs_ws && \
-isort --check-only --diff --recursive **/*.py && \
+isort lccs_ws tests setup.py --check-only --diff && \
 check-manifest --ignore ".travis-*" --ignore ".readthedocs.*" && \
 pytest &&
 sphinx-build -qnW --color -b doctest doc/sphinx/ doc/sphinx/_build/doctest

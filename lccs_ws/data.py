@@ -11,7 +11,7 @@ from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
 from sqlalchemy.orm import aliased
 
-from .forms import ClassesSchema, ClassificationSystemSchema
+from .forms import ClassificationSystemSchema
 
 
 def get_class_systems():
@@ -47,14 +47,15 @@ def get_classification_system_classes(system_id):
     """
     retval = db.session.query(LucClass)\
         .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id)\
-        .filter(LucClassificationSystem.name == system_id)
+        .filter(LucClassificationSystem.name == system_id)\
+        .all()
 
     class_systems = ClassificationSystemSchema().dump(retval, many=True)
 
     return class_systems
 
 def get_class(system_id, class_id):
-    """Retrieve information about a classe for a given classification system.
+    """Retrieve information about a class for a given classification system.
 
     :param system_id: classification system identifier
     :type system_id: str
@@ -83,30 +84,40 @@ def get_class(system_id, class_id):
     result = db.session.query(*columns)\
         .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id)\
         .join(parent_classes, LucClass.class_parent_id == parent_classes.id, isouter=True)\
-        .filter(*where)
+        .filter(*where)\
+        .all()
 
     class_system_class = dict()
 
-    for r in result:
-        class_system_class["id"] = r.id
-        class_system_class["name"] = r.name
-        class_system_class["code"] = r.code
-        class_system_class["description"] = r.description
-        class_system_class["class_parent"] = r.class_parent
-        class_system_class["class_system"] = r.class_system
+    class_system_class["id"] = result[0].id
+    class_system_class["name"] = result[0].name
+    class_system_class["code"] = result[0].code
+    class_system_class["description"] = result[0].description
+    class_system_class["class_parent"] = result[0].class_parent
+    class_system_class["class_system"] = result[0].class_system
 
     return class_system_class
 
-# def get_styles(system_id):
-#
-#     where = [Styles.class_system_id.in_(system_id)]
-#
-#     styles_formats = db.session.query(StyleFormats.name)\
-#         .join(Styles, StyleFormats.id == Styles.style_format_id)\
-#         .filter(*where)
-#
-#     return styles_formats
+def get_styles(system_id, style_format_id: None):
+    """Get Styles."""
+    columns = [
+        LucClassificationSystem.name.label("class_system_name"),
+        StyleFormats.name.label("style_format"),
+        Styles.style.label("style_file")
+    ]
 
+    where = [LucClassificationSystem.name == system_id]
+
+    if style_format_id:
+        where += [StyleFormats.name == style_format_id]
+
+    styles_formats = db.session.query(*columns)\
+                                .join(Styles, LucClassificationSystem.id == Styles.class_system_id)\
+                                .join(StyleFormats, Styles.style_format_id == StyleFormats.id)\
+                                .filter(*where)\
+                                .all()
+
+    return styles_formats
 
 def get_mappings(classes_source, classes_target):
     """Filter all mapping."""
@@ -115,7 +126,58 @@ def get_mappings(classes_source, classes_target):
     if classes_target is not None:
         where += [ClassMapping.target_class_id.in_([value.id for value in classes_target])]
 
-    return db.session.query(ClassMapping).filter(*where).all()
+    result = db.session.query(ClassMapping).\
+        filter(*where)\
+        .group_by(ClassMapping.source_class_id,
+                 ClassMapping.target_class_id).all()
+    return result
+
+def get_avaliable_mappings(system_id):
+    """Retorn avaliable mapping for a givin classification system."""
+    system_source = LucClassificationSystem.get(name=system_id)
+
+    classes_source = LucClass.filter(class_system_id=system_source.id)
+
+    mappings = get_mappings(classes_source, None)
+
+    result = list()
+
+    for mapping in mappings:
+        target_class_name = LucClass.get(id=mapping.target_class_id)
+        system = LucClassificationSystem.get(id=target_class_name.class_system_id)
+
+        result.append(system.name) if system.name not in result else None
+
+    return result
+
+def get_mapping(system_id_source, system_id_target):
+    """Return mapping."""
+    try:
+        system_source = LucClassificationSystem.get(name=system_id_source)
+    except:
+        return abort(500, "Classification system Source {} not found".format(system_id_source))
+    try:
+        system_target = LucClassificationSystem.get(name=system_id_target)
+    except:
+        return abort(500, "Classification system Target {} not found".format(system_id_target))
+
+    classes_source = LucClass.filter(class_system_id=system_source.id)
+
+    classes_target = LucClass.filter(class_system_id=system_target.id)
+
+    mappings = get_mappings(classes_source, classes_target)
+
+    result = list()
+
+    for i in mappings:
+        result += [{
+            "source" : LucClass.get(id=i.source_class_id).name,
+            "target" : LucClass.get(id=i.target_class_id).name,
+            "description": i.description,
+            "degree_of_similarity": i.degree_of_similarity
+        }]
+
+    return result
 
 def verify_style_format(style_name):
     """Filter style format."""
@@ -182,7 +244,6 @@ def insert_class(classification_system: int, class_info: dict):
 
     return classes
 
-
 def insert_classes(classes_files_json : dict, class_system: int):
     """Create classes for a given classification system.
 
@@ -190,7 +251,6 @@ def insert_classes(classes_files_json : dict, class_system: int):
     :type classes_files_json: dict
     :param class_system: classification system identifier
     :type class_system: int
-
     """
     for classes in classes_files_json["classes"]:
         insert_class(class_system, classes)

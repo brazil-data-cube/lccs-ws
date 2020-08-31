@@ -5,18 +5,18 @@
 # Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 #
-"""Controllers of Land Cover Classification System Web Service."""
+"""Views of Land Cover Classification System Web Service."""
 import json
 
-from flask import abort, current_app, jsonify, request
+from flask import Response, abort, current_app, jsonify, request
 
-from lccs_ws.forms import ClassesSchema, ClassificationSystemSchema
+from lccs_ws.forms import ClassificationSystemSchema
 
 from .config import Config
-from .data import (get_class, get_class_system, get_class_systems,
-                   get_classification_system_classes, get_mappings,
-                   insert_classes, insert_classification_systems,
-                   verify_class_system_exist)
+from .data import (get_avaliable_mappings, get_class, get_class_system,
+                   get_class_systems, get_classification_system_classes,
+                   get_mapping, get_styles, insert_classes,
+                   insert_classification_systems, verify_class_system_exist)
 
 BASE_URL = Config.LCCS_URL
 
@@ -34,7 +34,7 @@ def index():
 
 @current_app.route("/classification_systems", methods=["GET", "POST"])
 def classification_systems():
-    """URL Handler for Land User Cover Classification System through REST API."""
+    """Retrieve classification systems avaliable."""
     if request.method == "GET":
 
         class_systems = get_class_systems()
@@ -51,7 +51,13 @@ def classification_systems():
                 },
                 {
                     "href": f"{BASE_URL}/classification_system/{class_system['name']}/classes",
-                    "rel": "self",
+                    "rel": "child",
+                    "type": "application/json",
+                    "title": "Link to this document",
+                },
+                {
+                    "href": f"{BASE_URL}/mappings/{class_system['name']}",
+                    "rel": "child",
                     "type": "application/json",
                     "title": "Link to this document",
                 },
@@ -195,25 +201,142 @@ def class_system_classes(system_id):
 
     return result
 
-@current_app.route("/classification_system/<system_id>/classes/<class_id>", methods=["GET", "POST", "PUT", "DELETE"])
+@current_app.route("/classification_system/<system_id>/classes/<class_id>", methods=["GET"])
 def class_system_class(system_id, class_id):
-    """URL Handler for Land User Cover Class through REST API."""
+    """Retrieve metadata of classe.
+
+    :param system_id: identifier (name) of a classification system
+    :param class_id: identifier (name) of a class
+    """
+    classes = get_class(system_id, class_id)
+
+    links = [
+        {
+            "href": f"{BASE_URL}/classification_system/{system_id}/classes/{classes['name']}",
+            "rel": "self",
+            "type": "application/json",
+            "title": "Link to this document",
+        },
+        {
+            "href": f"{BASE_URL}/classification_system{system_id}/classes",
+            "rel": "parent",
+            "type": "application/json",
+            "title": "Link to this document",
+        },
+        {
+            "href": f"{BASE_URL}/classification_systems",
+            "rel": "parent",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+        {
+            "href": f"{BASE_URL}/",
+            "rel": "root",
+            "type": "application/json",
+            "title": "API landing page",
+        },
+
+    ]
+
+    classes["links"] = links
+
+    return classes
+
+@current_app.route("/mappings/<system_id>", methods=["GET"])
+def mappings(system_id):
+    """Retrieve avaliable mappings of classification system.
+
+    :param system_id: identifier (name) of a classification system
+    """
+    mappings = get_avaliable_mappings(system_id)
+
+    links = list()
+
+    links += [
+        {
+            "href": f"{BASE_URL}/classification_systems",
+            "rel": "parent",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+        {
+            "href": f"{BASE_URL}/",
+            "rel": "root",
+            "type": "application/json",
+            "title": "API landing page",
+        },
+    ]
+
+    for mapping_name in mappings:
+        links.append({
+            "href": f"{BASE_URL}/mappings/{system_id}/{mapping_name}",
+            "rel": "child",
+            "type": "application/json",
+            "title": "Classification System Mappings",
+            }
+        )
+
+    result = dict()
+
+    result["links"] = links
+
+    return result
+
+@current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["GET", "POST"])
+def mapping(system_id_source, system_id_target):
+    """Retrieve mapping.
+
+    :param system_id_source: identifier (name) of a source classification system
+    :param system_id_target: identifier (name) of a target classification system
+    """
     if request.method == "GET":
 
-        classes = get_class(system_id, class_id)
+        class_system_mappings = get_mapping(system_id_source, system_id_target)
+
+        for mp in class_system_mappings:
+            links = [
+                {
+                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['source']}",
+                    "rel": "item",
+                    "type": "application/json",
+                    "title": "Link to classification systems",
+                },
+                {
+                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['target']}",
+                    "rel": "item",
+                    "type": "application/json",
+                    "title": "Link to classification systems",
+                },
+            ]
+
+            mp["links"] =  links
+
+        result = dict()
 
         links = [
             {
-                "href": f"{BASE_URL}/classification_system/{system_id}/classes/{classes['name']}",
-                "rel": "self",
-                "type": "application/json",
-                "title": "Link to this document",
-            },
-            {
-                "href": f"{BASE_URL}/classification_system{system_id}/classes",
+                "href": f"{BASE_URL}/classification_system/{system_id_source}",
                 "rel": "parent",
                 "type": "application/json",
-                "title": "Link to this document",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/classification_system/{system_id_source}/classes",
+                "rel": "child",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/classification_system/{system_id_target}",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/classification_system/{system_id_target}/classes",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
             },
             {
                 "href": f"{BASE_URL}/classification_systems",
@@ -227,9 +350,80 @@ def class_system_class(system_id, class_id):
                 "type": "application/json",
                 "title": "API landing page",
             },
-
         ]
 
-        classes["links"] = links
+        result["mappings"] = class_system_mappings
 
-        return classes
+        result["links"] = links
+
+        return result
+
+@current_app.route("/classification_system/<system_id>/styles", methods=["GET", "POST"])
+def styles(system_id):
+    """Retrieve available styles.
+
+    :param system_id: identifier (name) of a source classification system
+    """
+    if request.method == "GET":
+        styles = get_styles(system_id, None)
+
+        links = list()
+
+        links += [
+            {
+                "href": f"{BASE_URL}/classification_system/{system_id}/styles",
+                "rel": "self",
+                "type": "application/json",
+                "title": f"Classes of the classification system {system_id}",
+            },
+            {
+                "href": f"{BASE_URL}/classification_system/{system_id}",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification system",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/",
+                "rel": "root",
+                "type": "application/json",
+                "title": "API landing page",
+            },
+        ]
+
+        for style in styles:
+            links.append(
+                {
+                    "href": f"{BASE_URL}/classification_system/{style[0]}/styles/{style[1]}",
+                    "rel": "child",
+                    "type": "application/json",
+                    "title": "Styles",
+                }
+            )
+
+        result = dict()
+
+        result["links"] = links
+
+        return result
+
+@current_app.route("/classification_system/<system_id>/styles/<style_id>", methods=["GET"])
+def style(system_id, style_id):
+    """Retrieve available styles.
+
+    :param system_id: identifier (name) of a classification system
+    :param style_id: identifier (name) of a style format
+    """
+    styles = get_styles(system_id, style_id)
+
+    styles = styles[0]
+
+    return Response(json.dumps(styles[2]),
+             mimetype="text/plain",
+             headers={"Content-Disposition": "attachment;filename={}_style_{}.json".format(system_id,
+                                                                                           style_id)})
