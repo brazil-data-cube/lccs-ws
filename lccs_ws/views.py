@@ -20,17 +20,19 @@ from .data import (get_avaliable_mappings, get_class, get_class_system,
 
 BASE_URL = Config.LCCS_URL
 
+
 @current_app.route("/", methods=["GET"])
 def index():
     """URL Handler for Land User Cover Classification System through REST API."""
     links = list()
     links += [
         {"href": f"{BASE_URL}/", "rel": "self", "type": "application/json", "title": "Link to this document"},
-        {"href": f"{BASE_URL}/classification_systems","rel": "classification_systems", "type": "application/json",
-        "title": "List classification_systems",}
+        {"href": f"{BASE_URL}/classification_systems", "rel": "classification_systems", "type": "application/json",
+         "title": "List classification_systems", }
     ]
 
     return jsonify(links)
+
 
 @current_app.route("/classification_systems", methods=["GET", "POST"])
 def classification_systems():
@@ -89,7 +91,7 @@ def classification_systems():
         if verify_class_system_exist(classification_system['name']) is not None:
             abort(409, 'Classification System Already Exists')
 
-        if (classes_files.content_type != 'application/json'):
+        if classes_files.content_type != 'application/json':
             abort(400, 'Classes is not a JSON file')
 
         class_system = None
@@ -148,6 +150,7 @@ def classification_system(system_id):
 
     return classification_system
 
+
 @current_app.route("/classification_system/<system_id>/classes", methods=["GET"])
 def class_system_classes(system_id):
     """Retrieve classes of classification system.
@@ -186,8 +189,7 @@ def class_system_classes(system_id):
     ]
 
     for system_class in classes:
-
-        links.append( {
+        links.append({
             "href": f"{BASE_URL}/classification_system/{system_id}/classes/{system_class['name']}",
             "rel": "child",
             "type": "application/json",
@@ -200,6 +202,7 @@ def class_system_classes(system_id):
     result["links"] = links
 
     return result
+
 
 @current_app.route("/classification_system/<system_id>/classes/<class_id>", methods=["GET"])
 def class_system_class(system_id, class_id):
@@ -242,6 +245,7 @@ def class_system_class(system_id, class_id):
 
     return classes
 
+
 @current_app.route("/mappings/<system_id>", methods=["GET"])
 def mappings(system_id):
     """Retrieve avaliable mappings of classification system.
@@ -272,15 +276,15 @@ def mappings(system_id):
             "href": f"{BASE_URL}/mappings/{system_id}/{mapping_name}",
             "rel": "child",
             "type": "application/json",
-            "title": "Classification System Mappings",
-            }
-        )
+            "title": mapping_name,
+        })
 
     result = dict()
 
     result["links"] = links
 
     return result
+
 
 @current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["GET", "POST"])
 def mapping(system_id_source, system_id_target):
@@ -299,64 +303,24 @@ def mapping(system_id_source, system_id_target):
                     "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['source']}",
                     "rel": "item",
                     "type": "application/json",
-                    "title": "Link to classification systems",
+                    "title": "Link to the source class",
                 },
                 {
                     "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['target']}",
                     "rel": "item",
                     "type": "application/json",
-                    "title": "Link to classification systems",
+                    "title": "Link to target class",
                 },
             ]
 
-            mp["links"] =  links
+            mp["links"] = links
 
         result = dict()
 
-        links = [
-            {
-                "href": f"{BASE_URL}/classification_system/{system_id_source}",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/classification_system/{system_id_source}/classes",
-                "rel": "child",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/classification_system/{system_id_target}",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/classification_system/{system_id_target}/classes",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/classification_systems",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/",
-                "rel": "root",
-                "type": "application/json",
-                "title": "API landing page",
-            },
-        ]
-
         result["mappings"] = class_system_mappings
 
-        result["links"] = links
-
         return result
+
 
 @current_app.route("/classification_system/<system_id>/styles", methods=["GET", "POST"])
 def styles(system_id):
@@ -412,6 +376,7 @@ def styles(system_id):
 
         return result
 
+
 @current_app.route("/classification_system/<system_id>/styles/<style_id>", methods=["GET"])
 def style(system_id, style_id):
     """Retrieve available styles.
@@ -424,6 +389,6 @@ def style(system_id, style_id):
     styles = styles[0]
 
     return Response(json.dumps(styles[2]),
-             mimetype="text/plain",
-             headers={"Content-Disposition": "attachment;filename={}_style_{}.json".format(system_id,
-                                                                                           style_id)})
+                    mimetype="text/plain",
+                    headers={"Content-Disposition": "attachment;filename={}_style_{}.json".format(system_id,
+                                                                                                  style_id)})

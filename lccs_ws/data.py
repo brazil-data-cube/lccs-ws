@@ -21,6 +21,7 @@ def get_class_systems():
 
     return class_systems
 
+
 def get_class_system(system_id):
     """Retrieve information for a given classification system.
 
@@ -37,6 +38,7 @@ def get_class_system(system_id):
 
     return class_system
 
+
 def get_classification_system_classes(system_id):
     """Retrieve a list of classes for a given classification system.
 
@@ -45,14 +47,15 @@ def get_classification_system_classes(system_id):
     :return: list of classes
     :rtype: list
     """
-    retval = db.session.query(LucClass)\
-        .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id)\
-        .filter(LucClassificationSystem.name == system_id)\
+    retval = db.session.query(LucClass) \
+        .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id) \
+        .filter(LucClassificationSystem.name == system_id) \
         .all()
 
     class_systems = ClassificationSystemSchema().dump(retval, many=True)
 
     return class_systems
+
 
 def get_class(system_id, class_id):
     """Retrieve information about a class for a given classification system.
@@ -79,12 +82,12 @@ def get_class(system_id, class_id):
     where = [
         LucClassificationSystem.name == system_id,
         LucClass.name == class_id
-             ]
+    ]
 
-    result = db.session.query(*columns)\
-        .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id)\
-        .join(parent_classes, LucClass.class_parent_id == parent_classes.id, isouter=True)\
-        .filter(*where)\
+    result = db.session.query(*columns) \
+        .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id) \
+        .join(parent_classes, LucClass.class_parent_id == parent_classes.id, isouter=True) \
+        .filter(*where) \
         .all()
 
     class_system_class = dict()
@@ -97,6 +100,7 @@ def get_class(system_id, class_id):
     class_system_class["class_system"] = result[0].class_system
 
     return class_system_class
+
 
 def get_styles(system_id, style_format_id: None):
     """Get Styles."""
@@ -111,13 +115,14 @@ def get_styles(system_id, style_format_id: None):
     if style_format_id:
         where += [StyleFormats.name == style_format_id]
 
-    styles_formats = db.session.query(*columns)\
-                                .join(Styles, LucClassificationSystem.id == Styles.class_system_id)\
-                                .join(StyleFormats, Styles.style_format_id == StyleFormats.id)\
-                                .filter(*where)\
-                                .all()
+    styles_formats = db.session.query(*columns) \
+        .join(Styles, LucClassificationSystem.id == Styles.class_system_id) \
+        .join(StyleFormats, Styles.style_format_id == StyleFormats.id) \
+        .filter(*where) \
+        .all()
 
     return styles_formats
+
 
 def get_mappings(classes_source, classes_target):
     """Filter all mapping."""
@@ -126,11 +131,12 @@ def get_mappings(classes_source, classes_target):
     if classes_target is not None:
         where += [ClassMapping.target_class_id.in_([value.id for value in classes_target])]
 
-    result = db.session.query(ClassMapping).\
-        filter(*where)\
+    result = db.session.query(ClassMapping). \
+        filter(*where) \
         .group_by(ClassMapping.source_class_id,
-                 ClassMapping.target_class_id).all()
+                  ClassMapping.target_class_id).all()
     return result
+
 
 def get_avaliable_mappings(system_id):
     """Retorn avaliable mapping for a givin classification system."""
@@ -149,6 +155,7 @@ def get_avaliable_mappings(system_id):
         result.append(system.name) if system.name not in result else None
 
     return result
+
 
 def get_mapping(system_id_source, system_id_target):
     """Return mapping."""
@@ -171,13 +178,14 @@ def get_mapping(system_id_source, system_id_target):
 
     for i in mappings:
         result += [{
-            "source" : LucClass.get(id=i.source_class_id).name,
-            "target" : LucClass.get(id=i.target_class_id).name,
+            "source": LucClass.get(id=i.source_class_id).name,
+            "target": LucClass.get(id=i.target_class_id).name,
             "description": i.description,
-            "degree_of_similarity": i.degree_of_similarity
+            "degree_of_similarity": float(i.degree_of_similarity)
         }]
 
     return result
+
 
 def verify_style_format(style_name):
     """Filter style format."""
@@ -187,6 +195,7 @@ def verify_style_format(style_name):
     except:
         return None
 
+
 def verify_class_system_exist(name):
     """Verify if classification system exist in server."""
     try:
@@ -194,6 +203,7 @@ def verify_class_system_exist(name):
         return class_system
     except:
         return None
+
 
 def insert_classification_systems(classification_system: dict):
     """Create a full classification system."""
@@ -207,6 +217,7 @@ def insert_classification_systems(classification_system: dict):
 
     return class_system
 
+
 def insert_class(classification_system: int, class_info: dict):
     """Create a new class."""
     name = class_info['name']
@@ -219,7 +230,7 @@ def insert_class(classification_system: int, class_info: dict):
         description = class_info['description']
 
     if 'parent' in class_info:
-        parent =  class_info['parent']
+        parent = class_info['parent']
 
     if parent is not None:
         try:
@@ -244,7 +255,8 @@ def insert_class(classification_system: int, class_info: dict):
 
     return classes
 
-def insert_classes(classes_files_json : dict, class_system: int):
+
+def insert_classes(classes_files_json: dict, class_system: int):
     """Create classes for a given classification system.
 
     :param classes_files_json: classes file
