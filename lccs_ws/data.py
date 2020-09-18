@@ -1,6 +1,6 @@
 #
 # This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2019 INPE.
+# Copyright (C) 2020 INPE.
 #
 # Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -103,7 +103,13 @@ def get_class(system_id, class_id):
 
 
 def get_styles(system_id, style_format_id: None):
-    """Get Styles."""
+    """Get Styles.
+
+    :param system_id: Identification (name) of Classification System
+    :type system_id: string
+    :param style_format_id: Identification (name) of Style Format
+    :type style_format_id: string
+    """
     columns = [
         LucClassificationSystem.name.label("class_system_name"),
         StyleFormats.name.label("style_format"),
@@ -125,7 +131,13 @@ def get_styles(system_id, style_format_id: None):
 
 
 def get_mappings(classes_source, classes_target):
-    """Filter all mapping."""
+    """Filter all mapping.
+
+    :param classes_source: Identification (name) of class source
+    :type classes_source: string
+    :param classes_target: Identification (name) of class target
+    :type classes_target: string
+    """
     where = [ClassMapping.source_class_id.in_([value.id for value in classes_source])]
 
     if classes_target is not None:
@@ -139,7 +151,11 @@ def get_mappings(classes_source, classes_target):
 
 
 def get_avaliable_mappings(system_id):
-    """Retorn avaliable mapping for a givin classification system."""
+    """Retorn avaliable mapping for a givin classification system.
+
+    :param system_id: Identification (name) of Classification System
+    :type system_id: string
+    """
     system_source = LucClassificationSystem.get(name=system_id)
 
     classes_source = LucClass.filter(class_system_id=system_source.id)
@@ -158,7 +174,13 @@ def get_avaliable_mappings(system_id):
 
 
 def get_mapping(system_id_source, system_id_target):
-    """Return mapping."""
+    """Return mapping.
+
+    :param system_id_source: Identification (name) of classification system source
+    :type system_id_source: string
+    :param system_id_target: Identification (name) of classification system target
+    :type system_id_target: string
+    """
     try:
         system_source = LucClassificationSystem.get(name=system_id_source)
     except:
@@ -188,7 +210,11 @@ def get_mapping(system_id_source, system_id_target):
 
 
 def verify_style_format(style_name):
-    """Filter style format."""
+    """Filter style format.
+
+    :param style_name: Identification (name) of style format
+    :type style_name: string
+    """
     try:
         style = StyleFormats.get(name=style_name)
         return style
@@ -197,7 +223,11 @@ def verify_style_format(style_name):
 
 
 def verify_class_system_exist(name):
-    """Verify if classification system exist in server."""
+    """Verify if classification system exist in server.
+
+    :param name: Identification (name) of classification system
+    :type name: string
+    """
     try:
         class_system = LucClassificationSystem.get(name=name)
         return class_system
@@ -206,7 +236,11 @@ def verify_class_system_exist(name):
 
 
 def insert_classification_systems(classification_system: dict):
-    """Create a full classification system."""
+    """Create a full classification system.
+
+    :param classification_system: Informations about classification system
+    :type classification_system: dict
+    """
     class_system = LucClassificationSystem(name=classification_system['name'],
                                            description=classification_system['description'],
                                            authority_name=classification_system['authority_name'],
@@ -219,7 +253,13 @@ def insert_classification_systems(classification_system: dict):
 
 
 def insert_class(classification_system: int, class_info: dict):
-    """Create a new class."""
+    """Create a new class.
+
+    :param classification_system: Classification System id.
+    :type classification_system: int
+    :param class_info: Informations of class.
+    :type class_info: dict
+    """
     name = class_info['name']
     code = class_info['code']
     description = None
@@ -271,17 +311,27 @@ def insert_classes(classes_files_json: dict, class_system: int):
 
 
 def allowed_file(style_file):
+    """Return allowed files.
+
+    :param style_file: Full Style file name.
+    :type style_file: string
+    """
     extensions = {'xml', 'json', 'qml', 'sdl'}
 
     if '.' in style_file and style_file.rsplit('.', 1)[1].lower() in extensions:
         return style_file.rsplit('.', 1)[1].lower()
 
-    # return '.' in style_file and \
-    #        style_file.rsplit('.', 1)[1].lower() in extensions
-
 
 def insert_file(style_format_name, class_system_name, style_file):
+    """Insert File method.
 
+    :param style_format_name: Identification (name) style format.
+    :type style_format_name: string
+    :param class_system_name: Identification (name) of classification system
+    :type class_system_name: string
+    :param style_file: Style File.
+    :type style_file: json
+    """
     system = verify_class_system_exist(class_system_name)
 
     style_format = StyleFormats.get(name=style_format_name)

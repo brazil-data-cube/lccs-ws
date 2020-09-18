@@ -9,17 +9,18 @@
 import json
 import os
 
-from flask import Response, abort, current_app, jsonify, request, send_from_directory
+from flask import (Response, abort, current_app, jsonify, request,
+                   send_from_directory)
+from werkzeug.utils import secure_filename
 
 from lccs_ws.forms import ClassificationSystemSchema
 
 from .config import Config
-from .data import (allowed_file, get_avaliable_mappings, get_class, get_class_system,
-                   get_class_systems, get_classification_system_classes,
-                   get_mapping, get_styles, insert_classes, insert_file,
-                   insert_classification_systems, verify_class_system_exist)
-
-from werkzeug.utils import secure_filename
+from .data import (allowed_file, get_avaliable_mappings, get_class,
+                   get_class_system, get_class_systems,
+                   get_classification_system_classes, get_mapping, get_styles,
+                   insert_classes, insert_classification_systems, insert_file,
+                   verify_class_system_exist)
 
 BASE_URL = Config.LCCS_URL
 
@@ -369,7 +370,7 @@ def styles(system_id):
                     "href": f"{BASE_URL}/classification_system/{style[0]}/styles/{style[1]}",
                     "rel": "child",
                     "type": "application/json",
-                    "title": "Styles",
+                    "title": f"{style[1]}",
                 }
             )
 
