@@ -27,6 +27,7 @@ class Config():
     SECRET_KEY = "APi-Users-123456"
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     LCCS_URL = os.getenv('LCCS_URL', 'http://localhost:5000')
+    LCCS_UPLOAD_FOLDER = os.getenv('LCCS_UPLOAD_FOLDER', '/path/to/the/uploads')
 
 class ProductionConfig(Config):
     """Production Mode."""

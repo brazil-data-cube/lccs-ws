@@ -7,16 +7,19 @@
 #
 """Views of Land Cover Classification System Web Service."""
 import json
+import os
 
-from flask import Response, abort, current_app, jsonify, request
+from flask import Response, abort, current_app, jsonify, request, send_from_directory
 
 from lccs_ws.forms import ClassificationSystemSchema
 
 from .config import Config
-from .data import (get_avaliable_mappings, get_class, get_class_system,
+from .data import (allowed_file, get_avaliable_mappings, get_class, get_class_system,
                    get_class_systems, get_classification_system_classes,
-                   get_mapping, get_styles, insert_classes,
+                   get_mapping, get_styles, insert_classes, insert_file,
                    insert_classification_systems, verify_class_system_exist)
+
+from werkzeug.utils import secure_filename
 
 BASE_URL = Config.LCCS_URL
 
@@ -47,27 +50,27 @@ def classification_systems():
             links = [
                 {
                     "href": f"{BASE_URL}/classification_system/{class_system['name']}",
-                    "rel": "self",
+                    "rel": "child",
                     "type": "application/json",
-                    "title": "Link to this document",
+                    "title": "Link to Classification System",
                 },
                 {
                     "href": f"{BASE_URL}/classification_system/{class_system['name']}/classes",
                     "rel": "child",
                     "type": "application/json",
-                    "title": "Link to this document",
+                    "title": "Link to Classification System Classes",
                 },
                 {
                     "href": f"{BASE_URL}/mappings/{class_system['name']}",
                     "rel": "child",
                     "type": "application/json",
-                    "title": "Link to this document",
+                    "title": "Link to Classification Mappings",
                 },
                 {
                     "href": f"{BASE_URL}/classification_systems",
-                    "rel": "parent",
+                    "rel": "self",
                     "type": "application/json",
-                    "title": "Link to classification systems",
+                    "title": "Link to this document",
                 },
             ]
 
@@ -338,7 +341,7 @@ def styles(system_id):
                 "href": f"{BASE_URL}/classification_system/{system_id}/styles",
                 "rel": "self",
                 "type": "application/json",
-                "title": f"Classes of the classification system {system_id}",
+                "title": f"Styles of the classification system {system_id}",
             },
             {
                 "href": f"{BASE_URL}/classification_system/{system_id}",
@@ -376,6 +379,34 @@ def styles(system_id):
 
         return result
 
+    if request.method == "POST":
+
+        style_format = request.form.get('style_format')
+
+        if 'style' not in request.files:
+            return abort(500, "Style File not found!")
+
+        file = request.files['style']
+
+        file_format = allowed_file(file.filename)
+
+        if file_format:
+
+            filename = secure_filename(file.filename)
+
+            file_directory = os.path.join(Config.LCCS_UPLOAD_FOLDER, filename)
+
+            file.save(file_directory)
+
+            json_file = json.dumps({"format": file_format,
+                                    "filename": filename})
+
+            insert_file(style_format_name=style_format,
+                        class_system_name=system_id,
+                        style_file=json_file)
+
+            return {'message': 'Classification Sytem Style Insert'}, 201
+
 
 @current_app.route("/classification_system/<system_id>/styles/<style_id>", methods=["GET"])
 def style(system_id, style_id):
@@ -386,9 +417,6 @@ def style(system_id, style_id):
     """
     styles = get_styles(system_id, style_id)
 
-    styles = styles[0]
+    file = json.loads(styles[0].style_file)
 
-    return Response(json.dumps(styles[2]),
-                    mimetype="text/plain",
-                    headers={"Content-Disposition": "attachment;filename={}_style_{}.json".format(system_id,
-                                                                                                  style_id)})
+    return send_from_directory(Config.LCCS_UPLOAD_FOLDER, file['filename'], as_attachment=True)

@@ -268,3 +268,26 @@ def insert_classes(classes_files_json: dict, class_system: int):
         insert_class(class_system, classes)
 
     db.session.commit()
+
+
+def allowed_file(style_file):
+    extensions = {'xml', 'json', 'qml', 'sdl'}
+
+    if '.' in style_file and style_file.rsplit('.', 1)[1].lower() in extensions:
+        return style_file.rsplit('.', 1)[1].lower()
+
+    # return '.' in style_file and \
+    #        style_file.rsplit('.', 1)[1].lower() in extensions
+
+
+def insert_file(style_format_name, class_system_name, style_file):
+
+    system = verify_class_system_exist(class_system_name)
+
+    style_format = StyleFormats.get(name=style_format_name)
+
+    style = Styles(class_system_id=system.id,
+                   style_format_id=style_format.id,
+                   style=style_file)
+
+    style.save()
