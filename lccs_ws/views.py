@@ -51,19 +51,19 @@ def classification_systems():
             links = [
                 {
                     "href": f"{BASE_URL}/classification_system/{class_system['name']}",
-                    "rel": "child",
+                    "rel": "self",
                     "type": "application/json",
                     "title": "Link to Classification System",
                 },
                 {
                     "href": f"{BASE_URL}/classification_system/{class_system['name']}/classes",
-                    "rel": "child",
+                    "rel": "classes",
                     "type": "application/json",
                     "title": "Link to Classification System Classes",
                 },
                 {
                     "href": f"{BASE_URL}/mappings/{class_system['name']}",
-                    "rel": "child",
+                    "rel": "mappings",
                     "type": "application/json",
                     "title": "Link to Classification Mappings",
                 },
