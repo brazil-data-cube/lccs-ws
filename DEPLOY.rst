@@ -1,6 +1,6 @@
 ..
     This file is part of Land Cover Classification System Web Service.
-    Copyright (C) 2019 INPE.
+    Copyright (C) 2020 INPE.
 
     Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
@@ -69,8 +69,9 @@ The `docker run` command can be used to launch a container from the image `lccs-
              --name lccs-ws \
              --publish 127.0.0.1:8080:5000 \
              --network=bdc_net \
-             --env SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname" \
              --env LCCS_URL="http://localhost:8080" \
+             --env SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname" \
+             --env LCCS_UPLOAD_FOLDER="/path/to/the/uploads" \
              lccs-ws:0.2.0-0
 
 Let's take a look at each parameter in the above command:/
@@ -79,13 +80,15 @@ Let's take a look at each parameter in the above command:/
 
     - ``--name lccs-ws``: names the container.
 
-    - ``--publish 127.0.0.1:8080:5000``: by default the LCCS-WS will be running on port ``5000`` of the container. You can bind a host port, such as ``8080`` to the container port ``5000``.
+    - ``--publish 127.0.0.1:5000:5000``: by default the LCCS-WS will be running on port ``5000`` of the container. You can bind a host port, such as ``8080`` to the container port ``5000``.
 
     - ``--network=bdc_net``: if the container should connect to the database server through a docker network, this parameter will automatically attach the container to the ``bdc_net``. You can ommit this parameter if the database server address can be resolved directly from a host address.
 
-    - ``--env SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
+    - ``--env SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
 
     - ``--env LCCS_URL="http://localhost:8080"``: Base URI of the service.
+
+    - ``LCCS_UPLOAD_FOLDER="/path/to/the/uploads"``: The directory path to be use to save styles.
 
     - ``lccs-ws:0.2.0-0``: the name of the base Docker image used to create the container.
 
@@ -104,9 +107,21 @@ Finally, to test if it is listening, use the ``curl`` command:
 
 .. code-block:: shell
 
-        $ curl localhost:8080/lccs/
+        $ curl localhost:8080/
 
-        [{"href":"http://localhost:8080/lccs/","rel":"self"},{"href":"http://localhost:8080/lccs/classification_systems","rel":"classification_systems"}]
+        [[{
+            "href": "http://localhost:8080/",
+            "rel": "self",
+            "title": "Link to this document",
+            "type": "application/json"
+          },
+          {
+            "href": "http://localhost:8080/classification_systems",
+            "rel": "classification_systems",
+            "title": "List classification_systems",
+            "type": "application/json"
+          }
+        ]]
 
 
 .. rubric:: Footnotes

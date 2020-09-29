@@ -1,6 +1,6 @@
 #
 # This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2019 INPE.
+# Copyright (C) 2020 INPE.
 #
 # Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -8,6 +8,7 @@
 """Land Cover Classification System Web Service."""
 
 import os
+
 from setuptools import find_packages, setup
 
 readme = open('README.rst').read()
@@ -44,10 +45,7 @@ install_requires = [
     'Flask>=1.1.1',
     'Flask-Cors>=3.0.8',
     'Flask-Script>=2.0.6',
-    'Flask-SQLAlchemy>=2.4.1',
-    'psycopg2>=2.8.3',
-    'requests>=2.9.1',
-    'SQLAlchemy==1.3.4',
+    'requests>=2.9.1'
     'flask-redoc>=0.1.0',
     'marshmallow-sqlalchemy==0.18.0',
     'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777

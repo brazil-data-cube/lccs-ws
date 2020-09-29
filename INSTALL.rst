@@ -1,6 +1,6 @@
 ..
     This file is part of Land Cover Classification System Web Service.
-    Copyright (C) 2019 INPE.
+    Copyright (C) 2020 INPE.
 
     Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
@@ -51,8 +51,9 @@ In the source code folder, enter the following command:
 
     $ FLASK_APP="lccs_ws" \
       FLASK_ENV="development" \
-      SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname" \
+      SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname" \
       LCCS_URL="http://localhost:5000" \
+      LCCS_UPLOAD_FOLDER="/path/to/the/uploads" \
       flask run
 
 You may need to replace the definition of some environment variables:
@@ -61,8 +62,9 @@ You may need to replace the definition of some environment variables:
 
   - ``LCCS_URL="http://localhost:5000"``: Base URI of the service.
 
-  - ``SQLALCHEMY_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
+  - ``SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
 
+  - ``LCCS_UPLOAD_FOLDER="/path/to/the/uploads"``: The directory path to be use to save styles.
 
 The above command should output some messages in the console as showed below:
 
@@ -78,28 +80,47 @@ The above command should output some messages in the console as showed below:
 
 If you want to check if the system is up and running, try the following URL in your web browser:
 
-* http://localhost:5000/lccs/classification_systems
+* http://localhost:5000/classification_systems
 
 You should see an output like:
 
 .. code-block:: js
 
     {
-      "links": [
+        "classification_systems": [
         {
-          "href": "http://localhost:5000/lccs/classification_systems",
-          "rel": "self"
-        },
-        {
-          "href": "http://localhost:5000/lccs/",
-          "rel": "root"
-        },
-        {
-          "href": "http://localhost:5000/lccs/classification_systems/PRODES",
-          "rel": "child",
-          "title": "PRODES"
+          "authority_name": "INPE",
+          "description": "Sistema de Classificação Anual de Desmatamento",
+          "id": 1,
+          "links": [
+            {
+              "href": "http://localhost:5000/classification_system/PRODES",
+              "rel": "child",
+              "title": "Link to Classification System",
+              "type": "application/json"
+            },
+            {
+              "href": "http://localhost:5000/classification_system/PRODES/classes",
+              "rel": "child",
+              "title": "Link to Classification System Classes",
+              "type": "application/json"
+            },
+            {
+              "href": "http://localhost:5000/mappings/PRODES",
+              "rel": "child",
+              "title": "Link to Classification Mappings",
+              "type": "application/json"
+            },
+            {
+              "href": "http://localhost:5000/classification_systems",
+              "rel": "self",
+              "title": "Link to this document",
+              "type": "application/json"
+            }
+          ],
+          "name": "PRODES",
+          "version": "1.0"
         }
-        ]
     }
 
 

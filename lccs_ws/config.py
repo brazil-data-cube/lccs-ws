@@ -1,6 +1,6 @@
 #
 # This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2019 INPE.
+# Copyright (C) 2020 INPE.
 #
 # Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -25,8 +25,9 @@ class Config():
     CSRF_ENABLED = False
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "APi-Users-123456"
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_URI')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     LCCS_URL = os.getenv('LCCS_URL', 'http://localhost:5000')
+    LCCS_UPLOAD_FOLDER = os.getenv('LCCS_UPLOAD_FOLDER', '/path/to/the/uploads')
 
 class ProductionConfig(Config):
     """Production Mode."""

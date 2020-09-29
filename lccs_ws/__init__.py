@@ -1,6 +1,6 @@
 #
 # This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2019 INPE.
+# Copyright (C) 2020 INPE.
 #
 # Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -11,7 +11,6 @@ from flask import Flask
 from flask_cors import CORS
 from lccs_db.ext import LCCSDatabase
 
-from lccs_ws.blueprint import blueprint
 from lccs_ws.config import get_settings
 
 from .version import __version__
@@ -30,16 +29,17 @@ def create_app(config_name='DevelopmentConfig'):
     app = Flask(__name__)
 
     conf = config.get_settings(config_name)
+
     app.config.from_object(conf)
 
     with app.app_context():
 
-        CORS(app, resorces={r'/d/*': {"origins": '*'}})
-
         # Initialize Flask SQLAlchemy
         LCCSDatabase(app)
 
-        app.register_blueprint(blueprint)
+        from . import views
+
+        CORS(app)
 
     return app
 
