@@ -17,7 +17,7 @@ def get_settings(env):
     return CONFIG.get(env)
 
 
-class Config():
+class Config:
     """Base configuration with default flags."""
 
     DEBUG = False
@@ -25,9 +25,10 @@ class Config():
     CSRF_ENABLED = False
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "APi-Users-123456"
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "postgresql://postgres:mysecretpassword@localhost:5432/lccs")
     LCCS_URL = os.getenv('LCCS_URL', 'http://localhost:5000')
     LCCS_UPLOAD_FOLDER = os.getenv('LCCS_UPLOAD_FOLDER', '/path/to/the/uploads')
+
 
 class ProductionConfig(Config):
     """Production Mode."""
@@ -55,4 +56,4 @@ CONFIG = {
     "DevelopmentConfig": DevelopmentConfig(),
     "ProductionConfig": ProductionConfig(),
     "TestingConfig": TestingConfig()
-    }
+}

@@ -10,11 +10,15 @@
 Changes
 =======
 
+Version 0.4.0 (2020-12-11)
+--------------------------
 
-Version 0.2.0
--------------
+- Compatibility with `LCC-DB Version 0.2.0 <https://github.com/brazil-data-cube/lccs-db>`_.
+- Improved Sphinx template.
 
-Released 2020-04-16
+
+Version 0.2.0 (2020-04-16)
+--------------------------
 
 - First experimental version.
 - Support for: Class Systems, Classes, Styles and Class Mappings.

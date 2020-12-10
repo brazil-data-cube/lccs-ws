@@ -33,7 +33,6 @@ def create_app(config_name='DevelopmentConfig'):
     app.config.from_object(conf)
 
     with app.app_context():
-
         # Initialize Flask SQLAlchemy
         LCCSDatabase(app)
 
@@ -42,5 +41,6 @@ def create_app(config_name='DevelopmentConfig'):
         CORS(app)
 
     return app
+
 
 __all__ = ('__version__', 'create_app')

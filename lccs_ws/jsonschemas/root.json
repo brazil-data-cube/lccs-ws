@@ -1,0 +1,16 @@
+{
+  "links": [
+    {
+      "href": "http://localhost:5000/",
+      "rel": "self",
+      "title": "Link to this document",
+      "type": "application/json"
+    },
+    {
+      "href": "http://localhost:5000/classification_systems",
+      "rel": "classification_systems",
+      "title": "List classification_systems",
+      "type": "application/json"
+    }
+  ]
+}

@@ -9,8 +9,7 @@
 import json
 import os
 
-from flask import (Response, abort, current_app, jsonify, request,
-                   send_from_directory)
+from flask import abort, current_app, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 from lccs_ws.forms import ClassificationSystemSchema
@@ -20,7 +19,7 @@ from .data import (allowed_file, get_avaliable_mappings, get_class,
                    get_class_system, get_class_systems,
                    get_classification_system_classes, get_mapping, get_styles,
                    insert_classes, insert_classification_systems, insert_file,
-                   verify_class_system_exist)
+                   insert_mappings, verify_class_system_exist)
 
 BASE_URL = Config.LCCS_URL
 
@@ -29,13 +28,17 @@ BASE_URL = Config.LCCS_URL
 def index():
     """URL Handler for Land User Cover Classification System through REST API."""
     links = list()
+    response = dict()
+
     links += [
         {"href": f"{BASE_URL}/", "rel": "self", "type": "application/json", "title": "Link to this document"},
         {"href": f"{BASE_URL}/classification_systems", "rel": "classification_systems", "type": "application/json",
          "title": "List classification_systems", }
     ]
 
-    return jsonify(links)
+    response["links"] = links
+
+    return response
 
 
 @current_app.route("/classification_systems", methods=["GET", "POST"])
@@ -51,7 +54,7 @@ def classification_systems():
             links = [
                 {
                     "href": f"{BASE_URL}/classification_system/{class_system['name']}",
-                    "rel": "self",
+                    "rel": "classification system",
                     "type": "application/json",
                     "title": "Link to Classification System",
                 },
@@ -325,6 +328,48 @@ def mapping(system_id_source, system_id_target):
 
         return result
 
+    if request.method == "POST":
+
+        mappings = request.files['mappings']
+
+        if mappings.content_type != 'application/json':
+            abort(400, 'Mappings is not a JSON file')
+
+        mappings_file = str(mappings.read(), 'utf-8')
+
+        post_file = json.loads(mappings_file)
+
+        try:
+            insert_mappings(system_id_source, system_id_target, post_file)
+        except RuntimeError:
+            abort(400, 'Error while insert mappings')
+
+        class_system_mappings = get_mapping(system_id_source, system_id_target)
+
+        for mp in class_system_mappings:
+            links = [
+                {
+                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['source']}",
+                    "rel": "item",
+                    "type": "application/json",
+                    "title": "Link to the source class",
+                },
+                {
+                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['target']}",
+                    "rel": "item",
+                    "type": "application/json",
+                    "title": "Link to target class",
+                },
+            ]
+
+            mp["links"] = links
+
+        result = dict()
+
+        result["mappings"] = class_system_mappings
+
+        return result
+
 
 @current_app.route("/classification_system/<system_id>/styles", methods=["GET", "POST"])
 def styles(system_id):
@@ -406,7 +451,7 @@ def styles(system_id):
                         class_system_name=system_id,
                         style_file=json_file)
 
-            return {'message': 'Classification Sytem Style Insert'}, 201
+            return {'message': 'Classification System Style Inserted!'}, 201
 
 
 @current_app.route("/classification_system/<system_id>/styles/<style_id>", methods=["GET"])

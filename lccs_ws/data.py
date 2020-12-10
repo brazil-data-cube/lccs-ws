@@ -75,7 +75,8 @@ def get_class(system_id, class_id):
         LucClass.code,
         LucClass.description,
         parent_classes.name.label("class_parent"),
-        LucClassificationSystem.name.label("class_system")
+        LucClassificationSystem.name.label("classification_system_name"),
+        LucClassificationSystem.id.label("classification_system_id")
 
     ]
 
@@ -97,7 +98,8 @@ def get_class(system_id, class_id):
     class_system_class["code"] = result[0].code
     class_system_class["description"] = result[0].description
     class_system_class["class_parent"] = result[0].class_parent
-    class_system_class["class_system"] = result[0].class_system
+    class_system_class["classification_system_name"] = result[0].classification_system_name
+    class_system_class["classification_system_id"] = result[0].classification_system_id
 
     return class_system_class
 
@@ -341,3 +343,30 @@ def insert_file(style_format_name, class_system_name, style_file):
                    style=style_file)
 
     style.save()
+
+
+def insert_mappings(system_id_source, system_id_target, classes_files_json: dict):
+    """Create classes for a given classification system.
+
+    :param system_id_source: Source Classification System
+    :type system_id_source: string
+    :param system_id_target: Target Classification System
+    :type system_id_target: string
+    :param classes_files_json: Json File with mappings
+    :type classes_files_json: json
+    """
+    system_source = verify_class_system_exist(system_id_source)
+    system_target = verify_class_system_exist(system_id_target)
+
+    for classes in classes_files_json["mappings"]:
+        mapping = None
+        class_system_source = LucClass.get(name=classes["class_source"], class_system_id=system_source.id)
+        class_system_class = LucClass.get(name=classes["class_target"], class_system_id=system_target.id)
+
+        mapping = ClassMapping(source_class_id=class_system_source.id, target_class_id=class_system_class.id,
+                               description=classes["description"],degree_of_similarity=classes["degree_of_similarity"])
+
+        mapping.save(commit=False)
+        db.session.flush()
+
+    db.session.commit()

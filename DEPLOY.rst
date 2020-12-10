@@ -67,9 +67,9 @@ The `docker run` command can be used to launch a container from the image `lccs-
 
         $ docker run --detach \
              --name lccs-ws \
-             --publish 127.0.0.1:8080:5000 \
+             --publish 127.0.0.1:5000:5000 \
              --network=bdc_net \
-             --env LCCS_URL="http://localhost:8080" \
+             --env LCCS_URL="http://localhost:5000" \
              --env SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname" \
              --env LCCS_UPLOAD_FOLDER="/path/to/the/uploads" \
              lccs-ws:0.2.0-0
@@ -86,7 +86,7 @@ Let's take a look at each parameter in the above command:/
 
     - ``--env SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
 
-    - ``--env LCCS_URL="http://localhost:8080"``: Base URI of the service.
+    - ``--env LCCS_URL="http://localhost:5000"``: Base URI of the service.
 
     - ``LCCS_UPLOAD_FOLDER="/path/to/the/uploads"``: The directory path to be use to save styles.
 
@@ -107,16 +107,16 @@ Finally, to test if it is listening, use the ``curl`` command:
 
 .. code-block:: shell
 
-        $ curl localhost:8080/
+        $ curl localhost:5000/
 
         [[{
-            "href": "http://localhost:8080/",
+            "href": "http://localhost:5000/",
             "rel": "self",
             "title": "Link to this document",
             "type": "application/json"
           },
           {
-            "href": "http://localhost:8080/classification_systems",
+            "href": "http://localhost:5000/classification_systems",
             "rel": "classification_systems",
             "title": "List classification_systems",
             "type": "application/json"
