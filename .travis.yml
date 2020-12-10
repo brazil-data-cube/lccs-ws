@@ -28,6 +28,10 @@ install:
     - docker pull postgis/postgis:12-3.0
     - docker run --name bdc_lccs -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=postgres -d postgis/postgis:12-3.0
     - docker ps -a
+    - lccs_db db init
+    - lccs_db db create-namespaces
+    - lccs_db alembic upgrade
+    - lccs_db db load-scripts
 
 script:
     - ./run-tests.sh
