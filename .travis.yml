@@ -16,7 +16,6 @@ python:
 
 env:
   matrix:
-  - BASE_URL="http://localhost:5000"
   - SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@127.0.0.1:5432/bdc_lccs"
 
 

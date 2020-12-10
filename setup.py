@@ -47,7 +47,7 @@ install_requires = [
     'Flask>=1.1.1',
     'Flask-Cors>=3.0.8',
     'Flask-Script>=2.0.6',
-    'requests>=2.25.0'
+    'requests>=2.20.0',
     'flask-redoc>=0.1.0',
     'marshmallow-sqlalchemy==0.18.0',
     'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777
