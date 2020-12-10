@@ -37,6 +37,6 @@ script:
     - ./run-tests.sh
 
 after_success:
-    - docker stop bdc-pg
-    - docker rm bdc-pg
+    - docker stop bdc_lccs
+    - docker rm bdc_lccs
     - coveralls
