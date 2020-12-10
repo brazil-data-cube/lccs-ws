@@ -25,7 +25,7 @@ class Config:
     CSRF_ENABLED = False
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "APi-Users-123456"
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "postgresql://postgres:mysecretpassword@localhost:5432/lccs")
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "postgresql://user:password@localhost:5432/lccs")
     LCCS_URL = os.getenv('LCCS_URL', 'http://localhost:5000')
     LCCS_UPLOAD_FOLDER = os.getenv('LCCS_UPLOAD_FOLDER', '/path/to/the/uploads')
 
