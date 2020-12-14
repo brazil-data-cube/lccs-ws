@@ -1,35 +1,16 @@
 {
-  "class_parent": null,
-  "classification_system_id": 1,
-  "classification_system_name": "PRODES",
-  "code": "DESFLORESTAMENTO",
-  "description": "",
-  "id": 1,
+  "id": 0,
+  "name": "string",
+  "code": "string",
+  "description": "string",
+  "class_parent": "string",
+  "classification_system_name": "string",
+  "classification_system_id": 0,
   "links": [
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Desflorestamento",
-      "rel": "self",
-      "title": "Link to this document",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_systemPRODES/classes",
-      "rel": "parent",
-      "title": "Link to this document",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_systems",
-      "rel": "parent",
-      "title": "Link to classification systems",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/",
-      "rel": "root",
-      "title": "API landing page",
-      "type": "application/json"
+      "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes",
+      "rel": "child",
+      "title": "Child"
     }
-  ],
-  "name": "Desflorestamento"
+  ]
 }

@@ -6,9 +6,10 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Python Land Cover Classification System Web Service."""
+import os
 
 from flask import Flask
-from flask_cors import CORS
+from werkzeug.exceptions import HTTPException, InternalServerError
 from lccs_db.ext import LCCSDatabase
 
 from lccs_ws.config import get_settings
@@ -16,7 +17,7 @@ from lccs_ws.config import get_settings
 from .version import __version__
 
 
-def create_app(config_name='DevelopmentConfig'):
+def create_app(config_name):
     """
     Create Brazil Data Cube LCCSWS application from config object.
 
@@ -29,18 +30,40 @@ def create_app(config_name='DevelopmentConfig'):
     app = Flask(__name__)
 
     conf = config.get_settings(config_name)
-
     app.config.from_object(conf)
 
     with app.app_context():
         # Initialize Flask SQLAlchemy
         LCCSDatabase(app)
 
-        from . import views
+        @app.after_request
+        def after_request(response):
+            """Enable CORS."""
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            response.headers.add('Access-Control-Allow-Methods', '*')
+            response.headers.add('Access-Control-Allow-Headers',
+                                 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+            return response
 
-        CORS(app)
+    setup_error_handlers(app)
 
     return app
 
+
+def setup_error_handlers(app: Flask):
+    """Configure LCCS-WS Error Handlers on Flask Application."""
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        """Handle exceptions."""
+        if isinstance(e, HTTPException):
+            return {'code': e.code, 'description': e.description}, e.code
+
+        app.logger.exception(e)
+
+        return {'code': InternalServerError.code,
+                'description': InternalServerError.description}, InternalServerError.code
+
+
+app = create_app(os.environ.get('LCCSWS_ENVIRONMENT', 'DevelopmentConfig'))
 
 __all__ = ('__version__', 'create_app')
