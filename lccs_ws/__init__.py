@@ -9,8 +9,8 @@
 import os
 
 from flask import Flask
-from werkzeug.exceptions import HTTPException, InternalServerError
 from lccs_db.ext import LCCSDatabase
+from werkzeug.exceptions import HTTPException, InternalServerError
 
 from lccs_ws.config import get_settings
 

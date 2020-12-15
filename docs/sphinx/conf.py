@@ -10,7 +10,7 @@ import lccs_ws
 import sphinx_rtd_theme
 
 # Create lccs_ws app to initialize `current_app` proxy object on `api.rst`.
-app = lccs_ws.create_app()
+app = lccs_ws.app
 
 # -- Project information -----------------------------------------------------
 

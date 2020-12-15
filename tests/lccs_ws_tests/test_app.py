@@ -15,7 +15,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pkg_resources import resource_filename
 
-from lccs_ws import create_app
+import lccs_ws
 from lccs_ws.schemas import (classe_response, classes_response,
                              classification_system_response, root_response)
 
@@ -44,7 +44,7 @@ def mocks():
 
 @pytest.fixture(scope="class")
 def client():
-    app = create_app()
+    app = lccs_ws.app
     with app.test_client() as client:
         yield client
 
