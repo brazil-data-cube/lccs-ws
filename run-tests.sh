@@ -7,8 +7,8 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
-pydocstyle lccs_ws && \
+pydocstyle lccs_ws setup.py && \
 isort lccs_ws tests setup.py --check-only --diff && \
 check-manifest --ignore ".travis-*" --ignore ".readthedocs.*" && \
-pytest &&
-sphinx-build -qnW --color -b doctest doc/sphinx/ doc/sphinx/_build/doctest
+sphinx-build -qnW --color -b doctest docs/sphinx/ docs/sphinx/_build/doctest && \
+pytest

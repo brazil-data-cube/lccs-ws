@@ -16,18 +16,23 @@ python:
 
 env:
   matrix:
-  - BASE_URL="http://localhost:5000"
+  - SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@127.0.0.1:5432/bdc_lccs"
+
 
 before_install:
     - pip install --upgrade pip
     - pip install --upgrade setuptools
-    - pip install --upgrade wheel
 
 install:
     - pip install -e .[tests,docs]
+    - docker pull postgis/postgis:12-3.0
+    - docker run --name bdc_lccs -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=postgres -d postgis/postgis:12-3.0
+    - docker ps -a
 
 script:
     - ./run-tests.sh
 
 after_success:
+    - docker stop bdc-pg
+    - docker rm bdc-pg
     - coveralls

@@ -28,6 +28,8 @@ tests_require = [
 
 docs_require = [
     'Sphinx>=2.2',
+    'sphinx_rtd_theme',
+    'sphinx-copybutton',
 ]
 
 extras_require = {
@@ -45,12 +47,12 @@ install_requires = [
     'Flask>=1.1.1',
     'Flask-Cors>=3.0.8',
     'Flask-Script>=2.0.6',
-    'requests>=2.9.1'
+    'requests>=2.20.0',
     'flask-redoc>=0.1.0',
     'marshmallow-sqlalchemy==0.18.0',
     'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777
     'bdc-core @ git+git://github.com/brazil-data-cube/bdc-core.git#egg=bdc-core',
-    'lccs-db @ git+git://github.com/brazil-data-cube/lccs-db.git@b-0.2#egg=lccs_db',
+    'lccs-db @ git+git://github.com/brazil-data-cube/lccs-db@v0.4.0',
 ]
 
 packages = find_packages()
