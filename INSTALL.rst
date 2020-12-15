@@ -35,11 +35,36 @@ Install in development mode:
     $ pip3 install -e .[all]
 
 
+Run the Tests
++++++++++++++
+
+Run the tests:
+
+.. code-block:: shell
+
+        $ ./run-tests.sh
+
+
+Build the Documentation
++++++++++++++++++++++++
+
 Generate the documentation:
 
 .. code-block:: shell
 
     $ python setup.py build_sphinx
+
+The above command will generate the documentation in HTML and it will place it under:
+
+.. code-block:: shell
+
+    docs/sphinx/_build/html/
+
+You can open the above documentation in your favorite browser, as:
+
+.. code-block:: shell
+
+    firefox docs/sphinx/_build/html/index.html
 
 
 Running in Development Mode

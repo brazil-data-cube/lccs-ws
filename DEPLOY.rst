@@ -26,16 +26,16 @@ On the command line use the `docker build` command to create the docker image fo
 
 .. code-block:: shell
 
-        $ docker build -t lccs-ws:0.2.0-0 -f docker/Dockerfile . --no-cache
+        $ docker build -t lccs-ws:0.4.0-0 -f docker/Dockerfile . --no-cache
 
-The above command will create a Docker image named `lccs-ws` and tag `0.2.0-0`, as one can see with the `docker images` command:
+The above command will create a Docker image named `lccs-ws` and tag `0.4.0-0`, as one can see with the `docker images` command:
 
 .. code-block:: shell
 
         $ docker images
 
         REPOSITORY                                          TAG                 IMAGE ID            CREATED             SIZE
-        lccs-ws                                            0.2.0-0             ce2ba6a67896        16 hours ago        752MB
+        lccs-ws                                            0.4.0-0             ce2ba6a67896        16 hours ago        752MB
 
 Preparing the Network for Containers
 ------------------------------------
@@ -72,7 +72,7 @@ The `docker run` command can be used to launch a container from the image `lccs-
              --env LCCS_URL="http://localhost:5000" \
              --env SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname" \
              --env LCCS_UPLOAD_FOLDER="/path/to/the/uploads" \
-             lccs-ws:0.2.0-0
+             lccs-ws:0.4.0-0
 
 Let's take a look at each parameter in the above command:/
 
