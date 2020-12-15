@@ -202,8 +202,10 @@ def get_mapping(system_id_source, system_id_target):
 
     for i in mappings:
         result += [{
-            "source": LucClass.get(id=i.source_class_id).name,
-            "target": LucClass.get(id=i.target_class_id).name,
+            "source": i.source_class.name,
+            "source_id": i.source_class.id,
+            "target": i.target_class.name,
+            "target_id": i.target_class.id,
             "description": i.description,
             "degree_of_similarity": float(i.degree_of_similarity)
         }]
