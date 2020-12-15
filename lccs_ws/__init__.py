@@ -36,22 +36,14 @@ def create_app(config_name):
         # Initialize Flask SQLAlchemy
         LCCSDatabase(app)
 
-        @app.after_request
-        def after_request(response):
-            """Enable CORS."""
-            response.headers.add('Access-Control-Allow-Origin', '*')
-            response.headers.add('Access-Control-Allow-Methods', '*')
-            response.headers.add('Access-Control-Allow-Headers',
-                                 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
-            return response
-
-    setup_error_handlers(app)
+        setup_app(app)
 
     return app
 
 
 def setup_error_handlers(app: Flask):
-    """Configure LCCS-WS Error Handlers on Flask Application."""
+    """Configure LCCS Error Handlers on Flask Application."""
+
     @app.errorhandler(Exception)
     def handle_exception(e):
         """Handle exceptions."""
@@ -62,6 +54,23 @@ def setup_error_handlers(app: Flask):
 
         return {'code': InternalServerError.code,
                 'description': InternalServerError.description}, InternalServerError.code
+
+
+def setup_app(app):
+    """Configure internal middleware for Flask app."""
+
+    @app.after_request
+    def after_request(response):
+        """Enable CORS."""
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', '*')
+        response.headers.add('Access-Control-Allow-Headers',
+                             'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+        return response
+
+    setup_error_handlers(app)
+
+    from . import views
 
 
 app = create_app(os.environ.get('LCCSWS_ENVIRONMENT', 'DevelopmentConfig'))
