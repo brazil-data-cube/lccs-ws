@@ -52,7 +52,7 @@ Generate the documentation:
 
 .. code-block:: shell
 
-        $ python setup.py build_sphinx
+    $ python setup.py build_sphinx
 
 The above command will generate the documentation in HTML and it will place it under:
 
