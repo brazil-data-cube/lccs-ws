@@ -45,7 +45,6 @@ setup_requires = [
 
 install_requires = [
     'Flask>=1.1.1',
-    'Flask-Cors>=3.0.8',
     'requests>=2.20.0',
     'flask-redoc>=0.1.0',
     'marshmallow-sqlalchemy==0.18.0',
