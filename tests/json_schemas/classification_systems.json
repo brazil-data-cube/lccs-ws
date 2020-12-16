@@ -1,0 +1,301 @@
+{
+  "classification_systems": [
+    {
+      "authority_name": "INPE",
+      "description": "Sistema de Classifica\u00e7\u00e3o Anual de Desmatamento",
+      "id": 1,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/PRODES",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/PRODES/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/PRODES",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "PRODES",
+      "version": "1.0"
+    },
+    {
+      "authority_name": "INPE",
+      "description": "Sistema de Classifica\u00e7\u00e3o Anual de Desmatamento",
+      "id": 2,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/PRODES_SubClasses",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/PRODES_SubClasses/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/PRODES_SubClasses",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "PRODES_SubClasses",
+      "version": "1.0"
+    },
+    {
+      "authority_name": "INPE",
+      "description": "Projeto TerraClass Mapeamento do Uso e Cobertura da Terra",
+      "id": 3,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/TerraClass_AMZ",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/TerraClass_AMZ/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/TerraClass_AMZ",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "TerraClass_AMZ",
+      "version": "1.0"
+    },
+    {
+      "authority_name": "INPE",
+      "description": "Sub classes do Projeto TerraClass",
+      "id": 4,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/TerraClass_SubClass_AMZ",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/TerraClass_SubClass_AMZ/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/TerraClass_SubClass_AMZ",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "TerraClass_SubClass_AMZ",
+      "version": "1.0"
+    },
+    {
+      "authority_name": "INPE",
+      "description": "Sistema de Alertas Diarios de Desmatamento",
+      "id": 5,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/DETER-B_AMZ",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/DETER-B_AMZ/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/DETER-B_AMZ",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "DETER-B_AMZ",
+      "version": "1.0"
+    },
+    {
+      "authority_name": "IBGE_Diretoria_de_Geoci\u00eancias",
+      "description": "Monitoramento da cobertura e uso da terra do Brasil. Para mais informa\u00e7\u00f5es acesse: https://www.ibge.gov.br/apps/monitoramento_cobertura_uso_terra/v1/",
+      "id": 6,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/IBGE",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/IBGE/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/IBGE",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "IBGE",
+      "version": "1"
+    },
+    {
+      "authority_name": "Projeto de Mapeamento Anual da Cobertura e Uso do Solo no Brasil (MapBiomas)",
+      "description": "O Projeto de Mapeamento Anual da Cobertura e Uso do Solo do Brasil \u00e9 uma iniciativa que envolve uma rede colaborativa com especialistas nos biomas, usos da terra, sensoriamento remoto, SIG e ci\u00eancia da computa\u00e7\u00e3o que utiliza processamento em nuvem e classificadores automatizados desenvolvidos e operados a partir da plataforma Google Earth Engine para gerar uma s\u00e9rie hist\u00f3rica de mapas anuais de cobertura e uso da terra do Brasil.",
+      "id": 7,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/Mapbiomas5",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/Mapbiomas5/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/Mapbiomas5",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "Mapbiomas5",
+      "version": "5"
+    },
+    {
+      "authority_name": "Projeto de Mapeamento Anual da Cobertura e Uso do Solo no Brasil (MapBiomas)",
+      "description": "O Projeto de Mapeamento Anual da Cobertura e Uso do Solo do Brasil \u00e9 uma iniciativa que envolve uma rede colaborativa com especialistas nos biomas, usos da terra, sensoriamento remoto, SIG e ci\u00eancia da computa\u00e7\u00e3o que utiliza processamento em nuvem e classificadores automatizados desenvolvidos e operados a partir da plataforma Google Earth Engine para gerar uma s\u00e9rie hist\u00f3rica de mapas anuais de cobertura e uso da terra do Brasil.",
+      "id": 8,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/MapBiomas5",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/MapBiomas5/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/MapBiomas5",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "MapBiomas5",
+      "version": "5"
+    },
+    {
+      "authority_name": "Mapbiomas",
+      "description": "Colecao 5 do Mapbiomas",
+      "id": 10,
+      "links": [
+        {
+          "href": "http://localhost:5000/classification_system/Mapbiomas5_teste",
+          "rel": "classification system",
+          "title": "Link to Classification System",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_system/Mapbiomas5_teste/classes",
+          "rel": "classes",
+          "title": "Link to Classification System Classes",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/mappings/Mapbiomas5_teste",
+          "rel": "mappings",
+          "title": "Link to Classification Mappings",
+          "type": "application/json"
+        },
+        {
+          "href": "http://localhost:5000/classification_systems",
+          "rel": "self",
+          "title": "Link to this document",
+          "type": "application/json"
+        }
+      ],
+      "name": "Mapbiomas5_teste",
+      "version": "5"
+    }
+  ]
+}

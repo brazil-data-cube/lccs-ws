@@ -8,16 +8,15 @@
 import json
 import os
 import re
-from json import loads as json_loads
 
 import pytest
 from jsonschema import validate
-from jsonschema.exceptions import ValidationError
 from pkg_resources import resource_filename
 
-import lccs_ws
+from lccs_ws import app as lccs_app
 from lccs_ws.schemas import (classe_response, classes_response,
-                             classification_system_response, root_response)
+                             classification_system_response,
+                             classification_systems_response, root_response)
 
 url = os.environ.get('LCCS_SERVER_URL', 'http://localhost:5000')
 match_url = re.compile(url)
@@ -44,9 +43,8 @@ def mocks():
 
 @pytest.fixture(scope="class")
 def client():
-    app = lccs_ws.app
-    with app.test_client() as client:
-        yield client
+    with lccs_app.test_client() as app:
+        yield app
 
 
 class TestLCCSWS:
@@ -59,3 +57,32 @@ class TestLCCSWS:
         assert response.status_code == 200
         assert response.content_type == 'application/json'
         validate(instance=response.json, schema=root_response)
+
+    def test_classification_systems(self, client, requests_mock, mocks):
+        response = client.get('/classification_systems')
+
+        assert response.status_code == 200
+        assert response.content_type == 'application/json'
+        validate(instance=response.json, schema=classification_systems_response)
+
+    def test_classification_system(self, client, requests_mock, mocks):
+        response = client.get('/classification_system/PRODES')
+
+        assert response.status_code == 200
+        assert response.content_type == 'application/json'
+        validate(instance=response.json, schema=classification_system_response)
+
+    def test_classes(self, client, requests_mock, mocks):
+        response = client.get('/classification_system/PRODES/classes')
+
+        assert response.status_code == 200
+        assert response.content_type == 'application/json'
+        validate(instance=response.json, schema=classes_response)
+
+    def test_class(self, client, requests_mock, mocks):
+        response = client.get('/classification_system/PRODES/classes/Desflorestamento')
+
+        assert response.status_code == 200
+        assert response.content_type == 'application/json'
+        validate(instance=response.json, schema=classe_response)
+
