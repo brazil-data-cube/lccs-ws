@@ -10,16 +10,16 @@
 Changes
 =======
 
-Version 0.4.0-0 (2020-12-15)
+Version 0.4.0-0 (2020-12-16)
 ----------------------------
 
 - Compatibility with `LCC-DB Version 0.4.0 <https://github.com/brazil-data-cube/lccs-db>`_.
 
+- Support for the `LCCS-WS specification version 0.4.0-0 <https://github.com/brazil-data-cube/lccs-ws-spec>`_.
+
 - Improved Sphinx template.
 
 - Fixed small typos in documentation.
-
-
 
 
 Version 0.2.0 (2020-04-16)

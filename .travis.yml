@@ -8,31 +8,44 @@ branches:
     only:
         - master
         - b-0.2
+        - b-0.4.0
+
 
 dist: bionic
 
 python:
     - "3.7"
 
-env:
-  matrix:
-  - SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@127.0.0.1:5432/bdc_lccs"
+addons:
+  apt:
+    packages:
+      - postgresql-12
+      - postgresql-client-12
 
+env:
+  global:
+    - SQLALCHEMY_DATABASE_URI="postgresql://postgres:lccs_db@localhost:5432/bdc_lccs"
 
 before_install:
     - pip install --upgrade pip
     - pip install --upgrade setuptools
+    - sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/12/main/postgresql.conf
+    - sudo cp /etc/postgresql/{9.3,12}/main/pg_hba.conf
+    - sudo pg_ctlcluster 12 main restart
 
 install:
     - pip install -e .[tests,docs]
-    - docker pull postgis/postgis:12-3.0
-    - docker run --name bdc_lccs -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=postgres -d postgis/postgis:12-3.0
-    - docker ps -a
+
+before_script:
+    - psql -c "ALTER USER postgres PASSWORD 'lccs_db';" -U postgres
+    - lccs_db db init
+    - lccs_db db create-namespaces
+    - lccs_db alembic upgrade
+    - lccs_db db load-scripts
+
 
 script:
     - ./run-tests.sh
 
 after_success:
-    - docker stop bdc-pg
-    - docker rm bdc-pg
     - coveralls
