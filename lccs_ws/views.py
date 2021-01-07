@@ -127,7 +127,7 @@ def classification_system(system_id):
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_system",
+            "href": f"{BASE_URL}/classification_systems",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to this document",
