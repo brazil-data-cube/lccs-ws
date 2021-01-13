@@ -10,6 +10,12 @@
 Changes
 =======
 
+Version 0.4.0-1 (2021-01-13)
+----------------------------
+
+- Bug fix: Review links in the classification_system route (`#41 <https://github.com/brazil-data-cube/lccs-ws/issues/41>`_)
+
+
 Version 0.4.0-0 (2020-12-16)
 ----------------------------
 
