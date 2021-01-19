@@ -14,12 +14,12 @@ Land Cover Classification System Web Service
         :target: https://github.com//brazil-data-cube/lccs-ws/blob/master/LICENSE
         :alt: Software License
 
-.. image:: https://travis-ci.org/brazil-data-cube/lccs-ws.svg?branch=master
-        :target: https://travis-ci.org/brazil-data-cube/lccs-ws
+.. image:: https://drone.dpi.inpe.br/api/badges/brazil-data-cube/lccs-ws/status.svg
+        :target: https://drone.dpi.inpe.br/brazil-data-cube/lccs-ws
         :alt: Build Status
 
-.. image:: https://coveralls.io/repos/github/brazil-data-cube/lccs-ws/badge.svg?branch=b-0.2.0
-        :target: https://coveralls.io/github/brazil-data-cube/lccs-ws?branch=master
+.. image:: https://codecov.io/gh/brazil-data-cube/lccs-ws/branch/master/graph/badge.svg?token=XFD6QREW99
+        :target: https://codecov.io/gh/brazil-data-cube/lccs-ws
         :alt: Code Coverage Test
 
 .. image:: https://readthedocs.org/projects/lccs-ws/badge/?version=latest

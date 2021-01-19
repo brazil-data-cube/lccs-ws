@@ -1,0 +1,36 @@
+kind: pipeline
+name: lccsws
+
+steps:
+- name: build
+  image: python:3.7
+  commands:
+  - pip install --upgrade pip
+  - pip install --upgrade setuptools
+  - pip install -e .[tests,docs]
+  - lccs_db db init
+  - lccs_db db create-namespaces
+  - lccs_db alembic upgrade
+  - lccs_db db load-scripts
+  - ./run-tests.sh
+  environment:
+    SQLALCHEMY_DATABASE_URI: postgresql://postgres:mysecretpassword@pg_database:5432/bdc_db
+
+- name: coverage
+  image: plugins/codecov
+  settings:
+    files:
+    - coverage.xml
+    - .coverage
+    token:
+      from_secret: codecov_token
+  when:
+    event:
+    - push
+
+services:
+- name: pg_database
+  image: postgres:12.2
+  environment:
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_USER: postgres
