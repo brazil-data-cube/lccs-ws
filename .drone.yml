@@ -28,6 +28,25 @@ steps:
     event:
     - push
 
+- name: docker-registry
+  image: plugins/docker
+  network_mode: bridge
+  settings:
+    repo: registry.dpi.inpe.br/brazildatacube/lccs-ws
+    registry: registry.dpi.inpe.br
+    insecure: true
+    username:
+      from_secret: registry_user
+    password:
+      from_secret: registry_pass
+    tags:
+      - latest
+      - ${DRONE_SEMVER}
+    dockerfile: deploy/Dockerfile
+  when:
+    event:
+      - tag
+
 services:
 - name: pg_database
   image: postgres:12.2
