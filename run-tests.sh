@@ -9,6 +9,6 @@
 
 pydocstyle lccs_ws setup.py && \
 isort lccs_ws tests setup.py --check-only --diff && \
-check-manifest --ignore ".travis-*" --ignore ".readthedocs.*" && \
+check-manifest --ignore ".drone.yml,.readthedocs.yml" && \
 sphinx-build -qnW --color -b doctest docs/sphinx/ docs/sphinx/_build/doctest && \
 pytest
