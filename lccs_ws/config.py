@@ -29,6 +29,10 @@ class Config:
     LCCS_URL = os.getenv('LCCS_URL', 'http://localhost:5000')
     LCCS_UPLOAD_FOLDER = os.getenv('LCCS_UPLOAD_FOLDER', '/path/to/the/uploads')
 
+    BDC_AUTH_CLIENT_SECRET = os.getenv("BDC_AUTH_CLIENT_SECRET", None)
+    BDC_AUTH_CLIENT_ID = os.getenv("BDC_AUTH_CLIENT_ID", None)
+    BDC_AUTH_ACCESS_TOKEN_URL = os.getenv("BDC_AUTH_ACCESS_TOKEN_URL", None)
+
 
 class ProductionConfig(Config):
     """Production Mode."""

@@ -14,8 +14,8 @@ from sqlalchemy.orm import aliased
 from .forms import ClassificationSystemSchema
 
 
-def get_class_systems():
-    """Retrieve avaliable classification systems."""
+def get_class_systems() -> list:
+    """Retrieve available classification systems."""
     retval = LucClassificationSystem.filter()
     class_systems = ClassificationSystemSchema().dump(retval, many=True)
 
@@ -256,12 +256,96 @@ def insert_classification_systems(classification_system: dict):
     return class_system
 
 
+def delete_classification_system(classification_system_name):
+    """Delete an classification system by a given name.
+
+    Args:
+        classification_system_name (string): classification_system_name name to be deleted
+    """
+    classification_system = LucClassificationSystem.get(name=classification_system_name)
+
+    classes = LucClass.filter(class_system_id=classification_system.id)
+
+    for i in classes:
+        db.session.delete(i)
+
+    db.session.delete(classification_system)
+
+    db.session.commit()
+
+
+def delete_classes(system_id, class_id):
+    """Delete an class by a given name and classification system."""
+    classification_system = LucClassificationSystem.get(name=system_id)
+
+    class_to_delete = LucClass.get(class_system_id=classification_system.id, name=class_id)
+
+    db.session.delete(class_to_delete)
+
+    db.session.commit()
+
+
+def update_class(classification_system: int, classe_name: str, class_info: dict):
+    """Update an classification system by a given name."""
+    class_system = LucClass.query.filter_by(name=classe_name,
+                                            class_system_id=classification_system).first_or_404()
+
+    if "name" in class_info:
+        class_system.name = class_info["name"]
+    if "description" in class_info:
+        class_system.description = class_info["description"]
+    if "code" in class_info:
+        class_system.code = class_info["code"]
+    if "parent" in class_info:
+        parent_class = LucClass.query.filter_by(class_system_id=classification_system,
+                                                name=class_info["parent"]).first_or_404()
+        class_system.class_parent_id = parent_class.id
+
+
+def update_classification_system(system_id, classes_file=None, name=None, description=None, authority_name=None,
+                                 version=None):
+    """Update an classification system by a given name.
+
+    :param system_id: Classification System identifier.
+    :type system_id: string
+    :param classes_file: New Classes of an Classification System. Default None
+    :type system_id: dict
+    :param name: New Classification System name. Default None
+    :type name: string
+    :param description: New Classification System description. Default None
+    :type description: string
+    :param authority_name: New Classification System authority_name. Default None
+    :type authority_name: string
+    :param version: New Classification System version. Default None
+    :type version: string
+    """
+    class_system = LucClassificationSystem.query.filter_by(name=system_id).first_or_404()
+
+    with db.session.begin_nested():
+
+        if classes_file:
+            [update_class(class_system.id, c,v) for c,v in classes_file.items()]
+
+            if name:
+                class_system.name = name
+            if description:
+                class_system.description = description
+            if authority_name:
+                class_system.authority_name = authority_name
+            if version:
+                class_system.version = version
+
+    db.session.commit()
+
+    return class_system
+
+
 def insert_class(classification_system: int, class_info: dict):
     """Create a new class.
 
     :param classification_system: Classification System id.
     :type classification_system: int
-    :param class_info: Informations of class.
+    :param class_info: Information of class.
     :type class_info: dict
     """
     name = class_info['name']
@@ -366,7 +450,7 @@ def insert_mappings(system_id_source, system_id_target, classes_files_json: dict
         class_system_class = LucClass.get(name=classes["class_target"], class_system_id=system_target.id)
 
         mapping = ClassMapping(source_class_id=class_system_source.id, target_class_id=class_system_class.id,
-                               description=classes["description"],degree_of_similarity=classes["degree_of_similarity"])
+                               description=classes["description"], degree_of_similarity=classes["degree_of_similarity"])
 
         mapping.save(commit=False)
         db.session.flush()
