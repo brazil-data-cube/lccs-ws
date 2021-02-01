@@ -104,7 +104,7 @@ def get_class(system_id, class_id):
     return class_system_class
 
 
-def get_styles(system_id, style_format_id: None):
+def get_classification_system_styles(system_id, style_format_id: None):
     """Get Styles.
 
     :param system_id: Identification (name) of Classification System
@@ -274,42 +274,51 @@ def delete_classification_system(classification_system_name):
     db.session.commit()
 
 
-def delete_classes(system_id, class_id):
+def delete_classes(class_system):
+    """Delete all class by a given classification system."""
+    classes = LucClass.filter(class_system_id=class_system.id)
+
+    with db.session.begin_nested():
+        for c in classes:
+            db.session.delete(c)
+    db.session.commit()
+
+
+def delete_one_classe(class_system, class_id):
     """Delete an class by a given name and classification system."""
-    classification_system = LucClassificationSystem.get(name=system_id)
+    class_to_delete = LucClass.get(class_system_id=class_system.id, name=class_id)
 
-    class_to_delete = LucClass.get(class_system_id=classification_system.id, name=class_id)
-
-    db.session.delete(class_to_delete)
+    with db.session.begin_nested():
+        db.session.delete(class_to_delete)
 
     db.session.commit()
 
 
-def update_class(classification_system: int, classe_name: str, class_info: dict):
+def update_class(classification_system: int, class_info: dict):
     """Update an classification system by a given name."""
-    class_system = LucClass.query.filter_by(name=classe_name,
-                                            class_system_id=classification_system).first_or_404()
+    for classe_name, class_info in class_info.items():
 
-    if "name" in class_info:
-        class_system.name = class_info["name"]
-    if "description" in class_info:
-        class_system.description = class_info["description"]
-    if "code" in class_info:
-        class_system.code = class_info["code"]
-    if "parent" in class_info:
-        parent_class = LucClass.query.filter_by(class_system_id=classification_system,
-                                                name=class_info["parent"]).first_or_404()
-        class_system.class_parent_id = parent_class.id
+        class_system = LucClass.query.filter_by(name=classe_name,
+                                                class_system_id=classification_system).first_or_404()
+
+        if "name" in class_info:
+            class_system.name = class_info["name"]
+        if "description" in class_info:
+            class_system.description = class_info["description"]
+        if "code" in class_info:
+            class_system.code = class_info["code"]
+        if "parent" in class_info:
+            parent_class = LucClass.query.filter_by(class_system_id=classification_system,
+                                                    name=class_info["parent"]).first_or_404()
+            class_system.class_parent_id = parent_class.id
 
 
-def update_classification_system(system_id, classes_file=None, name=None, description=None, authority_name=None,
+def update_classification_system(system_id, name=None, description=None, authority_name=None,
                                  version=None):
     """Update an classification system by a given name.
 
     :param system_id: Classification System identifier.
     :type system_id: string
-    :param classes_file: New Classes of an Classification System. Default None
-    :type system_id: dict
     :param name: New Classification System name. Default None
     :type name: string
     :param description: New Classification System description. Default None
@@ -322,18 +331,14 @@ def update_classification_system(system_id, classes_file=None, name=None, descri
     class_system = LucClassificationSystem.query.filter_by(name=system_id).first_or_404()
 
     with db.session.begin_nested():
-
-        if classes_file:
-            [update_class(class_system.id, c,v) for c,v in classes_file.items()]
-
-            if name:
-                class_system.name = name
-            if description:
-                class_system.description = description
-            if authority_name:
-                class_system.authority_name = authority_name
-            if version:
-                class_system.version = version
+        if name:
+            class_system.name = name
+        if description:
+            class_system.description = description
+        if authority_name:
+            class_system.authority_name = authority_name
+        if version:
+            class_system.version = version
 
     db.session.commit()
 
@@ -456,3 +461,53 @@ def insert_mappings(system_id_source, system_id_target, classes_files_json: dict
         db.session.flush()
 
     db.session.commit()
+
+
+def update_mappings(system_id_source, system_id_target, classes_files_json: dict):
+    """Update mappings.
+
+    :param system_id_source: Source Classification System
+    :type system_id_source: string
+    :param system_id_target: Target Classification System
+    :type system_id_target: string
+    :param classes_files_json: Json File with mappings
+    :type classes_files_json: json
+    """
+    pass
+
+
+def get_styles_all_formats():
+    """Return all styles formats."""
+    retval = db.session.query(StyleFormats.name).all()
+
+    result = list()
+
+    [result.append(i[0]) for i in retval]
+
+    return result
+
+
+def delete_mappings(system_id_source, system_id_target):
+    """Delete classification system mappings."""
+    try:
+        system_source = LucClassificationSystem.get(name=system_id_source)
+    except:
+        return abort(500, "Classification system Source {} not found".format(system_id_source))
+    try:
+        system_target = LucClassificationSystem.get(name=system_id_target)
+    except:
+        return abort(500, "Classification system Target {} not found".format(system_id_target))
+
+    classes_source = LucClass.filter(class_system_id=system_source.id)
+
+    classes_target = LucClass.filter(class_system_id=system_target.id)
+
+    mappings = get_mappings(classes_source, classes_target)
+
+    with db.session.begin_nested():
+        for m in mappings:
+            db.session.delete(m)
+
+    db.session.commit()
+
+    return
