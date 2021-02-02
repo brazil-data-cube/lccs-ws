@@ -14,12 +14,8 @@ from werkzeug.utils import secure_filename
 
 from lccs_ws.forms import ClassificationSystemSchema
 
+from . import data
 from .config import Config
-from .data import (allowed_file, get_avaliable_mappings, get_class,
-                   get_class_system, get_class_systems,
-                   get_classification_system_classes, get_mapping, get_styles,
-                   insert_classes, insert_classification_systems, insert_file,
-                   insert_mappings, verify_class_system_exist)
 
 BASE_URL = Config.LCCS_URL
 
@@ -41,89 +37,61 @@ def index():
     return response
 
 
-@current_app.route("/classification_systems", methods=["GET", "POST"])
-def classification_systems():
-    """Retrieve classification systems avaliable."""
-    if request.method == "GET":
+@current_app.route("/classification_systems", methods=["GET"])
+def root():
+    """Return all available classification systems."""
+    classification_systems_list = data.get_class_systems()
 
-        class_systems = get_class_systems()
+    response = dict()
 
-        response = dict()
+    for class_system in classification_systems_list:
+        links = [
+            {
+                "href": f"{BASE_URL}/classification_systems/{class_system['name']}",
+                "rel": "classification system",
+                "type": "application/json",
+                "title": "Link to Classification System",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems/{class_system['name']}/classes",
+                "rel": "classes",
+                "type": "application/json",
+                "title": "Link to Classification System Classes",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems/{class_system['name']}/styles",
+                "rel": "classes",
+                "type": "application/json",
+                "title": "Link to Available Styles",
+            },
+            {
+                "href": f"{BASE_URL}/mappings/{class_system['name']}",
+                "rel": "mappings",
+                "type": "application/json",
+                "title": "Link to Classification Mappings",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems",
+                "rel": "self",
+                "type": "application/json",
+                "title": "Link to this document",
+            },
+        ]
 
-        for class_system in class_systems:
-            links = [
-                {
-                    "href": f"{BASE_URL}/classification_system/{class_system['name']}",
-                    "rel": "classification system",
-                    "type": "application/json",
-                    "title": "Link to Classification System",
-                },
-                {
-                    "href": f"{BASE_URL}/classification_system/{class_system['name']}/classes",
-                    "rel": "classes",
-                    "type": "application/json",
-                    "title": "Link to Classification System Classes",
-                },
-                {
-                    "href": f"{BASE_URL}/mappings/{class_system['name']}",
-                    "rel": "mappings",
-                    "type": "application/json",
-                    "title": "Link to Classification Mappings",
-                },
-                {
-                    "href": f"{BASE_URL}/classification_systems",
-                    "rel": "self",
-                    "type": "application/json",
-                    "title": "Link to this document",
-                },
-            ]
+        class_system["links"] = links
 
-            class_system["links"] = links
+    response["classification_systems"] = classification_systems_list
 
-        response["classification_systems"] = class_systems
-
-        return response
-
-    if request.method == "POST":
-
-        classes_files = request.files['classes']
-
-        classification_system = {
-            "name": request.form.get('name'),
-            "description": request.form.get('description'),
-            "authority_name": request.form.get('authority_name'),
-            "version": request.form.get('version')
-        }
-
-        if verify_class_system_exist(classification_system['name']) is not None:
-            abort(409, 'Classification System Already Exists')
-
-        if classes_files.content_type != 'application/json':
-            abort(400, 'Classes is not a JSON file')
-
-        class_system = None
-
-        try:
-            class_system = insert_classification_systems(classification_system)
-        except Exception as e:
-            abort(400, 'Error creating Classification System')
-
-        classes_file = str(classes_files.read(), 'utf-8')
-
-        post_file = json.loads(classes_file)
-
-        insert_classes(post_file, class_system.id)
-
-        return ClassificationSystemSchema(exclude=['id']).dump(class_system), 201
+    return response
 
 
-@current_app.route("/classification_system/<system_id>", methods=["GET"])
-def classification_system(system_id):
+@current_app.route("/classification_systems/<system_id>", methods=["GET"])
+def classification_systems(system_id):
     """Retrieve metadata of classification system.
 
     :param system_id: identifier (name) of a classification system
     """
-    classification_system = get_class_system(system_id)
+    classification_system = data.get_class_system(system_id)
 
     links = [
         {
@@ -133,22 +101,28 @@ def classification_system(system_id):
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_system/{system_id}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}",
             "rel": "self",
             "type": "application/json",
             "title": "The classification_system",
         },
         {
-            "href": f"{BASE_URL}/classification_system/{system_id}/classes",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes",
             "rel": "classes",
             "type": "application/json",
             "title": "The classes related to this item",
         },
         {
-            "href": f"{BASE_URL}/classification_system/{system_id}/styles",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/styles",
             "rel": "styles",
             "type": "application/json",
             "title": "The styles related to this item",
+        },
+        {
+            "href": f"{BASE_URL}/mappings/{system_id}",
+            "rel": "mappings",
+            "type": "application/json",
+            "title": "The classification system mappings",
         },
         {"href": f"{BASE_URL}/", "rel": "root", "type": "application/json", "title": "API landing page."},
     ]
@@ -158,25 +132,25 @@ def classification_system(system_id):
     return classification_system
 
 
-@current_app.route("/classification_system/<system_id>/classes", methods=["GET"])
-def class_system_classes(system_id):
+@current_app.route("/classification_systems/<system_id>/classes", methods=["GET"])
+def classification_systems_classes(system_id):
     """Retrieve classes of classification system.
 
     :param system_id: identifier (name) of a classification system
     """
-    classes = get_classification_system_classes(system_id)
+    classes = data.get_classification_system_classes(system_id)
 
     links = list()
 
     links += [
         {
-            "href": f"{BASE_URL}/classification_system/{system_id}/classes",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes",
             "rel": "self",
             "type": "application/json",
             "title": f"Classes of the classification system {system_id}",
         },
         {
-            "href": f"{BASE_URL}/classification_system/{system_id}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification system",
@@ -197,7 +171,7 @@ def class_system_classes(system_id):
 
     for system_class in classes:
         links.append({
-            "href": f"{BASE_URL}/classification_system/{system_id}/classes/{system_class['name']}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_class['name']}",
             "rel": "child",
             "type": "application/json",
             "title": "Classification System Classes",
@@ -211,24 +185,24 @@ def class_system_classes(system_id):
     return result
 
 
-@current_app.route("/classification_system/<system_id>/classes/<class_id>", methods=["GET"])
-def class_system_class(system_id, class_id):
+@current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["GET"])
+def classification_systems_class(system_id, class_id):
     """Retrieve metadata of classe.
 
     :param system_id: identifier (name) of a classification system
     :param class_id: identifier (name) of a class
     """
-    classes = get_class(system_id, class_id)
+    classes = data.get_class(system_id, class_id)
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_system/{system_id}/classes/{classes['name']}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{classes['name']}",
             "rel": "self",
             "type": "application/json",
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_system{system_id}/classes",
+            "href": f"{BASE_URL}/classification_systems{system_id}/classes",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to this document",
@@ -254,12 +228,12 @@ def class_system_class(system_id, class_id):
 
 
 @current_app.route("/mappings/<system_id>", methods=["GET"])
-def mappings(system_id):
-    """Retrieve avaliable mappings of classification system.
+def get_mappings(system_id):
+    """Retrieve available mappings of classification system.
 
     :param system_id: identifier (name) of a classification system
     """
-    mappings = get_avaliable_mappings(system_id)
+    mappings = data.get_available_mappings(system_id)
 
     links = list()
 
@@ -293,139 +267,303 @@ def mappings(system_id):
     return result
 
 
-@current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["GET", "POST"])
-def mapping(system_id_source, system_id_target):
+@current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["GET"])
+def get_mapping(system_id_source, system_id_target):
     """Retrieve mapping.
 
     :param system_id_source: identifier (name) of a source classification system
     :param system_id_target: identifier (name) of a target classification system
     """
-    if request.method == "GET":
+    class_system_mappings = data.get_mapping(system_id_source, system_id_target)
 
-        class_system_mappings = get_mapping(system_id_source, system_id_target)
+    for mp in class_system_mappings:
+        links = [
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['source']}",
+                "rel": "item",
+                "type": "application/json",
+                "title": "Link to the source class",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['target']}",
+                "rel": "item",
+                "type": "application/json",
+                "title": "Link to target class",
+            },
+        ]
 
-        for mp in class_system_mappings:
-            links = [
-                {
-                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['source']}",
-                    "rel": "item",
-                    "type": "application/json",
-                    "title": "Link to the source class",
-                },
-                {
-                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['target']}",
-                    "rel": "item",
-                    "type": "application/json",
-                    "title": "Link to target class",
-                },
-            ]
+        mp["links"] = links
 
-            mp["links"] = links
+    result = dict()
 
-        result = dict()
+    result["mappings"] = class_system_mappings
 
-        result["mappings"] = class_system_mappings
+    return result
 
-        return result
 
+@current_app.route("/classification_systems/<system_id>/styles", methods=["GET"])
+def styles(system_id):
+    """Retrieve available styles.
+
+    :param system_id: identifier (name) of a source classification system
+    """
+    styles = data.get_classification_system_styles(system_id, None)
+
+    links = list()
+
+    links += [
+        {
+            "href": f"{BASE_URL}/classification_systems/{system_id}/styles",
+            "rel": "self",
+            "type": "application/json",
+            "title": f"Styles of the classification system {system_id}",
+        },
+        {
+            "href": f"{BASE_URL}/classification_systems/{system_id}",
+            "rel": "parent",
+            "type": "application/json",
+            "title": "Link to classification system",
+        },
+        {
+            "href": f"{BASE_URL}/classification_systems",
+            "rel": "parent",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+        {
+            "href": f"{BASE_URL}/",
+            "rel": "root",
+            "type": "application/json",
+            "title": "API landing page",
+        },
+    ]
+
+    for style in styles:
+        links.append(
+            {
+                "href": f"{BASE_URL}/classification_systems/{style[0]}/styles/{style[1]}",
+                "rel": "child",
+                "type": "application/json",
+                "title": f"{style[1]}",
+            }
+        )
+
+    result = dict()
+
+    result["links"] = links
+
+    return result
+
+
+@current_app.route("/classification_systems/styles_formats", methods=["GET"])
+def get_styles_formats():
+    """Retrieve available style formats."""
+    styles_formats = data.get_styles_all_formats()
+
+    response = dict()
+
+    links = [
+        {
+            "href": f"{BASE_URL}/classification_systems",
+            "rel": "base",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+        {
+            "href": f"{BASE_URL}/",
+            "rel": "root",
+            "type": "application/json",
+            "title": "API landing page",
+        },
+    ]
+
+    response["links"] = links
+
+    response["styles_formats"] = styles_formats
+
+    return response
+
+
+@current_app.route("/classification_systems/<system_id>/styles/<style_id>", methods=["GET"])
+def style_file(system_id, style_id):
+    """Retrieve available styles.
+
+    :param system_id: identifier (name) of a classification system
+    :param style_id: identifier (name) of a style format
+    """
+    styles = data.get_classification_system_styles(system_id, style_id)
+
+    file = json.loads(styles[0].style_file)
+
+    return send_from_directory(Config.LCCS_UPLOAD_FOLDER, file['filename'], as_attachment=True)
+
+
+@current_app.route('/classification_systems', defaults={'system_id': None}, methods=["POST"])
+@current_app.route("/classification_systems/<system_id>", methods=["PUT", "DELETE"])
+def edit_classification_system(system_id):
+    """Add, update or delete a single a classification system."""
+    if request.method == "POST":
+        try:
+            classification_system = data.create_classification_system(**request.json)
+        except Exception as e:
+            abort(400, 'Error creating classification system')
+
+        return ClassificationSystemSchema(exclude=['id']).dump(classification_system), 201
+
+    if request.method == "DELETE":
+        try:
+            data.delete_classification_system(system_id)
+        except Exception as e:
+            abort(400, 'Error when deleting the Classification Systems')
+        return {'message': 'deleted'}, 200
+
+    if request.method == "PUT":
+        try:
+            classification_system = data.update_classification_system(system_id, **request.json)
+        except Exception as e:
+            abort(400, 'Error to update Classification System')
+        return ClassificationSystemSchema(exclude=['id']).dump(classification_system), 200
+
+
+@current_app.route("/classification_systems/<system_id>/classes", methods=["POST", "PUT", "DELETE"])
+def edit_class_system_classes(system_id):
+    """Add or update or delete a single class.
+
+    :param system_id: identifier (name) of a classification system
+    """
+    if request.method == "POST":
+
+        classes_files = request.files['classes']
+
+        if classes_files.content_type != 'application/json':
+            abort(400, 'Classes is not a JSON file')
+
+        classes_file = str(classes_files.read(), 'utf-8')
+
+        post_file = json.loads(classes_file)
+
+        try:
+            data.insert_classes(post_file, system_id)
+        except Exception as e:
+            abort(400, 'Error add new class!')
+
+        return {'message': 'created'}, 201
+
+    if request.method == "PUT":
+
+        class_system = data.verify_class_system_exist(system_id)
+
+        if class_system is None:
+            abort(400, f'Error to add new class Classification System {system_id} not exist')
+
+        classes_files = request.files['classes']
+
+        if classes_files.content_type != 'application/json':
+            abort(400, 'Classes is not a JSON file')
+
+        classes_file = str(classes_files.read(), 'utf-8')
+
+        post_file = json.loads(classes_file)
+
+        try:
+            data.update_class(class_system.id, post_file)
+        except Exception as e:
+            abort(400, f'Error while update classes!')
+
+        return {'message': 'updated'}, 200
+
+    if request.method == "DELETE":
+
+        class_system = data.verify_class_system_exist(system_id)
+
+        if class_system is None:
+            abort(400, f'Error to add new class Classification System {system_id} not exist')
+
+        try:
+            data.delete_classes(class_system)
+        except Exception as e:
+            abort(400, f'Error while delete {system_id} classes!')
+
+        return {'message': 'deleted'}, 200
+
+
+@current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["DELETE"])
+def edit_class_system_class(system_id, class_id):
+    """Delete a single class."""
+    class_system = data.verify_class_system_exist(system_id)
+
+    if class_system is None:
+        abort(400, f'Error to add new class Classification System {system_id} not exist')
+
+    try:
+        data.delete_one_classe(class_system, class_id)
+    except Exception as e:
+        abort(400, f'Error while delete {class_id} class!')
+
+    return {'message': 'deleted'}, 200
+
+
+@current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["POST", "PUT", "DELETE"])
+def edit_mapping(system_id_source, system_id_target):
+    """Edit classification system mapping."""
     if request.method == "POST":
 
         mappings = request.files['mappings']
 
         if mappings.content_type != 'application/json':
-            abort(400, 'Mappings is not a JSON file')
+            abort(415, 'Mappings is not a JSON file')
 
         mappings_file = str(mappings.read(), 'utf-8')
 
         post_file = json.loads(mappings_file)
 
         try:
-            insert_mappings(system_id_source, system_id_target, post_file)
+            data.insert_mappings(system_id_source, system_id_target, post_file)
         except RuntimeError:
             abort(400, 'Error while insert mappings')
 
-        class_system_mappings = get_mapping(system_id_source, system_id_target)
+        return {'message': 'created'}, 200
 
-        for mp in class_system_mappings:
-            links = [
-                {
-                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['source']}",
-                    "rel": "item",
-                    "type": "application/json",
-                    "title": "Link to the source class",
-                },
-                {
-                    "href": f"{BASE_URL}/classification_system/{system_id_source}/classes/{mp['target']}",
-                    "rel": "item",
-                    "type": "application/json",
-                    "title": "Link to target class",
-                },
-            ]
+    if request.method == "DELETE":
 
-            mp["links"] = links
+        try:
+            data.delete_mappings(system_id_source, system_id_target)
+        except Exception as e:
+            abort(400, f'Error while delete {system_id_source} {system_id_target} mapping!')
 
-        result = dict()
+        return {'message': 'Mapping delete!'}, 200
 
-        result["mappings"] = class_system_mappings
+    if request.method == "PUT":
 
-        return result
+        mappings = request.files['mappings']
+
+        if mappings.content_type != 'application/json':
+            abort(415, 'Mappings is not a JSON file')
+
+        mappings_file = str(mappings.read(), 'utf-8')
+
+        post_file = json.loads(mappings_file)
+
+        try:
+            data.update_mappings(system_id_source, system_id_target, post_file)
+        except Exception as e:
+            abort(400, f'Error while updating {system_id_source} {system_id_target} mapping!')
+
+        return {'message': 'Mapping updating!'}, 200
 
 
-@current_app.route("/classification_system/<system_id>/styles", methods=["GET", "POST"])
-def styles(system_id):
+@current_app.route("/classification_systems/<system_id>/styles", defaults={'style_format_id': None}, methods=["POST"])
+@current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["DELETE"])
+def edit_styles(system_id, style_format_id):
     """Retrieve available styles.
 
     :param system_id: identifier (name) of a source classification system
+    :param style_format_id: identifier (name) of a style format.
     """
-    if request.method == "GET":
-        styles = get_styles(system_id, None)
-
-        links = list()
-
-        links += [
-            {
-                "href": f"{BASE_URL}/classification_system/{system_id}/styles",
-                "rel": "self",
-                "type": "application/json",
-                "title": f"Styles of the classification system {system_id}",
-            },
-            {
-                "href": f"{BASE_URL}/classification_system/{system_id}",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification system",
-            },
-            {
-                "href": f"{BASE_URL}/classification_systems",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/",
-                "rel": "root",
-                "type": "application/json",
-                "title": "API landing page",
-            },
-        ]
-
-        for style in styles:
-            links.append(
-                {
-                    "href": f"{BASE_URL}/classification_system/{style[0]}/styles/{style[1]}",
-                    "rel": "child",
-                    "type": "application/json",
-                    "title": f"{style[1]}",
-                }
-            )
-
-        result = dict()
-
-        result["links"] = links
-
-        return result
-
     if request.method == "POST":
+
+        if 'style_format' not in request.form:
+            return abort(500, "Style Format not found!")
 
         style_format = request.form.get('style_format')
 
@@ -434,7 +572,7 @@ def styles(system_id):
 
         file = request.files['style']
 
-        file_format = allowed_file(file.filename)
+        file_format = data.allowed_file(file.filename)
 
         if file_format:
 
@@ -447,22 +585,20 @@ def styles(system_id):
             json_file = json.dumps({"format": file_format,
                                     "filename": filename})
 
-            insert_file(style_format_name=style_format,
-                        class_system_name=system_id,
-                        style_file=json_file)
+            try:
+                data.insert_file(style_format_name=style_format,
+                                 class_system_name=system_id,
+                                 style_file=json_file)
+            except Exception as e:
+                os.remove(file_directory)
+                abort(400, f'Error while insert style!')
 
-            return {'message': 'Classification System Style Inserted!'}, 201
+            return {'message': 'style insert!'}, 201
 
+    if request.method == "DELETE":
+        try:
+            data.delete_file(style_format_id, system_id)
+        except Exception as e:
+            abort(400, f'Error while delete {style_format_id} of {system_id} mapping!')
 
-@current_app.route("/classification_system/<system_id>/styles/<style_id>", methods=["GET"])
-def style(system_id, style_id):
-    """Retrieve available styles.
-
-    :param system_id: identifier (name) of a classification system
-    :param style_id: identifier (name) of a style format
-    """
-    styles = get_styles(system_id, style_id)
-
-    file = json.loads(styles[0].style_file)
-
-    return send_from_directory(Config.LCCS_UPLOAD_FOLDER, file['filename'], as_attachment=True)
+        return {'message': 'deleted!'}, 201
