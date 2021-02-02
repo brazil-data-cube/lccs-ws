@@ -552,7 +552,7 @@ def edit_mapping(system_id_source, system_id_target):
         return {'message': 'Mapping updating!'}, 200
 
 
-@current_app.route("/classification_systems/<system_id>/styles", defaults={'style_id': None}, methods=["POST"])
+@current_app.route("/classification_systems/<system_id>/styles", defaults={'style_format_id': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["DELETE"])
 def edit_styles(system_id, style_format_id):
     """Retrieve available styles.
@@ -585,9 +585,13 @@ def edit_styles(system_id, style_format_id):
             json_file = json.dumps({"format": file_format,
                                     "filename": filename})
 
-            data.insert_file(style_format_name=style_format,
-                             class_system_name=system_id,
-                             style_file=json_file)
+            try:
+                data.insert_file(style_format_name=style_format,
+                                 class_system_name=system_id,
+                                 style_file=json_file)
+            except Exception as e:
+                os.remove(file_directory)
+                abort(400, f'Error while insert style!')
 
             return {'message': 'style insert!'}, 201
 
@@ -595,6 +599,6 @@ def edit_styles(system_id, style_format_id):
         try:
             data.delete_file(style_format_id, system_id)
         except Exception as e:
-            abort(400, f'Error while delete {style_format} of {style_format_id} mapping!')
+            abort(400, f'Error while delete {style_format_id} of {system_id} mapping!')
 
         return {'message': 'deleted!'}, 201

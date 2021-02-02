@@ -6,11 +6,15 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Data module of Land Cover Classification System Web Service."""
+import json
+import os
+
 from flask import abort
 from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
 from sqlalchemy.orm import aliased
 
+from .config import Config
 from .forms import ClassificationSystemSchema
 
 
@@ -463,7 +467,13 @@ def delete_file(style_format_id, system_id):
         system = LucClassificationSystem.get(name=system_id)
         style = Styles.get(class_system_id=system.id,
                            style_format_id=style_format.id)
+
+        file = json.loads(style.style)
+
         style.delete()
+
+        os.remove(os.path.join(Config.LCCS_UPLOAD_FOLDER, file["filename"]))
+
     except Exception as e:
         raise e
 
