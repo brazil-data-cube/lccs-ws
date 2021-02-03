@@ -10,6 +10,7 @@ exclude docs/spec
 exclude docs/sphinx/_build
 exclude docker
 exclude .dockerignore
+exclude .gitmodules
 
 include *.rst
 include *.sh
@@ -35,3 +36,4 @@ recursive-include docs Makefile
 recursive-include docs *.ico
 recursive-include docs *.png
 recursive-exclude docker *
+recursive-exclude lccs-ws-spec *
