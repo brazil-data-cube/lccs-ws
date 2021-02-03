@@ -11,6 +11,7 @@ exclude docs/sphinx/_build
 exclude docker
 exclude .dockerignore
 exclude .gitmodules
+exclude docs/lccs-ws-spec
 
 include *.rst
 include *.sh
