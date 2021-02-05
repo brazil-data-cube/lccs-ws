@@ -7,5 +7,5 @@
 #
 
 [submodule "docs/lccs-ws-spec"]
-	path = docs/lccs-ws-spec
-	url = https://github.com/brazil-data-cube/lccs-ws-spec
+    path = docs/lccs-ws-spec
+    url = https://github.com/brazil-data-cube/lccs-ws-spec
