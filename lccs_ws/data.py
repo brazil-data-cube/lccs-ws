@@ -16,7 +16,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy import and_
 
 from .config import Config
-from .forms import ClassificationSystemSchema, ClassesSchema
+from .forms import ClassificationSystemSchema, ClassesSchema, StyleFormatsSchema, StyleSchema
 
 
 def get_classification_systems(system_id=None):
@@ -47,24 +47,41 @@ def get_classification_system_classes(system_id, class_id=None):
             and_(LucClass.id == class_id)
         ]
     
-        retval = db.session.query(*columns) \
+        class_info = db.session.query(*columns) \
             .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id) \
             .filter(*where) \
             .first()
         
-        return ClassesSchema().dump(retval)
+        return ClassesSchema().dump(class_info)
 
-    retval = db.session.query(LucClass) \
+    classes = db.session.query(LucClass) \
         .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id) \
         .filter(LucClassificationSystem.id == system_id) \
         .all()
-    
-    classes = ClassesSchema().dump(retval, many=True)
-    
-    return classes
+
+    return ClassesSchema().dump(classes, many=True)
 
 
-def get_classification_system_styles(system_id, style_format_id: None):
+def get_style_formats(style_format_id=None, system_id=None):
+    """Return the styles formats available."""
+    if style_format_id:
+        style_format = db.session.query(StyleFormats).\
+            filter(StyleFormats.id == style_format_id).first()
+
+        return StyleFormatsSchema().dump(style_format)
+
+    if system_id:
+        style_formats_id = db.session.query(Styles.style_format_id)\
+            .filter(Styles.class_system_id == system_id)\
+            .all()
+        return style_formats_id
+
+    style_formats = db.session.query(StyleFormats.id).all()
+
+    return StyleFormatsSchema().dump(style_formats, many=True)
+
+
+def get_classification_system_style(system_id, style_format_id: None):
     """Get Styles.
 
     :param system_id: Identification (name) of Classification System
@@ -73,23 +90,21 @@ def get_classification_system_styles(system_id, style_format_id: None):
     :type style_format_id: string
     """
     columns = [
-        LucClassificationSystem.name.label("class_system_name"),
-        StyleFormats.name.label("style_format"),
-        Styles.style.label("style_file")
+        Styles.style,
+        Styles.mime_type
     ]
-    
-    where = [LucClassificationSystem.name == system_id]
-    
-    if style_format_id:
-        where += [StyleFormats.name == style_format_id]
-    
-    styles_formats = db.session.query(*columns) \
-        .join(Styles, LucClassificationSystem.id == Styles.class_system_id) \
-        .join(StyleFormats, Styles.style_format_id == StyleFormats.id) \
+
+    where = [
+        Styles.class_system_id == system_id,
+        and_(Styles.style_format_id == style_format_id),
+    ]
+
+    style_file = db.session.query(*columns)\
+        .join(StyleFormats, StyleFormats.id == Styles.style_format_id)\
         .filter(*where) \
-        .all()
-    
-    return styles_formats
+        .first()
+
+    return style_file
 
 
 def get_mappings(classes_source, classes_target):
@@ -502,16 +517,6 @@ def update_mappings(system_id_source, system_id_target, classes_files_json: dict
     
     db.session.commit()
 
-
-def get_styles_all_formats():
-    """Return all styles formats."""
-    retval = db.session.query(StyleFormats.name).all()
-    
-    result = list()
-    
-    [result.append(i[0]) for i in retval]
-    
-    return result
 
 
 def delete_mappings(system_id_source, system_id_target):

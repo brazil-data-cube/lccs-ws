@@ -9,11 +9,13 @@
 import json
 import os
 
+from io import BytesIO
 from bdc_auth_client.decorators import oauth2
-from flask import abort, current_app, jsonify, request, send_from_directory
+from flask import abort, current_app, jsonify, request, send_file
 from werkzeug.utils import secure_filename
 
 from lccs_ws.forms import ClassificationSystemSchema
+from lccs_db.utils import get_extension
 
 from . import data
 from .config import Config
@@ -40,7 +42,7 @@ def root():
 
 @current_app.route("/classification_systems", methods=["GET"])
 def get_classification_systems():
-    """Return all available classification systems."""
+    """Retrieves the list of available classification systems in the service."""
     classification_systems_list = data.get_classification_systems()
 
     for class_system in classification_systems_list:
@@ -84,12 +86,12 @@ def get_classification_systems():
 
 @current_app.route("/classification_systems/<system_id>", methods=["GET"])
 def classification_systems(system_id):
-    """Retrieve metadata of classification system.
+    """Retrieves information about the classification system.
 
-    :param system_id: identifier (name) of a classification system
+    :param system_id: identifier of a classification system
     """
     classification_system = data.get_classification_systems(system_id)
-    
+
     if not classification_system:
         abort(404, "Classification System not found.")
 
@@ -134,11 +136,14 @@ def classification_systems(system_id):
 
 @current_app.route("/classification_systems/<system_id>/classes", methods=["GET"])
 def classification_systems_classes(system_id):
-    """Retrieve classes of classification system.
-
-    :param system_id: identifier (name) of a classification system
+    """Retrieves the classes of a classification system.
+    
+    :param system_id: identifier of a classification system
     """
     classes_list = data.get_classification_system_classes(system_id)
+
+    if not len(classes_list) > 0:
+        abort(404, f"Classes not found.")
 
     links = list()
 
@@ -183,12 +188,15 @@ def classification_systems_classes(system_id):
 
 @current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["GET"])
 def classification_systems_class(system_id, class_id):
-    """Retrieve metadata of classe.
+    """Retrieve class information from a classification system.
 
-    :param system_id: identifier (name) of a classification system
-    :param class_id: identifier (name) of a class
+    :param system_id: identifier of a classification system
+    :param class_id: identifier of a class
     """
     classes = data.get_classification_system_classes(system_id, class_id)
+    
+    if not len(classes) > 0:
+        abort(404, f"Class not found.")
 
     links = [
         {
@@ -227,7 +235,7 @@ def classification_systems_class(system_id, class_id):
 def get_mappings(system_id):
     """Retrieve available mappings of classification system.
 
-    :param system_id: identifier (name) of a classification system
+    :param system_id: identifier of a classification system
     """
     mappings = data.get_available_mappings(system_id)
 
@@ -297,19 +305,93 @@ def get_mapping(system_id_source, system_id_target):
     return result
 
 
-@current_app.route("/classification_systems/<system_id>/styles", methods=["GET"])
-def styles(system_id):
+@current_app.route("/style_formats", methods=["GET"])
+def get_styles_formats():
+    """Retrieve available style formats."""
+    styles_formats = data.get_style_formats()
+
+    links = [
+        {
+            "href": f"{BASE_URL}/classification_systems",
+            "rel": "classification_systems",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+        {
+            "href": f"{BASE_URL}/",
+            "rel": "root",
+            "type": "application/json",
+            "title": "API landing page",
+        },
+    ]
+
+    for st_f in styles_formats:
+        links.append({
+            "href": f"{BASE_URL}/style_formats/{st_f['id']}",
+            "rel": "style_format",
+            "type": "application/json",
+            "title": "Link to style format",
+        })
+    
+    return jsonify(links)
+
+
+@current_app.route("/style_formats/<style_format_id>", methods=["GET"])
+def get_style_format(style_format_id):
+    """Retrieve available style formats."""
+    styles_format = data.get_style_formats(style_format_id=style_format_id)
+
+    if not len(styles_format) > 0:
+        abort(404, f"Style Format not found.")
+    
+    links = [
+        {
+            "href": f"{BASE_URL}/classification_systems",
+            "rel": "classification_systems",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+        {
+            "href": f"{BASE_URL}/",
+            "rel": "root",
+            "type": "application/json",
+            "title": "API landing page",
+        },
+        {
+            "href": f"{BASE_URL}/style_formats/{styles_format['id']}",
+            "rel": "style_format",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+        {
+            "href": f"{BASE_URL}/style_formats/",
+            "rel": "parent",
+            "type": "application/json",
+            "title": "Link to classification systems",
+        },
+    ]
+
+    styles_format["links"] = links
+
+    return styles_format
+
+
+@current_app.route("/classification_systems/<system_id>/style_formats", methods=["GET"])
+def get_style_formats_classification_system(system_id):
     """Retrieve available styles.
 
     :param system_id: identifier (name) of a source classification system
     """
-    styles = data.get_classification_system_styles(system_id, None)
+    style_formats_id = data.get_style_formats(system_id=system_id)
+
+    if not len(style_formats_id) > 0:
+        abort(404, f"Style Formats not found.")
 
     links = list()
 
     links += [
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/styles",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
             "rel": "self",
             "type": "application/json",
             "title": f"Styles of the classification system {system_id}",
@@ -334,65 +416,39 @@ def styles(system_id):
         },
     ]
 
-    for style in styles:
+    for style_id in style_formats_id:
         links.append(
             {
-                "href": f"{BASE_URL}/classification_systems/{style[0]}/styles/{style[1]}",
-                "rel": "child",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_id[0]}",
+                "rel": "style",
                 "type": "application/json",
-                "title": f"{style[1]}",
+                "title": "style_format",
             }
         )
 
-    result = dict()
-
-    result["links"] = links
-
-    return result
+    return jsonify(links)
 
 
-@current_app.route("/classification_systems/styles_formats", methods=["GET"])
-def get_styles_formats():
-    """Retrieve available style formats."""
-    styles_formats = data.get_styles_all_formats()
-
-    response = dict()
-
-    links = [
-        {
-            "href": f"{BASE_URL}/classification_systems",
-            "rel": "base",
-            "type": "application/json",
-            "title": "Link to classification systems",
-        },
-        {
-            "href": f"{BASE_URL}/",
-            "rel": "root",
-            "type": "application/json",
-            "title": "API landing page",
-        },
-    ]
-
-    response["links"] = links
-
-    response["styles_formats"] = styles_formats
-
-    return response
-
-
-@current_app.route("/classification_systems/<system_id>/styles/<style_id>", methods=["GET"])
-def style_file(system_id, style_id):
+@current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["GET"])
+def style_file(system_id, style_format_id):
     """Retrieve available styles.
 
     :param system_id: identifier (name) of a classification system
     :param style_id: identifier (name) of a style format
     """
-    styles = data.get_classification_system_styles(system_id, style_id)
+    system_style_file = data.get_classification_system_style(system_id, style_format_id)
 
-    file = json.loads(styles[0].style_file)
+    if not system_style_file:
+        abort(404, f"Style File not found.")
 
-    return send_from_directory(Config.LCCS_UPLOAD_FOLDER, file['filename'], as_attachment=True)
+    extension = get_extension(system_style_file.mime_type)
+    
+    file_name = f"{system_id}_{style_format_id}_style" + extension
 
+    return send_file(BytesIO(system_style_file.style), mimetype='application/octet-stream', as_attachment=True,
+                     attachment_filename=file_name)
+
+# ----
 
 @current_app.route('/classification_systems', defaults={'system_id': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id>", methods=["PUT", "DELETE"])
