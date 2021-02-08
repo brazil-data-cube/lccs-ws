@@ -22,7 +22,7 @@ BASE_URL = Config.LCCS_URL
 
 
 @current_app.route("/", methods=["GET"])
-def index():
+def root():
     """URL Handler for Land User Cover Classification System through REST API."""
     links = list()
     response = dict()
@@ -39,34 +39,32 @@ def index():
 
 
 @current_app.route("/classification_systems", methods=["GET"])
-def root():
+def get_classification_systems():
     """Return all available classification systems."""
-    classification_systems_list = data.get_class_systems()
-
-    response = dict()
+    classification_systems_list = data.get_classification_systems()
 
     for class_system in classification_systems_list:
         links = [
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['name']}",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}",
                 "rel": "classification system",
                 "type": "application/json",
                 "title": "Link to Classification System",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['name']}/classes",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/classes",
                 "rel": "classes",
                 "type": "application/json",
                 "title": "Link to Classification System Classes",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['name']}/styles",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/styles",
                 "rel": "classes",
                 "type": "application/json",
                 "title": "Link to Available Styles",
             },
             {
-                "href": f"{BASE_URL}/mappings/{class_system['name']}",
+                "href": f"{BASE_URL}/mappings/{class_system['id']}",
                 "rel": "mappings",
                 "type": "application/json",
                 "title": "Link to Classification Mappings",
@@ -81,9 +79,7 @@ def root():
 
         class_system["links"] = links
 
-    response["classification_systems"] = classification_systems_list
-
-    return response
+    return jsonify(classification_systems_list)
 
 
 @current_app.route("/classification_systems/<system_id>", methods=["GET"])
@@ -92,7 +88,10 @@ def classification_systems(system_id):
 
     :param system_id: identifier (name) of a classification system
     """
-    classification_system = data.get_class_system(system_id)
+    classification_system = data.get_classification_systems(system_id)
+    
+    if not classification_system:
+        abort(404, "Classification System not found.")
 
     links = [
         {
@@ -139,7 +138,7 @@ def classification_systems_classes(system_id):
 
     :param system_id: identifier (name) of a classification system
     """
-    classes = data.get_classification_system_classes(system_id)
+    classes_list = data.get_classification_system_classes(system_id)
 
     links = list()
 
@@ -170,20 +169,16 @@ def classification_systems_classes(system_id):
         },
     ]
 
-    for system_class in classes:
+    for system_classes in classes_list:
         links.append({
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_class['name']}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}",
             "rel": "child",
             "type": "application/json",
             "title": "Classification System Classes",
         }
         )
 
-    result = dict()
-
-    result["links"] = links
-
-    return result
+    return jsonify(links)
 
 
 @current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["GET"])
@@ -193,11 +188,11 @@ def classification_systems_class(system_id, class_id):
     :param system_id: identifier (name) of a classification system
     :param class_id: identifier (name) of a class
     """
-    classes = data.get_class(system_id, class_id)
+    classes = data.get_classification_system_classes(system_id, class_id)
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{classes['name']}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{classes['id']}",
             "rel": "self",
             "type": "application/json",
             "title": "Link to this document",
