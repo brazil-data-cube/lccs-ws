@@ -45,10 +45,8 @@ setup_requires = [
 
 install_requires = [
     'Flask>=1.1.1',
-    'flask-redoc>=0.1.0',
     'marshmallow-sqlalchemy==0.18.0',
-    'Werkzeug>=0.16.1,<1', # Temp workaround https://github.com/noirbizarre/flask-restplus/issues/777
-    'bdc-core @ git+git://github.com/brazil-data-cube/bdc-core.git#egg=bdc-core',
+    'jsonschema>=3.2',
     'lccs-db @ git+git://github.com/brazil-data-cube/lccs-db@v0.4.0',
     'bdc-auth-client @ git+https://github.com/brazil-data-cube/bdc-auth-client@v0.2.1',
 ]

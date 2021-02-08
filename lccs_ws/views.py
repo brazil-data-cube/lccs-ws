@@ -9,6 +9,7 @@
 import json
 import os
 
+from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
 
@@ -400,7 +401,8 @@ def style_file(system_id, style_id):
 
 @current_app.route('/classification_systems', defaults={'system_id': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id>", methods=["PUT", "DELETE"])
-def edit_classification_system(system_id):
+@oauth2(roles=["admin"])
+def edit_classification_system(system_id, **kwargs):
     """Add, update or delete a single a classification system."""
     if request.method == "POST":
         try:
@@ -426,7 +428,8 @@ def edit_classification_system(system_id):
 
 
 @current_app.route("/classification_systems/<system_id>/classes", methods=["POST", "PUT", "DELETE"])
-def edit_class_system_classes(system_id):
+@oauth2(roles=["admin"])
+def edit_class_system_classes(system_id, **kwargs):
     """Add or update or delete a single class.
 
     :param system_id: identifier (name) of a classification system
@@ -488,7 +491,8 @@ def edit_class_system_classes(system_id):
 
 
 @current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["DELETE"])
-def edit_class_system_class(system_id, class_id):
+@oauth2(roles=["admin"])
+def edit_class_system_class(system_id, class_id, **kwargs):
     """Delete a single class."""
     class_system = data.verify_class_system_exist(system_id)
 
@@ -504,7 +508,8 @@ def edit_class_system_class(system_id, class_id):
 
 
 @current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["POST", "PUT", "DELETE"])
-def edit_mapping(system_id_source, system_id_target):
+@oauth2(roles=['admin'])
+def edit_mapping(system_id_source, system_id_target, **kwargs):
     """Edit classification system mapping."""
     if request.method == "POST":
 
@@ -554,7 +559,8 @@ def edit_mapping(system_id_source, system_id_target):
 
 @current_app.route("/classification_systems/<system_id>/styles", defaults={'style_format_id': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["DELETE"])
-def edit_styles(system_id, style_format_id):
+@oauth2(roles=['admin'])
+def edit_styles(system_id, style_format_id, **kwargs):
     """Retrieve available styles.
 
     :param system_id: identifier (name) of a source classification system
