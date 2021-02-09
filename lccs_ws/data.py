@@ -417,15 +417,11 @@ def update_file(style_format_id, system_id, file):
     :param file: Style File
     :type file: binary
     """
-    where = [
-        Styles.class_system_id == system_id,
-        Styles.style_format_id == style_format_id
-    ]
-    
-    style = Styles.query(Styles) \
-        .filter(**where) \
+    style = db.session.query(Styles) \
+        .filter(Styles.class_system_id == system_id,
+                Styles.style_format_id == style_format_id) \
         .first_or_404()
-
+    
     style_file = file.read()
 
     mime_type = get_mimetype(file.filename)
