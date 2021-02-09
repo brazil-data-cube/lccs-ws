@@ -7,13 +7,13 @@
 #
 """Views of Land Cover Classification System Web Service."""
 import json
-
 from io import BytesIO
+
 from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
+from lccs_db.utils import get_extension
 
 from lccs_ws.forms import ClassificationSystemSchema
-from lccs_db.utils import get_extension
 
 from . import data
 from .config import Config
@@ -453,7 +453,10 @@ def style_file(system_id, style_format_id):
 @current_app.route("/classification_systems/<system_id>", methods=["PUT", "DELETE"])
 @oauth2(roles=["admin"])
 def edit_classification_system(system_id, **kwargs):
-    """Add, update or delete a single a classification system."""
+    """Create or edit a specific classification system.
+
+    :param system_id: identifier of a classification system
+    """
     if request.method == "POST":
         try:
             classification_system = data.create_classification_system(**request.json)
@@ -480,7 +483,7 @@ def edit_classification_system(system_id, **kwargs):
 @current_app.route("/classification_systems/<system_id>/classes", methods=["POST"])
 @oauth2(roles=["admin"])
 def create_class_system_classes(system_id, **kwargs):
-    """Add or update or delete a single class.
+    """Create classes for a classification system.
 
     :param system_id: identifier of a classification system
     """
@@ -501,7 +504,11 @@ def create_class_system_classes(system_id, **kwargs):
 @current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["PUT", "DELETE"])
 @oauth2(roles=["admin"])
 def edit_class_system_class(system_id, class_id, **kwargs):
-    """Delete a single class."""
+    """Delete class of a specific classification system.
+    
+    :param system_id: identifier of a classification system
+    :param class_id: identifier of a class
+    """
     if request.method == "DELETE":
         try:
             data.delete_class(system_id, class_id)
@@ -527,7 +534,11 @@ def edit_class_system_class(system_id, class_id, **kwargs):
 @current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["POST", "PUT", "DELETE"])
 @oauth2(roles=['admin'])
 def edit_mapping(system_id_source, system_id_target, **kwargs):
-    """Edit classification system mapping."""
+    """Create or edit mappings in service.
+    
+    :param system_id_source: identifier of a source classification system
+    :param system_id_target: identifier of a target classification system
+    """
     if request.method == "POST":
         if request.content_type != 'application/json':
             abort(400, 'Classes is not a JSON file')
@@ -572,10 +583,10 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
 @current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["PUT", "DELETE"])
 @oauth2(roles=['admin'])
 def edit_styles(system_id, style_format_id, **kwargs):
-    """Retrieve available styles.
+    """Create or edit styles.
 
-    :param system_id: identifier (name) of a source classification system
-    :param style_format_id: identifier (name) of a style format.
+    :param system_id: identifier of a specific classification system
+    :param style_format_id: identifier of a specific style format.
     """
     if request.method == "POST":
 
@@ -692,7 +703,33 @@ def edit_styles(system_id, style_format_id, **kwargs):
 
         return {'message': 'deleted!'}, 201
 
-# @current_app.route("/style_formats", defaults={'style_format_id': None}, methods=["POST"])
-# @current_app.route("/style_formats/<style_format_id>", methods=["DELETE"])
-# @oauth2(roles=['admin'])
-# def edit_style_formats(style_format_id, **kwargs):
+
+@current_app.route("/style_formats", defaults={'style_format_id': None}, methods=["POST"])
+@current_app.route("/style_formats/<style_format_id>", methods=["PUT", "DELETE"])
+@oauth2(roles=['admin'])
+def edit_style_formats(style_format_id, **kwargs):
+    """Create or edit styles formats.
+    
+    :param style_format_id: identifier of a specific style format
+    """
+    if request.method == "POST":
+        try:
+            style_format = data.create_style_format(**request.json)
+        except Exception as e:
+            abort(400, 'Error creating classification system')
+        
+        return style_format, 201
+
+    if request.method == "DELETE":
+        try:
+            data.delete_style_format(style_format_id)
+        except Exception as e:
+            raise e
+        return {'message': 'deleted'}, 200
+
+    if request.method == "PUT":
+        try:
+            style_format = data.update_style_format(style_format_id, **request.json)
+        except Exception as e:
+            abort(400, 'Error to update Classification System')
+        return style_format, 200
