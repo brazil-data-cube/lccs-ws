@@ -529,18 +529,14 @@ def edit_class_system_class(system_id, class_id, **kwargs):
 def edit_mapping(system_id_source, system_id_target, **kwargs):
     """Edit classification system mapping."""
     if request.method == "POST":
-
-        mappings = request.files['mappings']
-
-        if mappings.content_type != 'application/json':
-            abort(415, 'Mappings is not a JSON file')
-
-        mappings_file = str(mappings.read(), 'utf-8')
-
-        post_file = json.loads(mappings_file)
+        if request.content_type != 'application/json':
+            abort(400, 'Classes is not a JSON file')
+    
+        file = request.json
+        mapping_files = json.loads(json.dumps(file))
 
         try:
-            data.insert_mappings(system_id_source, system_id_target, post_file)
+            data.insert_mappings(system_id_source, system_id_target, mapping_files)
         except RuntimeError:
             abort(400, 'Error while insert mappings')
 
@@ -556,18 +552,16 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
         return {'message': 'Mapping delete!'}, 200
 
     if request.method == "PUT":
-
-        mappings = request.files['mappings']
-
-        if mappings.content_type != 'application/json':
-            abort(415, 'Mappings is not a JSON file')
-
-        mappings_file = str(mappings.read(), 'utf-8')
-
-        post_file = json.loads(mappings_file)
+    
+        if request.content_type != 'application/json':
+            abort(400, 'Classes is not a JSON file')
+    
+        file = request.json
+        
+        mapping_files = json.loads(json.dumps(file))
 
         try:
-            data.update_mappings(system_id_source, system_id_target, post_file)
+            data.update_mappings(system_id_source, system_id_target, mapping_files)
         except Exception as e:
             abort(400, f'Error while updating {system_id_source} {system_id_target} mapping!')
 
@@ -596,14 +590,46 @@ def edit_styles(system_id, style_format_id, **kwargs):
         file = request.files['style']
 
         try:
-            styles = data.insert_file(style_format_id=style_format_id,
+            data.insert_file(style_format_id=style_format_id,
                              system_id=system_id,
                              style_file=file)
         except Exception as e:
             abort(400, f'Error while insert style!')
 
-        #TODO retornar os links
-        return {'message': 'style insert!'}, 201
+        links = list()
+        links += [
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_format_id}",
+                "rel": "style",
+                "type": "application/json",
+                "title": "style",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
+                "rel": "self",
+                "type": "application/json",
+                "title": f"Styles of the classification system {system_id}",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id}",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification system",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/",
+                "rel": "root",
+                "type": "application/json",
+                "title": "API landing page",
+            },
+        ]
+        return jsonify(links)
 
     if request.method == "PUT":
         if 'style_format_id' not in request.form:
@@ -617,14 +643,46 @@ def edit_styles(system_id, style_format_id, **kwargs):
         file = request.files['style']
 
         try:
-            styles = data.update_file(style_format_id=style_format_id,
+            data.update_file(style_format_id=style_format_id,
                              system_id=system_id,
                              style_file=file)
         except Exception as e:
             abort(400, f'Error while insert style!')
 
-        #TODO retornar os links
-        return {'message': 'style insert!'}, 201
+        links = list()
+        links += [
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_format_id}",
+                "rel": "style",
+                "type": "application/json",
+                "title": "style",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
+                "rel": "self",
+                "type": "application/json",
+                "title": f"Styles of the classification system {system_id}",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id}",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification system",
+            },
+            {
+                "href": f"{BASE_URL}/classification_systems",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/",
+                "rel": "root",
+                "type": "application/json",
+                "title": "API landing page",
+            },
+        ]
+        return jsonify(links)
 
     if request.method == "DELETE":
         try:
