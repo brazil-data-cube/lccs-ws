@@ -176,7 +176,7 @@ def get_system_mapping(system_id_source, system_id_target):
         ClassMapping.degree_of_similarity
     ]
     
-    mappings = db.session.query(*columns) \
+    mappings = db.session.query(ClassMapping) \
         .filter(
         and_(ClassMapping.source_class_id.in_(classes_source), ClassMapping.target_class_id.in_(classes_target))) \
         .all()
@@ -392,7 +392,7 @@ def insert_file(style_format_id, system_id, file):
     
     style_file = file.read()
     
-    mime_type = get_mimetype(file.name)
+    mime_type = get_mimetype(file.filename)
     
     style = Styles(class_system_id=system_id,
                    style_format_id=style_format_id,
@@ -415,12 +415,22 @@ def update_file(style_format_id, system_id, file):
     :param file: Style File
     :type file: binary
     """
+    where = [
+        Styles.class_system_id == system_id,
+        Styles.style_format_id == style_format_id
+    ]
+    
     style = Styles.query(Styles) \
-        .filter(Styles.class_system_id == system_id, Styles.style_format_id == style_format_id) \
+        .filter(**where) \
         .first_or_404()
+
+    style_file = file.read()
+
+    mime_type = get_mimetype(file.filename)
     
     with db.session.begin_nested():
-        style.style = file
+        style.style = style_file
+        style.mime_type = mime_type
     
     db.session.commit()
     
@@ -507,7 +517,6 @@ def update_mapping(system_id_source, system_id_target, target_id, source_id, des
         .filter(ClassMapping.source_class_id == source_id, ClassMapping.target_class_id == target_id) \
         .first_or_404()
 
-    # TODO ver se o novo target deve ser passado
     with db.session.begin_nested():
         if description:
             mapping.description = description

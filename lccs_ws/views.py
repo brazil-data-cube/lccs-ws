@@ -295,9 +295,6 @@ def get_mapping(system_id_source, system_id_target):
         mp["degree_of_similarity"] = float(mp["degree_of_similarity"])
         mp["links"] = links
 
-    result = dict()
-
-    result["mappings"] = class_system_mappings
 
     return jsonify(class_system_mappings)
 
@@ -310,7 +307,7 @@ def get_styles_formats():
     links = [
         {
             "href": f"{BASE_URL}/classification_systems",
-            "rel": "classification_systems",
+            "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
         },
@@ -325,9 +322,9 @@ def get_styles_formats():
     for st_f in styles_formats:
         links.append({
             "href": f"{BASE_URL}/style_formats/{st_f['id']}",
-            "rel": "style_format",
+            "rel": "items",
             "type": "application/json",
-            "title": "Link to style format",
+            "title": f"Link to style format {st_f['id']}"
         })
     
     return jsonify(links)
@@ -547,11 +544,34 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
         mapping_files = json.loads(json.dumps(file))
 
         try:
-            data.insert_mappings(system_id_source, system_id_target, mapping_files)
+             data.insert_mappings(system_id_source, system_id_target, mapping_files)
         except RuntimeError:
             abort(400, 'Error while insert mappings')
 
-        return {'message': 'created'}, 200
+        links = list()
+
+        links += [
+            {
+                "href": f"{BASE_URL}/classification_systems",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/",
+                "rel": "root",
+                "type": "application/json",
+                "title": "API landing page",
+            },
+            {
+                "href": f"{BASE_URL}/mappings/{system_id_source}/{system_id_target}",
+                "rel": "child",
+                "type": "application/json",
+                "title": "Mapping",
+            }
+        ]
+
+        return jsonify(links)
 
     if request.method == "DELETE":
 
@@ -576,7 +596,30 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
         except Exception as e:
             abort(400, f'Error while updating {system_id_source} {system_id_target} mapping!')
 
-        return {'message': 'Mapping updating!'}, 200
+        links = list()
+
+        links += [
+            {
+                "href": f"{BASE_URL}/classification_systems",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/",
+                "rel": "root",
+                "type": "application/json",
+                "title": "API landing page",
+            },
+            {
+                "href": f"{BASE_URL}/mappings/{system_id_source}/{system_id_target}",
+                "rel": "child",
+                "type": "application/json",
+                "title": "Mapping",
+            }
+        ]
+
+        return jsonify(links)
 
 
 @current_app.route("/classification_systems/<system_id>/styles", defaults={'style_format_id': None}, methods=["POST"])
@@ -603,7 +646,7 @@ def edit_styles(system_id, style_format_id, **kwargs):
         try:
             data.insert_file(style_format_id=style_format_id,
                              system_id=system_id,
-                             style_file=file)
+                             file=file)
         except Exception as e:
             abort(400, f'Error while insert style!')
 
@@ -643,11 +686,6 @@ def edit_styles(system_id, style_format_id, **kwargs):
         return jsonify(links)
 
     if request.method == "PUT":
-        if 'style_format_id' not in request.form:
-            return abort(500, "Style Format not found!")
-    
-        style_format_id = request.form.get('style_format_id')
-    
         if 'style' not in request.files:
             return abort(500, "Style File not found!")
     
@@ -656,9 +694,9 @@ def edit_styles(system_id, style_format_id, **kwargs):
         try:
             data.update_file(style_format_id=style_format_id,
                              system_id=system_id,
-                             style_file=file)
+                             file=file)
         except Exception as e:
-            abort(400, f'Error while insert style!')
+            abort(400, f'Error while update style!')
 
         links = list()
         links += [
@@ -717,7 +755,26 @@ def edit_style_formats(style_format_id, **kwargs):
             style_format = data.create_style_format(**request.json)
         except Exception as e:
             abort(400, 'Error creating classification system')
+
+        links = list()
         
+        links += [
+            {
+                "href": f"{BASE_URL}/style_formats/{style_format['id']}",
+                "rel": "style_format",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/style_formats/",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+        ]
+
+        style_format["links"] = links
+
         return style_format, 201
 
     if request.method == "DELETE":
@@ -732,4 +789,24 @@ def edit_style_formats(style_format_id, **kwargs):
             style_format = data.update_style_format(style_format_id, **request.json)
         except Exception as e:
             abort(400, 'Error to update Classification System')
+
+        links = list()
+
+        links += [
+            {
+                "href": f"{BASE_URL}/style_formats/{style_format['id']}",
+                "rel": "style_format",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+            {
+                "href": f"{BASE_URL}/style_formats/",
+                "rel": "parent",
+                "type": "application/json",
+                "title": "Link to classification systems",
+            },
+        ]
+
+        style_format["links"] = links
+        
         return style_format, 200
