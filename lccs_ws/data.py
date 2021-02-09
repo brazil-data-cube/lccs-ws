@@ -304,7 +304,7 @@ def delete_class(system_id: int, class_id: int):
 
 def update_class(system_id: int, class_id: int, name, code, description, class_parent_id):
     """Update an classification system by a given name."""
-    system_class = LucClass.query.filter_by(id=class_id, classification_system_id=system_id).first_or_404()
+    system_class = LucClass.query.filter_by(id=class_id, class_system_id=system_id).first_or_404()
     
     with db.session.begin_nested():
         if name:
@@ -317,6 +317,8 @@ def update_class(system_id: int, class_id: int, name, code, description, class_p
             system_class.class_parent_id = class_parent_id
     
     db.session.commit()
+    
+    return system_class
 
 
 def insert_class(system_id: int, name, code, description, class_parent_id=None):

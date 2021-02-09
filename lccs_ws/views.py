@@ -13,7 +13,7 @@ from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
 from lccs_db.utils import get_extension
 
-from lccs_ws.forms import ClassificationSystemSchema
+from lccs_ws.forms import ClassificationSystemSchema, ClassesSchema
 
 from . import data
 from .config import Config
@@ -295,7 +295,6 @@ def get_mapping(system_id_source, system_id_target):
         mp["degree_of_similarity"] = float(mp["degree_of_similarity"])
         mp["links"] = links
 
-
     return jsonify(class_system_mappings)
 
 
@@ -467,7 +466,7 @@ def edit_classification_system(system_id, **kwargs):
             data.delete_classification_system(system_id)
         except Exception as e:
             raise e
-        return {'message': 'deleted'}, 200
+        return {'message': f'{system_id} deleted'}, 200
 
     if request.method == "PUT":
         try:
@@ -484,9 +483,6 @@ def create_class_system_classes(system_id, **kwargs):
 
     :param system_id: identifier of a classification system
     """
-    if request.content_type != 'application/json':
-        abort(400, 'Classes is not a JSON file')
-
     file = request.json
     classes_files = json.loads(json.dumps(file))
 
@@ -511,21 +507,14 @@ def edit_class_system_class(system_id, class_id, **kwargs):
             data.delete_class(system_id, class_id)
         except Exception as e:
             abort(400, f'Error while delete {class_id} class!')
-    
-        return {'message': 'deleted'}, 200
+        return {'message': f'{class_id} deleted'}, 200
 
     if request.method == "PUT":
-        if request.content_type != 'application/json':
-            abort(400, 'Classes is not a JSON file')
-
-        classes_files = json.loads(request.json)
-
         try:
-            data.update_class(system_id, class_id, **classes_files)
+            system_class = data.update_class(system_id, class_id, **request.json)
         except Exception as e:
             abort(400, f'Error while update classes!')
-
-        return {'message': 'updated'}, 200
+        return ClassesSchema().dump(system_class), 200
 
 
 @current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["POST", "PUT", "DELETE"])
