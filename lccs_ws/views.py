@@ -7,12 +7,10 @@
 #
 """Views of Land Cover Classification System Web Service."""
 import json
-import os
 
 from io import BytesIO
 from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
-from werkzeug.utils import secure_filename
 
 from lccs_ws.forms import ClassificationSystemSchema
 from lccs_db.utils import get_extension
@@ -42,7 +40,7 @@ def root():
 
 @current_app.route("/classification_systems", methods=["GET"])
 def get_classification_systems():
-    """Retrieves the list of available classification systems in the service."""
+    """Retrieve the list of available classification systems in the service."""
     classification_systems_list = data.get_classification_systems()
 
     for class_system in classification_systems_list:
@@ -86,11 +84,11 @@ def get_classification_systems():
 
 @current_app.route("/classification_systems/<system_id>", methods=["GET"])
 def classification_systems(system_id):
-    """Retrieves information about the classification system.
+    """Retrieve information about the classification system.
 
     :param system_id: identifier of a classification system
     """
-    classification_system = data.get_classification_systems(system_id)
+    classification_system = data.get_classification_system(system_id)
 
     if not classification_system:
         abort(404, "Classification System not found.")
@@ -136,7 +134,7 @@ def classification_systems(system_id):
 
 @current_app.route("/classification_systems/<system_id>/classes", methods=["GET"])
 def classification_systems_classes(system_id):
-    """Retrieves the classes of a classification system.
+    """Retrieve the classes of a classification system.
     
     :param system_id: identifier of a classification system
     """
@@ -193,7 +191,7 @@ def classification_systems_class(system_id, class_id):
     :param system_id: identifier of a classification system
     :param class_id: identifier of a class
     """
-    classes = data.get_classification_system_classes(system_id, class_id)
+    classes = data.get_classification_system_class(system_id, class_id)
     
     if not len(classes) > 0:
         abort(404, f"Class not found.")
@@ -233,11 +231,14 @@ def classification_systems_class(system_id, class_id):
 
 @current_app.route("/mappings/<system_id>", methods=["GET"])
 def get_mappings(system_id):
-    """Retrieve available mappings of classification system.
+    """Retrieve available mappings for a classification system.
 
     :param system_id: identifier of a classification system
     """
-    mappings = data.get_available_mappings(system_id)
+    mappings = data.get_mappings(system_id)
+
+    if not len(mappings) > 0:
+        abort(404, f"Mappings not found.")
 
     links = list()
 
@@ -256,58 +257,54 @@ def get_mappings(system_id):
         },
     ]
 
-    for mapping_name in mappings:
+    for mapping_system in mappings:
         links.append({
-            "href": f"{BASE_URL}/mappings/{system_id}/{mapping_name}",
+            "href": f"{BASE_URL}/mappings/{system_id}/{mapping_system}",
             "rel": "child",
             "type": "application/json",
-            "title": mapping_name,
+            "title": "Mapping",
         })
 
-    result = dict()
-
-    result["links"] = links
-
-    return result
+    return jsonify(links)
 
 
 @current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["GET"])
 def get_mapping(system_id_source, system_id_target):
     """Retrieve mapping.
 
-    :param system_id_source: identifier (name) of a source classification system
-    :param system_id_target: identifier (name) of a target classification system
+    :param system_id_source: identifier of source classification system
+    :param system_id_target: identifier of target classification system
     """
     class_system_mappings = data.get_mapping(system_id_source, system_id_target)
 
     for mp in class_system_mappings:
         links = [
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['source']}",
+                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['source_class_id']}",
                 "rel": "item",
                 "type": "application/json",
                 "title": "Link to the source class",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['target']}",
+                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['target_class_id']}",
                 "rel": "item",
                 "type": "application/json",
                 "title": "Link to target class",
             },
         ]
-
+        mp["degree_of_similarity"] = float(mp["degree_of_similarity"])
         mp["links"] = links
 
     result = dict()
 
     result["mappings"] = class_system_mappings
 
-    return result
+    return jsonify(class_system_mappings)
 
 
 @current_app.route("/style_formats", methods=["GET"])
 def get_styles_formats():
-    """Retrieve available style formats."""
+    """Retrieve available style formats in service."""
     styles_formats = data.get_style_formats()
 
     links = [
@@ -338,8 +335,11 @@ def get_styles_formats():
 
 @current_app.route("/style_formats/<style_format_id>", methods=["GET"])
 def get_style_format(style_format_id):
-    """Retrieve available style formats."""
-    styles_format = data.get_style_formats(style_format_id=style_format_id)
+    """Retrieve information of a style formats.
+
+    :param style_format_id: identifier of a style format
+    """
+    styles_format = data.get_style_format(style_format_id=style_format_id)
 
     if not len(styles_format) > 0:
         abort(404, f"Style Format not found.")
@@ -378,11 +378,11 @@ def get_style_format(style_format_id):
 
 @current_app.route("/classification_systems/<system_id>/style_formats", methods=["GET"])
 def get_style_formats_classification_system(system_id):
-    """Retrieve available styles.
+    """Retrieve available style formats for a classification system.
 
-    :param system_id: identifier (name) of a source classification system
+    :param system_id: identifier of a source classification system
     """
-    style_formats_id = data.get_style_formats(system_id=system_id)
+    style_formats_id = data.get_system_style_format(system_id=system_id)
 
     if not len(style_formats_id) > 0:
         abort(404, f"Style Formats not found.")
@@ -433,8 +433,8 @@ def get_style_formats_classification_system(system_id):
 def style_file(system_id, style_format_id):
     """Retrieve available styles.
 
-    :param system_id: identifier (name) of a classification system
-    :param style_id: identifier (name) of a style format
+    :param system_id: identifier of a classification system
+    :param style_format_id: identifier of a style format
     """
     system_style_file = data.get_classification_system_style(system_id, style_format_id)
 
@@ -448,7 +448,6 @@ def style_file(system_id, style_format_id):
     return send_file(BytesIO(system_style_file.style), mimetype='application/octet-stream', as_attachment=True,
                      attachment_filename=file_name)
 
-# ----
 
 @current_app.route('/classification_systems', defaults={'system_id': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id>", methods=["PUT", "DELETE"])
@@ -461,13 +460,13 @@ def edit_classification_system(system_id, **kwargs):
         except Exception as e:
             abort(400, 'Error creating classification system')
 
-        return ClassificationSystemSchema(exclude=['id']).dump(classification_system), 201
+        return ClassificationSystemSchema().dump(classification_system), 201
 
     if request.method == "DELETE":
         try:
             data.delete_classification_system(system_id)
         except Exception as e:
-            abort(400, 'Error when deleting the Classification Systems')
+            raise e
         return {'message': 'deleted'}, 200
 
     if request.method == "PUT":
@@ -475,87 +474,54 @@ def edit_classification_system(system_id, **kwargs):
             classification_system = data.update_classification_system(system_id, **request.json)
         except Exception as e:
             abort(400, 'Error to update Classification System')
-        return ClassificationSystemSchema(exclude=['id']).dump(classification_system), 200
+        return ClassificationSystemSchema().dump(classification_system), 200
 
 
-@current_app.route("/classification_systems/<system_id>/classes", methods=["POST", "PUT", "DELETE"])
+@current_app.route("/classification_systems/<system_id>/classes", methods=["POST"])
 @oauth2(roles=["admin"])
-def edit_class_system_classes(system_id, **kwargs):
+def create_class_system_classes(system_id, **kwargs):
     """Add or update or delete a single class.
 
-    :param system_id: identifier (name) of a classification system
+    :param system_id: identifier of a classification system
     """
-    if request.method == "POST":
+    if request.content_type != 'application/json':
+        abort(400, 'Classes is not a JSON file')
 
-        classes_files = request.files['classes']
+    file = request.json
+    classes_files = json.loads(json.dumps(file))
 
-        if classes_files.content_type != 'application/json':
-            abort(400, 'Classes is not a JSON file')
+    try:
+        data.insert_classes(system_id, classes_files)
+    except Exception as e:
+        abort(400, 'Error add new class!')
 
-        classes_file = str(classes_files.read(), 'utf-8')
+    return {'message': 'created'}, 201
 
-        post_file = json.loads(classes_file)
 
+@current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["PUT", "DELETE"])
+@oauth2(roles=["admin"])
+def edit_class_system_class(system_id, class_id, **kwargs):
+    """Delete a single class."""
+    if request.method == "DELETE":
         try:
-            data.insert_classes(post_file, system_id)
+            data.delete_class(system_id, class_id)
         except Exception as e:
-            abort(400, 'Error add new class!')
-
-        return {'message': 'created'}, 201
+            abort(400, f'Error while delete {class_id} class!')
+    
+        return {'message': 'deleted'}, 200
 
     if request.method == "PUT":
-
-        class_system = data.verify_class_system_exist(system_id)
-
-        if class_system is None:
-            abort(400, f'Error to add new class Classification System {system_id} not exist')
-
-        classes_files = request.files['classes']
-
-        if classes_files.content_type != 'application/json':
+        if request.content_type != 'application/json':
             abort(400, 'Classes is not a JSON file')
 
-        classes_file = str(classes_files.read(), 'utf-8')
-
-        post_file = json.loads(classes_file)
+        classes_files = json.loads(request.json)
 
         try:
-            data.update_class(class_system.id, post_file)
+            data.update_class(system_id, class_id, **classes_files)
         except Exception as e:
             abort(400, f'Error while update classes!')
 
         return {'message': 'updated'}, 200
-
-    if request.method == "DELETE":
-
-        class_system = data.verify_class_system_exist(system_id)
-
-        if class_system is None:
-            abort(400, f'Error to add new class Classification System {system_id} not exist')
-
-        try:
-            data.delete_classes(class_system)
-        except Exception as e:
-            abort(400, f'Error while delete {system_id} classes!')
-
-        return {'message': 'deleted'}, 200
-
-
-@current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["DELETE"])
-@oauth2(roles=["admin"])
-def edit_class_system_class(system_id, class_id, **kwargs):
-    """Delete a single class."""
-    class_system = data.verify_class_system_exist(system_id)
-
-    if class_system is None:
-        abort(400, f'Error to add new class Classification System {system_id} not exist')
-
-    try:
-        data.delete_one_classe(class_system, class_id)
-    except Exception as e:
-        abort(400, f'Error while delete {class_id} class!')
-
-    return {'message': 'deleted'}, 200
 
 
 @current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["POST", "PUT", "DELETE"])
@@ -609,7 +575,7 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
 
 
 @current_app.route("/classification_systems/<system_id>/styles", defaults={'style_format_id': None}, methods=["POST"])
-@current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["DELETE"])
+@current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["PUT", "DELETE"])
 @oauth2(roles=['admin'])
 def edit_styles(system_id, style_format_id, **kwargs):
     """Retrieve available styles.
@@ -619,38 +585,46 @@ def edit_styles(system_id, style_format_id, **kwargs):
     """
     if request.method == "POST":
 
-        if 'style_format' not in request.form:
+        if 'style_format_id' not in request.form:
             return abort(500, "Style Format not found!")
 
-        style_format = request.form.get('style_format')
+        style_format_id = request.form.get('style_format_id')
 
         if 'style' not in request.files:
             return abort(500, "Style File not found!")
 
         file = request.files['style']
 
-        file_format = data.allowed_file(file.filename)
+        try:
+            styles = data.insert_file(style_format_id=style_format_id,
+                             system_id=system_id,
+                             style_file=file)
+        except Exception as e:
+            abort(400, f'Error while insert style!')
 
-        if file_format:
+        #TODO retornar os links
+        return {'message': 'style insert!'}, 201
 
-            filename = secure_filename(file.filename)
+    if request.method == "PUT":
+        if 'style_format_id' not in request.form:
+            return abort(500, "Style Format not found!")
+    
+        style_format_id = request.form.get('style_format_id')
+    
+        if 'style' not in request.files:
+            return abort(500, "Style File not found!")
+    
+        file = request.files['style']
 
-            file_directory = os.path.join(Config.LCCS_UPLOAD_FOLDER, filename)
+        try:
+            styles = data.update_file(style_format_id=style_format_id,
+                             system_id=system_id,
+                             style_file=file)
+        except Exception as e:
+            abort(400, f'Error while insert style!')
 
-            file.save(file_directory)
-
-            json_file = json.dumps({"format": file_format,
-                                    "filename": filename})
-
-            try:
-                data.insert_file(style_format_name=style_format,
-                                 class_system_name=system_id,
-                                 style_file=json_file)
-            except Exception as e:
-                os.remove(file_directory)
-                abort(400, f'Error while insert style!')
-
-            return {'message': 'style insert!'}, 201
+        #TODO retornar os links
+        return {'message': 'style insert!'}, 201
 
     if request.method == "DELETE":
         try:
@@ -659,3 +633,8 @@ def edit_styles(system_id, style_format_id, **kwargs):
             abort(400, f'Error while delete {style_format_id} of {system_id} mapping!')
 
         return {'message': 'deleted!'}, 201
+
+# @current_app.route("/style_formats", defaults={'style_format_id': None}, methods=["POST"])
+# @current_app.route("/style_formats/<style_format_id>", methods=["DELETE"])
+# @oauth2(roles=['admin'])
+# def edit_style_formats(style_format_id, **kwargs):
