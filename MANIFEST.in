@@ -18,6 +18,7 @@ include *.sh
 include *.txt
 include *.py
 include *.yml
+include Dockerfile
 include LICENSE
 include pytest.ini
 recursive-include spec *.json
@@ -37,4 +38,3 @@ recursive-include docs *.ico
 recursive-include docs *.png
 recursive-exclude docs/sphinx/_build *
 recursive-exclude docs/lccs-ws-spec *
-recursive-exclude docker *
