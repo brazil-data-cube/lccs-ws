@@ -26,7 +26,7 @@ On the command line use the `docker build` command to create the docker image fo
 
 .. code-block:: shell
 
-        $ docker build -t lccs-ws:0.4.0-0 -f docker/Dockerfile . --no-cache
+        $ docker build -t lccs-ws:0.4.0-0 . --no-cache
 
 The above command will create a Docker image named `lccs-ws` and tag `0.4.0-0`, as one can see with the `docker images` command:
 
@@ -129,4 +129,3 @@ Finally, to test if it is listening, use the ``curl`` command:
 .. [#f1] If you have a valid address for the PostgreSQL DBMS you can skip this section.
 
 .. [#f2] Make sure you have a database prepared with the schema for LCSS-WS from the `LCCS-DB <https://github.com/brazil-data-cube/lccs-db>`_
-

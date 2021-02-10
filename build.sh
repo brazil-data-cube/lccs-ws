@@ -15,7 +15,7 @@ read LCCS_TAG
 IMAGE_LCCS="lccs"
 IMAGE_LCCS_FULL="${IMAGE_LCCS}:${LCCS_TAG}"
 
-docker build -t ${IMAGE_LCCS_FULL} -f docker/Dockerfile . --no-cache
+docker build -t ${IMAGE_LCCS_FULL} . --no-cache
 docker push ${IMAGE_LCCS_FULL}
 
 echo "BUILD ${IMAGE_LCCS_FULL} FINISHED"
