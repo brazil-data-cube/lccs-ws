@@ -15,7 +15,7 @@ services:
   lccs-ws:
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./Dockerfile
     container_name: lccs-ws
     image: lccs-ws:0.4.0-0
     restart: "always"
