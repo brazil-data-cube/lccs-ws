@@ -29,15 +29,15 @@ def root():
     """URL Handler for Land User Cover Classification System through REST API."""
     links = list()
     response = dict()
-
+    
     links += [
         {"href": f"{BASE_URL}/", "rel": "self", "type": "application/json", "title": "Link to this document"},
         {"href": f"{BASE_URL}/classification_systems", "rel": "classification_systems", "type": "application/json",
          "title": "List classification_systems", }
     ]
-
+    
     response["links"] = links
-
+    
     return response
 
 
@@ -45,7 +45,7 @@ def root():
 def get_classification_systems():
     """Retrieve the list of available classification systems in the service."""
     classification_systems_list = data.get_classification_systems()
-
+    
     for class_system in classification_systems_list:
         links = [
             {
@@ -79,9 +79,9 @@ def get_classification_systems():
                 "title": "Link to this document",
             },
         ]
-
+        
         class_system["links"] = links
-
+    
     return jsonify(classification_systems_list)
 
 
@@ -92,10 +92,10 @@ def classification_systems(system_id):
     :param system_id: identifier of a classification system
     """
     classification_system = data.get_classification_system(system_id)
-
+    
     if not classification_system:
         abort(404, "Classification System not found.")
-
+    
     links = [
         {
             "href": f"{BASE_URL}/classification_systems",
@@ -129,9 +129,9 @@ def classification_systems(system_id):
         },
         {"href": f"{BASE_URL}/", "rel": "root", "type": "application/json", "title": "API landing page."},
     ]
-
+    
     classification_system["links"] = links
-
+    
     return classification_system
 
 
@@ -142,12 +142,12 @@ def classification_systems_classes(system_id):
     :param system_id: identifier of a classification system
     """
     classes_list = data.get_classification_system_classes(system_id)
-
+    
     if not len(classes_list) > 0:
         abort(404, f"Classes not found.")
-
+    
     links = list()
-
+    
     links += [
         {
             "href": f"{BASE_URL}/classification_systems/{system_id}/classes",
@@ -174,7 +174,7 @@ def classification_systems_classes(system_id):
             "title": "API landing page",
         },
     ]
-
+    
     for system_classes in classes_list:
         links.append({
             "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}",
@@ -183,7 +183,7 @@ def classification_systems_classes(system_id):
             "title": "Classification System Classes",
         }
         )
-
+    
     return jsonify(links)
 
 
@@ -198,7 +198,7 @@ def classification_systems_class(system_id, class_id):
     
     if not len(classes) > 0:
         abort(404, f"Class not found.")
-
+    
     links = [
         {
             "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{classes['id']}",
@@ -224,11 +224,11 @@ def classification_systems_class(system_id, class_id):
             "type": "application/json",
             "title": "API landing page",
         },
-
+    
     ]
-
+    
     classes["links"] = links
-
+    
     return classes
 
 
@@ -239,12 +239,12 @@ def get_mappings(system_id):
     :param system_id: identifier of a classification system
     """
     mappings = data.get_mappings(system_id)
-
+    
     if not len(mappings) > 0:
         abort(404, f"Mappings not found.")
-
+    
     links = list()
-
+    
     links += [
         {
             "href": f"{BASE_URL}/classification_systems",
@@ -259,7 +259,7 @@ def get_mappings(system_id):
             "title": "API landing page",
         },
     ]
-
+    
     for mapping_system in mappings:
         links.append({
             "href": f"{BASE_URL}/mappings/{system_id}/{mapping_system}",
@@ -267,7 +267,7 @@ def get_mappings(system_id):
             "type": "application/json",
             "title": "Mapping",
         })
-
+    
     return jsonify(links)
 
 
@@ -279,7 +279,7 @@ def get_mapping(system_id_source, system_id_target):
     :param system_id_target: identifier of target classification system
     """
     class_system_mappings = data.get_mapping(system_id_source, system_id_target)
-
+    
     for mp in class_system_mappings:
         links = [
             {
@@ -297,7 +297,7 @@ def get_mapping(system_id_source, system_id_target):
         ]
         mp["degree_of_similarity"] = float(mp["degree_of_similarity"])
         mp["links"] = links
-
+    
     return jsonify(class_system_mappings)
 
 
@@ -305,7 +305,7 @@ def get_mapping(system_id_source, system_id_target):
 def get_styles_formats():
     """Retrieve available style formats in service."""
     styles_formats = data.get_style_formats()
-
+    
     links = [
         {
             "href": f"{BASE_URL}/classification_systems",
@@ -320,7 +320,7 @@ def get_styles_formats():
             "title": "API landing page",
         },
     ]
-
+    
     for st_f in styles_formats:
         links.append({
             "href": f"{BASE_URL}/style_formats/{st_f['id']}",
@@ -339,7 +339,7 @@ def get_style_format(style_format_id):
     :param style_format_id: identifier of a style format
     """
     styles_format = data.get_style_format(style_format_id=style_format_id)
-
+    
     if not len(styles_format) > 0:
         abort(404, f"Style Format not found.")
     
@@ -369,9 +369,9 @@ def get_style_format(style_format_id):
             "title": "Link to classification systems",
         },
     ]
-
+    
     styles_format["links"] = links
-
+    
     return styles_format
 
 
@@ -382,12 +382,12 @@ def get_style_formats_classification_system(system_id):
     :param system_id: identifier of a source classification system
     """
     style_formats_id = data.get_system_style_format(system_id=system_id)
-
+    
     if not len(style_formats_id) > 0:
         abort(404, f"Style Formats not found.")
-
+    
     links = list()
-
+    
     links += [
         {
             "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
@@ -414,7 +414,7 @@ def get_style_formats_classification_system(system_id):
             "title": "API landing page",
         },
     ]
-
+    
     for style_id in style_formats_id:
         links.append(
             {
@@ -424,7 +424,7 @@ def get_style_formats_classification_system(system_id):
                 "title": "style_format",
             }
         )
-
+    
     return jsonify(links)
 
 
@@ -436,19 +436,42 @@ def style_file(system_id, style_format_id):
     :param style_format_id: identifier of a style format
     """
     system_style_file = data.get_classification_system_style(system_id, style_format_id)
-
+    
     if not system_style_file:
         abort(404, f"Style File not found.")
-
+    
     extension = get_extension(system_style_file.mime_type)
     
     system = data.classification_system(system_id)
     style_format = data.get_style_format(style_format_id)
-
+    
     file_name = f"{system.name}_version-{system.version}_{style_format['name']}" + extension
-
+    
     return send_file(BytesIO(system_style_file.style), mimetype='application/octet-stream', as_attachment=True,
                      attachment_filename=file_name)
+
+
+@current_app.route("/classification_system/search/<system_name>/<system_version>", methods=["GET"])
+def classification_system_search(system_name, system_version):
+    """Return identifier of a classification system.
+    
+    :param system_name: name of a classification system
+    :param system_version: version of a classification system
+    """
+    system = data.get_identifier_system(system_name, system_version)
+    
+    return ClassificationSystemSchema().dump(system), 200
+
+
+@current_app.route("/style_format/search/<style_format_name>", methods=["GET"])
+def style_format_search(style_format_name):
+    """Return identifier of a style format.
+    
+    :param style_format_name: name of a style format
+    """
+    style_format = data.get_identifier_style_format(style_format_name)
+    
+    return StyleFormatsSchema().dump(style_format), 200
 
 
 @current_app.route('/classification_systems', defaults={'system_id': None}, methods=["POST"])
@@ -461,32 +484,31 @@ def edit_classification_system(system_id, **kwargs):
     """
     if request.method == "POST":
         args = request.get_json()
-
+        
         errors = ClassificationSystemSchema().validate(args)
- 
+        
         if errors:
             return errors, 400
-
+        
         classification_system = data.create_classification_system(**args)
-
+        
         return ClassificationSystemSchema().dump(classification_system), 201
-
+    
     if request.method == "DELETE":
-
         data.delete_classification_system(system_id)
-
+        
         return {'message': f'{system_id} deleted'}, 204
-
+    
     if request.method == "PUT":
         args = request.get_json()
-    
+        
         errors = ClassificationSystemMetadataSchema().validate(args)
-
+        
         if errors:
             return errors, 400
-
+        
         classification_system = data.update_classification_system(system_id, args)
-
+        
         return ClassificationSystemSchema().dump(classification_system), 200
 
 
@@ -498,16 +520,16 @@ def create_class_system_classes(system_id, **kwargs):
     :param system_id: identifier of a classification system
     """
     args = request.get_json()
-
+    
     errors = ClassesSchema(many=True).validate(args)
-
+    
     if errors:
         return errors, 400
-
+    
     classes = data.insert_classes(system_id, args)
     
     result = ClassesSchema().dump(classes, many=True)
-
+    
     return jsonify(result), 201
 
 
@@ -520,22 +542,21 @@ def edit_class_system_class(system_id, class_id, **kwargs):
     :param class_id: identifier of a class
     """
     if request.method == "DELETE":
-
         data.delete_class(system_id, class_id)
-
+        
         return {'message': f'{class_id} deleted'}, 204
-
+    
     if request.method == "PUT":
         
         args = request.get_json()
-    
+        
         errors = ClassMetadataSchema().validate(args)
-    
+        
         if errors:
             return errors, 400
-
+        
         system_class = data.update_class(system_id, class_id, args)
-
+        
         return ClassesSchema().dump(system_class), 200
 
 
@@ -549,32 +570,31 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
     """
     if request.method == "POST":
         args = request.get_json()
-    
+        
         errors = ClassesMappingSchema(many=True).validate(args)
-    
+        
         if errors:
             return errors, 400
-    
+        
         mappings = data.insert_mappings(system_id_source, system_id_target, args)
-    
+        
         return jsonify(ClassesMappingSchema().dump(mappings, many=True)), 201
-
+    
     if request.method == "DELETE":
-
         data.delete_mappings(system_id_source, system_id_target)
-
+        
         return {'message': 'Mapping delete!'}, 204
-
+    
     if request.method == "PUT":
         args = request.get_json()
-    
+        
         errors = ClassesMappingMetadataSchema(many=True).validate(args)
-    
+        
         if errors:
             return errors, 400
-    
+        
         mappings = data.update_mappings(system_id_source, system_id_target, args)
-
+        
         return jsonify(ClassesMappingSchema().dump(mappings, many=True)), 200
 
 
@@ -588,21 +608,21 @@ def edit_styles(system_id, style_format_id, **kwargs):
     :param style_format_id: identifier of a specific style format.
     """
     if request.method == "POST":
-
+        
         if 'style_format_id' not in request.form:
             return abort(404, "Invalid parameter.")
-
+        
         style_format_id = request.form.get('style_format_id')
-
+        
         if 'style' not in request.files:
             return abort(404, "Invalid parameter.")
-
+        
         file = request.files['style']
-
+        
         data.insert_file(style_format_id=style_format_id,
                          system_id=system_id,
                          file=file)
-
+        
         links = list()
         links += [
             {
@@ -637,17 +657,17 @@ def edit_styles(system_id, style_format_id, **kwargs):
             },
         ]
         return jsonify(links)
-
+    
     if request.method == "PUT":
         if 'style' not in request.files:
             return abort(500, "Style File not found!")
-    
+        
         file = request.files['style']
-
+        
         data.update_file(style_format_id=style_format_id,
                          system_id=system_id,
                          file=file)
-
+        
         links = list()
         links += [
             {
@@ -682,10 +702,10 @@ def edit_styles(system_id, style_format_id, **kwargs):
             },
         ]
         return jsonify(links)
-
+    
     if request.method == "DELETE":
         data.delete_file(style_format_id, system_id)
-
+        
         return {'message': 'deleted!'}, 204
 
 
@@ -699,30 +719,29 @@ def edit_style_formats(style_format_id, **kwargs):
     """
     if request.method == "POST":
         args = request.get_json()
-    
+        
         errors = StyleFormatsSchema().validate(args)
-    
+        
         if errors:
             return errors, 400
-
+        
         style_format = data.create_style_format(**args)
         
         return jsonify(StyleFormatsSchema().dump(style_format)), 201
-
+    
     if request.method == "DELETE":
-
         data.delete_style_format(style_format_id)
-
+        
         return {'message': 'deleted'}, 204
-
+    
     if request.method == "PUT":
         args = request.get_json()
-    
+        
         errors = StyleFormatsMetadataSchema().validate(args)
-    
+        
         if errors:
             return errors, 400
-    
+        
         style_format = data.update_style_format(style_format_id, **args)
-    
+        
         return jsonify(StyleFormatsSchema().dump(style_format)), 200

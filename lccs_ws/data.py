@@ -258,7 +258,7 @@ def update_classification_system(system_id, obj: dict):
     :type obj: dict
     """
     system = classification_system(system_id)
-
+    
     with db.session.begin_nested():
         for attr in obj.keys():
             setattr(system, attr, obj.get(attr))
@@ -292,7 +292,7 @@ def delete_class(system_id: int, class_id: int):
 def update_class(system_id: int, class_id: int, obj: dict):
     """Update an classification system by a given name."""
     system_class = LucClass.query.filter_by(id=class_id, class_system_id=system_id).first_or_404()
-
+    
     with db.session.begin_nested():
         for attr in obj.keys():
             setattr(system_class, attr, obj.get(attr))
@@ -346,14 +346,14 @@ def insert_classes(system_id: str, classes_files_json: dict):
     
     if system is None:
         abort(400, f'Error to add new class Classification System {system_id} not exist')
-
+    
     with db.session.begin_nested():
         for classes in classes_files_json:
-                insert_class(system_id, **classes)
+            insert_class(system_id, **classes)
     db.session.commit()
     
     classes = db.session.query(LucClass).filter(LucClass.class_system_id == system_id).all()
-
+    
     return classes
 
 
@@ -404,7 +404,7 @@ def update_file(style_format_id, system_id, file):
         .first_or_404()
     
     style_file = file.read()
-
+    
     mime_type = get_mimetype(file.filename)
     
     with db.session.begin_nested():
@@ -469,7 +469,8 @@ def insert_mappings(system_id_source, system_id_target, mapping_file: dict):
     return mappings
 
 
-def update_mapping(system_id_source, system_id_target, target_class_id, source_class_id, description=None, degree_of_similarity=None):
+def update_mapping(system_id_source, system_id_target, target_class_id, source_class_id, description=None,
+                   degree_of_similarity=None):
     """Update a exist mapping.
     
     :param system_id_source: identifier of a source classification system
@@ -485,7 +486,7 @@ def update_mapping(system_id_source, system_id_target, target_class_id, source_c
     :param degree_of_similarity: the degree_of_similarity of a mapping
     :type degree_of_similarity: float
     """
-    source_class = db.session.query(LucClass)\
+    source_class = db.session.query(LucClass) \
         .filter_by(id=source_class_id, class_system_id=system_id_source) \
         .first_or_404()
     
@@ -496,7 +497,7 @@ def update_mapping(system_id_source, system_id_target, target_class_id, source_c
     mapping = db.session.query(ClassMapping) \
         .filter(ClassMapping.source_class_id == source_class_id, ClassMapping.target_class_id == target_class_id) \
         .first_or_404()
-
+    
     with db.session.begin_nested():
         if description:
             mapping.description = description
@@ -518,9 +519,9 @@ def update_mappings(system_id_source, system_id_target, mappings):
     """
     for mapping in mappings:
         update_mapping(system_id_source, system_id_target, **mapping)
-
+    
     mappings = get_mapping(system_id_source, system_id_target)
-
+    
     return mappings
 
 
@@ -546,8 +547,8 @@ def create_style_format(name: str):
     :param name: name for a new style format
     :type name: string
     """
-    style_format = db.session.query(StyleFormats).\
-        filter_by(name=name)\
+    style_format = db.session.query(StyleFormats). \
+        filter_by(name=name) \
         .first()
     
     if style_format is not None:
@@ -569,8 +570,8 @@ def delete_style_format(style_format_id):
     :param style_format_id: identifier of a style format to be deleted
     :type style_format_id: integer
     """
-    style_format = db.session.query(StyleFormats)\
-        .filter_by(id=style_format_id)\
+    style_format = db.session.query(StyleFormats) \
+        .filter_by(id=style_format_id) \
         .first_or_404()
     
     db.session.delete(style_format)
@@ -596,3 +597,30 @@ def update_style_format(style_format_id, name):
     
     return style_format
 
+
+def get_identifier_system(system_name, system_version):
+    """Return the identifier of classification system and classes.
+    
+    :param system_name: name of a classification system
+    :type system_name: string
+    :param system_version: version of a classification system
+    :type system_version: string
+    """
+    system = db.session.query(LucClassificationSystem) \
+        .filter(LucClassificationSystem.name == system_name, LucClassificationSystem.version == system_version) \
+        .first_or_404()
+    
+    return system
+
+
+def get_identifier_style_format(style_format_name):
+    """Return the identifier of style format.
+    
+    :param style_format_name: name of a style format
+    :type style_format_name: string
+    """
+    style = db.session.query(StyleFormats)\
+        .filter_by(name=style_format_name)\
+        .first_or_404()
+    
+    return style
