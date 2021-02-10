@@ -45,20 +45,20 @@ class ClassesMappingSchema(ModelSchema):
 
 
 class StyleFormatsSchema(ModelSchema):
-    """Marshmallow Forms for LucClassificationSystem."""
+    """Marshmallow Forms for StyleFormatsSchema."""
     
     class Meta:
-        """Generate marshmallow Schemas from LucClassificationSystem model."""
+        """Generate marshmallow Schemas from StyleFormatsSchema model."""
         
         model = StyleFormats
         exclude = ('created_at', 'updated_at',)
 
 
 class StyleSchema(ModelSchema):
-    """Marshmallow Forms for LucClassificationSystem."""
+    """Marshmallow Forms for StyleSchema."""
     
     class Meta:
-        """Generate marshmallow Schemas from LucClassificationSystem model."""
+        """Generate marshmallow Schemas from StyleSchema model."""
         
         model = Styles
         exclude = ('created_at', 'updated_at',)
