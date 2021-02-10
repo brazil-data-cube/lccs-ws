@@ -13,7 +13,10 @@ from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
 from lccs_db.utils import get_extension
 
-from lccs_ws.forms import ClassificationSystemSchema, ClassesSchema
+from lccs_ws.forms import (ClassesMappingMetadataSchema, ClassesMappingSchema,
+                           ClassesSchema, ClassificationSystemMetadataSchema,
+                           ClassificationSystemSchema, ClassMetadataSchema,
+                           StyleFormatsMetadataSchema, StyleFormatsSchema)
 
 from . import data
 from .config import Config
@@ -439,7 +442,10 @@ def style_file(system_id, style_format_id):
 
     extension = get_extension(system_style_file.mime_type)
     
-    file_name = f"{system_id}_{style_format_id}_style" + extension
+    system = data.classification_system(system_id)
+    style_format = data.get_style_format(style_format_id)
+
+    file_name = f"{system.name}_version-{system.version}_{style_format['name']}" + extension
 
     return send_file(BytesIO(system_style_file.style), mimetype='application/octet-stream', as_attachment=True,
                      attachment_filename=file_name)
@@ -454,25 +460,33 @@ def edit_classification_system(system_id, **kwargs):
     :param system_id: identifier of a classification system
     """
     if request.method == "POST":
-        try:
-            classification_system = data.create_classification_system(**request.json)
-        except Exception as e:
-            abort(400, 'Error creating classification system')
+        args = request.get_json()
+
+        errors = ClassificationSystemSchema().validate(args)
+ 
+        if errors:
+            return errors, 400
+
+        classification_system = data.create_classification_system(**args)
 
         return ClassificationSystemSchema().dump(classification_system), 201
 
     if request.method == "DELETE":
-        try:
-            data.delete_classification_system(system_id)
-        except Exception as e:
-            raise e
-        return {'message': f'{system_id} deleted'}, 200
+
+        data.delete_classification_system(system_id)
+
+        return {'message': f'{system_id} deleted'}, 204
 
     if request.method == "PUT":
-        try:
-            classification_system = data.update_classification_system(system_id, **request.json)
-        except Exception as e:
-            abort(400, 'Error to update Classification System')
+        args = request.get_json()
+    
+        errors = ClassificationSystemMetadataSchema().validate(args)
+
+        if errors:
+            return errors, 400
+
+        classification_system = data.update_classification_system(system_id, args)
+
         return ClassificationSystemSchema().dump(classification_system), 200
 
 
@@ -483,15 +497,18 @@ def create_class_system_classes(system_id, **kwargs):
 
     :param system_id: identifier of a classification system
     """
-    file = request.json
-    classes_files = json.loads(json.dumps(file))
+    args = request.get_json()
 
-    try:
-        data.insert_classes(system_id, classes_files)
-    except Exception as e:
-        abort(400, 'Error add new class!')
+    errors = ClassesSchema(many=True).validate(args)
 
-    return {'message': 'created'}, 201
+    if errors:
+        return errors, 400
+
+    classes = data.insert_classes(system_id, args)
+    
+    result = ClassesSchema().dump(classes, many=True)
+
+    return jsonify(result), 201
 
 
 @current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["PUT", "DELETE"])
@@ -503,17 +520,22 @@ def edit_class_system_class(system_id, class_id, **kwargs):
     :param class_id: identifier of a class
     """
     if request.method == "DELETE":
-        try:
-            data.delete_class(system_id, class_id)
-        except Exception as e:
-            abort(400, f'Error while delete {class_id} class!')
-        return {'message': f'{class_id} deleted'}, 200
+
+        data.delete_class(system_id, class_id)
+
+        return {'message': f'{class_id} deleted'}, 204
 
     if request.method == "PUT":
-        try:
-            system_class = data.update_class(system_id, class_id, **request.json)
-        except Exception as e:
-            abort(400, f'Error while update classes!')
+        
+        args = request.get_json()
+    
+        errors = ClassMetadataSchema().validate(args)
+    
+        if errors:
+            return errors, 400
+
+        system_class = data.update_class(system_id, class_id, args)
+
         return ClassesSchema().dump(system_class), 200
 
 
@@ -526,89 +548,34 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
     :param system_id_target: identifier of a target classification system
     """
     if request.method == "POST":
-        if request.content_type != 'application/json':
-            abort(400, 'Classes is not a JSON file')
+        args = request.get_json()
     
-        file = request.json
-        mapping_files = json.loads(json.dumps(file))
-
-        try:
-             data.insert_mappings(system_id_source, system_id_target, mapping_files)
-        except RuntimeError:
-            abort(400, 'Error while insert mappings')
-
-        links = list()
-
-        links += [
-            {
-                "href": f"{BASE_URL}/classification_systems",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/",
-                "rel": "root",
-                "type": "application/json",
-                "title": "API landing page",
-            },
-            {
-                "href": f"{BASE_URL}/mappings/{system_id_source}/{system_id_target}",
-                "rel": "child",
-                "type": "application/json",
-                "title": "Mapping",
-            }
-        ]
-
-        return jsonify(links)
+        errors = ClassesMappingSchema(many=True).validate(args)
+    
+        if errors:
+            return errors, 400
+    
+        mappings = data.insert_mappings(system_id_source, system_id_target, args)
+    
+        return jsonify(ClassesMappingSchema().dump(mappings, many=True)), 201
 
     if request.method == "DELETE":
 
-        try:
-            data.delete_mappings(system_id_source, system_id_target)
-        except Exception as e:
-            abort(400, f'Error while delete {system_id_source} {system_id_target} mapping!')
+        data.delete_mappings(system_id_source, system_id_target)
 
-        return {'message': 'Mapping delete!'}, 200
+        return {'message': 'Mapping delete!'}, 204
 
     if request.method == "PUT":
+        args = request.get_json()
     
-        if request.content_type != 'application/json':
-            abort(400, 'Classes is not a JSON file')
+        errors = ClassesMappingMetadataSchema(many=True).validate(args)
     
-        file = request.json
-        
-        mapping_files = json.loads(json.dumps(file))
+        if errors:
+            return errors, 400
+    
+        mappings = data.update_mappings(system_id_source, system_id_target, args)
 
-        try:
-            data.update_mappings(system_id_source, system_id_target, mapping_files)
-        except Exception as e:
-            abort(400, f'Error while updating {system_id_source} {system_id_target} mapping!')
-
-        links = list()
-
-        links += [
-            {
-                "href": f"{BASE_URL}/classification_systems",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/",
-                "rel": "root",
-                "type": "application/json",
-                "title": "API landing page",
-            },
-            {
-                "href": f"{BASE_URL}/mappings/{system_id_source}/{system_id_target}",
-                "rel": "child",
-                "type": "application/json",
-                "title": "Mapping",
-            }
-        ]
-
-        return jsonify(links)
+        return jsonify(ClassesMappingSchema().dump(mappings, many=True)), 200
 
 
 @current_app.route("/classification_systems/<system_id>/styles", defaults={'style_format_id': None}, methods=["POST"])
@@ -623,21 +590,18 @@ def edit_styles(system_id, style_format_id, **kwargs):
     if request.method == "POST":
 
         if 'style_format_id' not in request.form:
-            return abort(500, "Style Format not found!")
+            return abort(404, "Invalid parameter.")
 
         style_format_id = request.form.get('style_format_id')
 
         if 'style' not in request.files:
-            return abort(500, "Style File not found!")
+            return abort(404, "Invalid parameter.")
 
         file = request.files['style']
 
-        try:
-            data.insert_file(style_format_id=style_format_id,
-                             system_id=system_id,
-                             file=file)
-        except Exception as e:
-            abort(400, f'Error while insert style!')
+        data.insert_file(style_format_id=style_format_id,
+                         system_id=system_id,
+                         file=file)
 
         links = list()
         links += [
@@ -680,12 +644,9 @@ def edit_styles(system_id, style_format_id, **kwargs):
     
         file = request.files['style']
 
-        try:
-            data.update_file(style_format_id=style_format_id,
-                             system_id=system_id,
-                             file=file)
-        except Exception as e:
-            abort(400, f'Error while update style!')
+        data.update_file(style_format_id=style_format_id,
+                         system_id=system_id,
+                         file=file)
 
         links = list()
         links += [
@@ -723,12 +684,9 @@ def edit_styles(system_id, style_format_id, **kwargs):
         return jsonify(links)
 
     if request.method == "DELETE":
-        try:
-            data.delete_file(style_format_id, system_id)
-        except Exception as e:
-            abort(400, f'Error while delete {style_format_id} of {system_id} mapping!')
+        data.delete_file(style_format_id, system_id)
 
-        return {'message': 'deleted!'}, 201
+        return {'message': 'deleted!'}, 204
 
 
 @current_app.route("/style_formats", defaults={'style_format_id': None}, methods=["POST"])
@@ -740,62 +698,31 @@ def edit_style_formats(style_format_id, **kwargs):
     :param style_format_id: identifier of a specific style format
     """
     if request.method == "POST":
-        try:
-            style_format = data.create_style_format(**request.json)
-        except Exception as e:
-            abort(400, 'Error creating classification system')
+        args = request.get_json()
+    
+        errors = StyleFormatsSchema().validate(args)
+    
+        if errors:
+            return errors, 400
 
-        links = list()
+        style_format = data.create_style_format(**args)
         
-        links += [
-            {
-                "href": f"{BASE_URL}/style_formats/{style_format['id']}",
-                "rel": "style_format",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/style_formats/",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-        ]
-
-        style_format["links"] = links
-
-        return style_format, 201
+        return jsonify(StyleFormatsSchema().dump(style_format)), 201
 
     if request.method == "DELETE":
-        try:
-            data.delete_style_format(style_format_id)
-        except Exception as e:
-            raise e
-        return {'message': 'deleted'}, 200
+
+        data.delete_style_format(style_format_id)
+
+        return {'message': 'deleted'}, 204
 
     if request.method == "PUT":
-        try:
-            style_format = data.update_style_format(style_format_id, **request.json)
-        except Exception as e:
-            abort(400, 'Error to update Classification System')
-
-        links = list()
-
-        links += [
-            {
-                "href": f"{BASE_URL}/style_formats/{style_format['id']}",
-                "rel": "style_format",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-            {
-                "href": f"{BASE_URL}/style_formats/",
-                "rel": "parent",
-                "type": "application/json",
-                "title": "Link to classification systems",
-            },
-        ]
-
-        style_format["links"] = links
-        
-        return style_format, 200
+        args = request.get_json()
+    
+        errors = StyleFormatsMetadataSchema().validate(args)
+    
+        if errors:
+            return errors, 400
+    
+        style_format = data.update_style_format(style_format_id, **args)
+    
+        return jsonify(StyleFormatsSchema().dump(style_format)), 200
