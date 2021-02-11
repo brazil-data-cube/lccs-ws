@@ -78,7 +78,6 @@ In the source code folder, enter the following command:
       FLASK_ENV="development" \
       SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname" \
       LCCS_URL="http://localhost:5000" \
-      LCCS_UPLOAD_FOLDER="/path/to/the/uploads" \
       flask run
 
 You may need to replace the definition of some environment variables:
@@ -88,8 +87,6 @@ You may need to replace the definition of some environment variables:
   - ``LCCS_URL="http://localhost:5000"``: Base URI of the service.
 
   - ``SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname"``: The database URI to be used [#f1]_.
-
-  - ``LCCS_UPLOAD_FOLDER="/path/to/the/uploads"``: The directory path to be use to save styles.
 
 The above command should output some messages in the console as showed below:
 
@@ -111,42 +108,48 @@ You should see an output like:
 
 .. code-block:: js
 
-    {
-        "classification_systems": [
-        {
-          "authority_name": "INPE",
-          "description": "Sistema de Classificação Anual de Desmatamento",
-          "id": 1,
-          "links": [
-            {
-              "href": "http://localhost:5000/classification_system/PRODES",
-              "rel": "child",
-              "title": "Link to Classification System",
-              "type": "application/json"
-            },
-            {
-              "href": "http://localhost:5000/classification_system/PRODES/classes",
-              "rel": "child",
-              "title": "Link to Classification System Classes",
-              "type": "application/json"
-            },
-            {
-              "href": "http://localhost:5000/mappings/PRODES",
-              "rel": "child",
-              "title": "Link to Classification Mappings",
-              "type": "application/json"
-            },
-            {
-              "href": "http://localhost:5000/classification_systems",
-              "rel": "self",
-              "title": "Link to this document",
-              "type": "application/json"
-            }
-          ],
-          "name": "PRODES",
-          "version": "1.0"
-        }
-    }
+    [
+      {
+        "authority_name": "INPE",
+        "description": "Sistema de Classificação Anual de Desmatamento",
+        "id": 1,
+        "links": [
+          {
+            "href": "http://localhost:5000/classification_systems/1",
+            "rel": "classification system",
+            "title": "Link to Classification System",
+            "type": "application/json"
+          },
+          {
+            "href": "http://localhost:5000/classification_systems/1/classes",
+            "rel": "classes",
+            "title": "Link to Classification System Classes",
+            "type": "application/json"
+          },
+          {
+            "href": "http://localhost:5000/classification_systems/1/styles",
+            "rel": "classes",
+            "title": "Link to Available Styles",
+            "type": "application/json"
+          },
+          {
+            "href": "http://localhost:5000/mappings/1",
+            "rel": "mappings",
+            "title": "Link to Classification Mappings",
+            "type": "application/json"
+          },
+          {
+            "href": "http://localhost:5000/classification_systems",
+            "rel": "self",
+            "title": "Link to this document",
+            "type": "application/json"
+          }
+        ],
+        "name": "PRODES",
+        "version": "1.0"
+      }
+    ]
+
 
 
 .. rubric:: Footnotes

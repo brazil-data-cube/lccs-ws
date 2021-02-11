@@ -1,13 +1,13 @@
 {
   "links": [
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes",
+      "href": "http://localhost:5000/classification_system/1/classes",
       "rel": "self",
       "title": "Classes of the classification system PRODES",
       "type": "application/json"
     },
     {
-      "href": "http://localhost:5000/classification_system/PRODES",
+      "href": "http://localhost:5000/classification_system/1",
       "rel": "parent",
       "title": "Link to classification system",
       "type": "application/json"
@@ -25,37 +25,37 @@
       "type": "application/json"
     },
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Desflorestamento",
+      "href": "http://localhost:5000/classification_system/1/classes/Desflorestamento",
       "rel": "child",
       "title": "Classification System Classes",
       "type": "application/json"
     },
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Floresta",
+      "href": "http://localhost:5000/classification_system/1/classes/Floresta",
       "rel": "child",
       "title": "Classification System Classes",
       "type": "application/json"
     },
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Hidrografia",
+      "href": "http://localhost:5000/classification_system/1/classes/Hidrografia",
       "rel": "child",
       "title": "Classification System Classes",
       "type": "application/json"
     },
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Não Floresta",
+      "href": "http://localhost:5000/classification_system/1/classes/Não Floresta",
       "rel": "child",
       "title": "Classification System Classes",
       "type": "application/json"
     },
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Nuvem",
+      "href": "http://localhost:5000/classification_system/1/classes/Nuvem",
       "rel": "child",
       "title": "Classification System Classes",
       "type": "application/json"
     },
     {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Resíduo",
+      "href": "http://localhost:5000/classification_system/1/classes/Resíduo",
       "rel": "child",
       "title": "Classification System Classes",
       "type": "application/json"

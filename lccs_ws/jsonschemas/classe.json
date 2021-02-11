@@ -1,16 +1,107 @@
 {
-  "id": 0,
-  "name": "string",
-  "code": "string",
-  "description": "string",
-  "class_parent": "string",
-  "classification_system_name": "string",
-  "classification_system_id": 0,
-  "links": [
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "class.json#",
+  "title": "Class object",
+  "version": "0.6",
+  "description": "Land Cover Classification System Web Service (LCCS-WS) is designed to deal with class system representations in traditional land use and cover maps. Besides that it can make easy for applications to have access to the symbology of well know land use and cover maps in applications such as QGIS or GeoServer.\n\nThere are free and open source implementations based on this specification:\n- [lccs-ws](https://github.com/brazil-data-cube/lccs-ws): is a LCCS web server implemented in Python.\n- [lccs.py](https://github.com/brazil-data-cube/lccs.py): is a client library for Python.\n- [wlts](https://github.com/brazil-data-cube/wlts): is a Land Use and Cover Trajectory web service implemented in Python.\n- [wlts.py](https://github.com/brazil-data-cube/wlts.py): is a client library for Python programmers that makes easy the access to trajectories from land use and cover maps.\n",
+  "allOf": [
     {
-      "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes",
-      "rel": "child",
-      "title": "Child"
+      "$ref": "#/definitions/ClassMetadataType"
     }
-  ]
+  ],
+  "definitions": {
+    "LinkType": {
+      "title": "Link for related information.",
+      "description": "This is a generic way to link information in the service.",
+      "type": "object",
+      "properties": {
+        "href": {
+          "type": "string",
+          "format": "url",
+          "example": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes"
+        },
+        "rel": {
+          "type": "string",
+          "example": "child"
+        },
+        "title": {
+          "type": "string",
+          "example": "Child"
+        }
+      },
+      "required": [
+        "href",
+        "rel"
+      ]
+    },
+    "ClassesLinkType": {
+      "title": "Land Use and Cover Classes",
+      "description": "Array of land use and cover classes.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/LinkType"
+      }
+    },
+    "ClassType": {
+      "title": "Land Use and Cover Class",
+      "description": "Land Use and Cover Class.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "class_parent_id": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "code",
+        "description"
+      ]
+    },
+    "ClassesType": {
+      "type": "object",
+      "properties": {
+        "classes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ClassType"
+          }
+        }
+      }
+    },
+    "ClassMetadataType": {
+      "title": "Land Use and Cover Class",
+      "description": "Describes a class from a classification system.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClassType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "links": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LinkType"
+              }
+            }
+          }
+        }
+      ],
+      "required": [
+        "links"
+      ]
+    }
+  }
 }
