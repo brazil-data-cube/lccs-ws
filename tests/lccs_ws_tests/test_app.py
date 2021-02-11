@@ -66,21 +66,21 @@ class TestLCCSWS:
         validate(instance=response.json, schema=classification_systems_response)
 
     def test_classification_system(self, client, requests_mock, mocks):
-        response = client.get('/classification_systems/PRODES')
+        response = client.get('/classification_systems/1')
 
         assert response.status_code == 200
         assert response.content_type == 'application/json'
         validate(instance=response.json, schema=classification_system_response)
 
     def test_classes(self, client, requests_mock, mocks):
-        response = client.get('/classification_systems/PRODES/classes')
+        response = client.get('/classification_systems/1/classes')
 
         assert response.status_code == 200
         assert response.content_type == 'application/json'
         validate(instance=response.json, schema=classes_response)
 
     def test_class(self, client, requests_mock, mocks):
-        response = client.get('/classification_systems/PRODES/classes/Desflorestamento')
+        response = client.get('/classification_systems/1/classes/1')
 
         assert response.status_code == 200
         assert response.content_type == 'application/json'

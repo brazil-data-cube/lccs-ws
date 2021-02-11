@@ -1,35 +1,62 @@
-{
-  "class_parent": null,
-  "classification_system_id": 1,
-  "classification_system_name": "PRODES",
-  "code": "DESFLORESTAMENTO",
-  "description": "",
-  "id": 1,
-  "links": [
-    {
-      "href": "http://localhost:5000/classification_system/PRODES/classes/Desflorestamento",
-      "rel": "self",
-      "title": "Link to this document",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_systemPRODES/classes",
-      "rel": "parent",
-      "title": "Link to this document",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_systems",
-      "rel": "parent",
-      "title": "Link to classification systems",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/",
-      "rel": "root",
-      "title": "API landing page",
-      "type": "application/json"
-    }
-  ],
-  "name": "Desflorestamento"
-}
+[
+  {
+    "href": "http://localhost:5000/classification_systems/1/classes",
+    "rel": "self",
+    "title": "Classes of the classification system 1",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems/1",
+    "rel": "parent",
+    "title": "Link to classification system",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems",
+    "rel": "parent",
+    "title": "Link to classification systems",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/",
+    "rel": "root",
+    "title": "API landing page",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems/1/classes/1",
+    "rel": "child",
+    "title": "Classification System Classes",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems/1/classes/2",
+    "rel": "child",
+    "title": "Classification System Classes",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems/1/classes/3",
+    "rel": "child",
+    "title": "Classification System Classes",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems/1/classes/4",
+    "rel": "child",
+    "title": "Classification System Classes",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems/1/classes/5",
+    "rel": "child",
+    "title": "Classification System Classes",
+    "type": "application/json"
+  },
+  {
+    "href": "http://localhost:5000/classification_systems/1/classes/6",
+    "rel": "child",
+    "title": "Classification System Classes",
+    "type": "application/json"
+  }
+]
