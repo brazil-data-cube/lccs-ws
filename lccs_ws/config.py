@@ -9,6 +9,10 @@
 
 import os
 
+from packaging import version as _version
+
+from .version import __version__
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -31,6 +35,8 @@ class Config:
     BDC_AUTH_CLIENT_SECRET = os.getenv("BDC_AUTH_CLIENT_SECRET", None)
     BDC_AUTH_CLIENT_ID = os.getenv("BDC_AUTH_CLIENT_ID", None)
     BDC_AUTH_ACCESS_TOKEN_URL = os.getenv("BDC_AUTH_ACCESS_TOKEN_URL", None)
+
+    BDC_LCCS_API_VERSION = _version.parse(__version__).base_version
 
 
 class ProductionConfig(Config):
