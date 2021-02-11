@@ -1,9 +1,54 @@
 {
-  "links": [
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "root.json#",
+  "title": "Root Resource",
+  "version": "0.6",
+  "description": "Land Cover Classification System Web Service (LCCS-WS) is designed to deal with class system representations in traditional land use and cover maps. Besides that it can make easy for applications to have access to the symbology of well know land use and cover maps in applications such as QGIS or GeoServer.\n\nThere are free and open source implementations based on this specification:\n- [lccs-ws](https://github.com/brazil-data-cube/lccs-ws): is a LCCS web server implemented in Python.\n- [lccs.py](https://github.com/brazil-data-cube/lccs.py): is a client library for Python.\n- [wlts](https://github.com/brazil-data-cube/wlts): is a Land Use and Cover Trajectory web service implemented in Python.\n- [wlts.py](https://github.com/brazil-data-cube/wlts.py): is a client library for Python programmers that makes easy the access to trajectories from land use and cover maps.\n",
+  "allOf": [
     {
-      "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes",
-      "rel": "child",
-      "title": "Child"
+      "$ref": "#/definitions/RootType"
     }
-  ]
+  ],
+  "definitions": {
+    "LinkType": {
+      "title": "Link for related information.",
+      "description": "This is a generic way to link information in the service.",
+      "type": "object",
+      "properties": {
+        "href": {
+          "type": "string",
+          "format": "url",
+          "example": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes"
+        },
+        "rel": {
+          "type": "string",
+          "example": "child"
+        },
+        "title": {
+          "type": "string",
+          "example": "Child"
+        }
+      },
+      "required": [
+        "href",
+        "rel"
+      ]
+    },
+    "RootType": {
+      "title": "The landing page provides links to the API definition. Links to the classification systems endpoint.",
+      "description": "Provides link to the classification system.",
+      "type": "object",
+      "properties": {
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LinkType"
+          }
+        }
+      },
+      "required": [
+        "links"
+      ]
+    }
+  }
 }

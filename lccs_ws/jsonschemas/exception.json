@@ -1,46 +1,30 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "classes.json#",
-  "title": "Classification Systems",
+  "$id": "exception.json#",
+  "title": "Class object",
   "version": "0.6",
   "description": "Land Cover Classification System Web Service (LCCS-WS) is designed to deal with class system representations in traditional land use and cover maps. Besides that it can make easy for applications to have access to the symbology of well know land use and cover maps in applications such as QGIS or GeoServer.\n\nThere are free and open source implementations based on this specification:\n- [lccs-ws](https://github.com/brazil-data-cube/lccs-ws): is a LCCS web server implemented in Python.\n- [lccs.py](https://github.com/brazil-data-cube/lccs.py): is a client library for Python.\n- [wlts](https://github.com/brazil-data-cube/wlts): is a Land Use and Cover Trajectory web service implemented in Python.\n- [wlts.py](https://github.com/brazil-data-cube/wlts.py): is a client library for Python programmers that makes easy the access to trajectories from land use and cover maps.\n",
   "allOf": [
     {
-      "$ref": "#/definitions/ClassesLinkType"
+      "$ref": "#/definitions/ExceptionType"
     }
   ],
   "definitions": {
-    "LinkType": {
-      "title": "Link for related information.",
-      "description": "This is a generic way to link information in the service.",
+    "ExceptionType": {
+      "title": "Exception raised by the service",
+      "description": "Information about the exception: an error code plus an optional description.",
       "type": "object",
       "properties": {
-        "href": {
-          "type": "string",
-          "format": "url",
-          "example": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes"
+        "code": {
+          "type": "integer"
         },
-        "rel": {
-          "type": "string",
-          "example": "child"
-        },
-        "title": {
-          "type": "string",
-          "example": "Child"
+        "description": {
+          "type": "string"
         }
       },
       "required": [
-        "href",
-        "rel"
+        "code"
       ]
-    },
-    "ClassesLinkType": {
-      "title": "Land Use and Cover Classes",
-      "description": "Array of land use and cover classes.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/LinkType"
-      }
     }
   }
 }

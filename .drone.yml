@@ -8,10 +8,10 @@ steps:
   - pip install --upgrade pip
   - pip install --upgrade setuptools
   - pip install -e .[tests,docs]
-  - lccs_db db init
-  - lccs_db db create-namespaces
-  - lccs_db alembic upgrade
-  - lccs_db db load-scripts
+  - lccs-db db init
+  - lccs-db db create-namespaces
+  - lccs-db alembic upgrade
+  - lccs-db db load-scripts
   - ./run-tests.sh
   environment:
     SQLALCHEMY_DATABASE_URI: postgresql://postgres:mysecretpassword@pg_database:5432/bdc_db

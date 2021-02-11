@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "class_system_type.json#",
+    "title": "Land Use and Cover Classification System",
+    "version": "0.6",
+    "description": "This type represents a given land use and cover classification system.",
+    "properties": {
+        "id": {
+            "type": "integer"
+        },
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "authority_name": {
+            "type": "string"
+        },
+        "version": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "name",
+        "description",
+        "authority_name",
+        "version"
+    ]
+}

@@ -488,7 +488,7 @@ def edit_classification_system(system_id, **kwargs):
         errors = ClassificationSystemSchema().validate(args)
         
         if errors:
-            return errors, 400
+            return abort(400, str(errors))
         
         classification_system = data.create_classification_system(**args)
         
@@ -505,7 +505,7 @@ def edit_classification_system(system_id, **kwargs):
         errors = ClassificationSystemMetadataSchema().validate(args)
         
         if errors:
-            return errors, 400
+            return abort(400, str(errors))
         
         classification_system = data.update_classification_system(system_id, args)
         
@@ -524,7 +524,7 @@ def create_class_system_classes(system_id, **kwargs):
     errors = ClassesSchema(many=True).validate(args)
     
     if errors:
-        return errors, 400
+        return abort(400, str(errors))
     
     classes = data.insert_classes(system_id, args)
     
@@ -553,7 +553,7 @@ def edit_class_system_class(system_id, class_id, **kwargs):
         errors = ClassMetadataSchema().validate(args)
         
         if errors:
-            return errors, 400
+            return abort(400, str(errors))
         
         system_class = data.update_class(system_id, class_id, args)
         
@@ -574,7 +574,7 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
         errors = ClassesMappingSchema(many=True).validate(args)
         
         if errors:
-            return errors, 400
+            return abort(400, str(errors))
         
         mappings = data.insert_mappings(system_id_source, system_id_target, args)
         
@@ -591,7 +591,7 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
         errors = ClassesMappingMetadataSchema(many=True).validate(args)
         
         if errors:
-            return errors, 400
+            return abort(400, str(errors))
         
         mappings = data.update_mappings(system_id_source, system_id_target, args)
         
@@ -723,7 +723,7 @@ def edit_style_formats(style_format_id, **kwargs):
         errors = StyleFormatsSchema().validate(args)
         
         if errors:
-            return errors, 400
+            return abort(400, str(errors))
         
         style_format = data.create_style_format(**args)
         
@@ -740,7 +740,7 @@ def edit_style_formats(style_format_id, **kwargs):
         errors = StyleFormatsMetadataSchema().validate(args)
         
         if errors:
-            return errors, 400
+            return abort(400, str(errors))
         
         style_format = data.update_style_format(style_format_id, **args)
         
