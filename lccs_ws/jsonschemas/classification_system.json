@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "class_system_response.json#",
-  "title": "Classification Systems",
+  "title": "Land Use and Cover Classification System",
   "version": "0.6",
-  "description": "Land Cover Classification System Web Service (LCCS-WS) is designed to deal with class system representations in traditional land use and cover maps. Besides that it can make easy for applications to have access to the symbology of well know land use and cover maps in applications such as QGIS or GeoServer.\n\nThere are free and open source implementations based on this specification:\n- [lccs-ws](https://github.com/brazil-data-cube/lccs-ws): is a LCCS web server implemented in Python.\n- [lccs.py](https://github.com/brazil-data-cube/lccs.py): is a client library for Python.\n- [wlts](https://github.com/brazil-data-cube/wlts): is a Land Use and Cover Trajectory web service implemented in Python.\n- [wlts.py](https://github.com/brazil-data-cube/wlts.py): is a client library for Python programmers that makes easy the access to trajectories from land use and cover maps.\n",
+  "description": "This type represents a given land use and cover classification system.",
   "allOf": [
     {
       "$ref": "#/definitions/ClassificationSystemMetadataType"
