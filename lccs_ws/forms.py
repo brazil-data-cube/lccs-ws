@@ -9,7 +9,7 @@
 
 from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_dump
 from marshmallow_sqlalchemy import ModelSchema
 
 
@@ -41,7 +41,9 @@ class ClassificationSystemMetadataSchema(Schema):
 
 class ClassesSchema(ModelSchema):
     """Marshmallow Forms for LucClass."""
-    
+
+    SKIP_NONE_VALUES = ['class_parent_id']
+
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
     code = fields.String(required=True)
@@ -55,6 +57,15 @@ class ClassesSchema(ModelSchema):
         sqla_session = db.session
         include_fk = True,
         exclude = ('created_at', 'updated_at', 'classification_system', 'class_parent')
+
+    @post_dump
+    def remove_optional_none(self, data, **kwargs):
+        """Remove optional none fields."""
+        output = {
+            key: value for key, value in data.items()
+            if key not in self.SKIP_NONE_VALUES
+        }
+        return output
 
 
 class ClassMetadataSchema(Schema):
