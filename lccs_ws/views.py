@@ -451,7 +451,7 @@ def style_file(system_id, style_format_id):
                      attachment_filename=file_name)
 
 
-@current_app.route("/classification_system/search/<system_name>/<system_version>", methods=["GET"])
+@current_app.route("/classification_systems/search/<system_name>/<system_version>", methods=["GET"])
 def classification_system_search(system_name, system_version):
     """Return identifier of a classification system.
     
@@ -463,7 +463,7 @@ def classification_system_search(system_name, system_version):
     return ClassificationSystemSchema().dump(system), 200
 
 
-@current_app.route("/style_format/search/<style_format_name>", methods=["GET"])
+@current_app.route("/style_formats/search/<style_format_name>", methods=["GET"])
 def style_format_search(style_format_name):
     """Return identifier of a style format.
     
