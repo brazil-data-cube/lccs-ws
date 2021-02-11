@@ -50,7 +50,7 @@ def get_classification_systems():
         links = [
             {
                 "href": f"{BASE_URL}/classification_systems/{class_system['id']}",
-                "rel": "classification system",
+                "rel": "classification_system",
                 "type": "application/json",
                 "title": "Link to Classification System",
             },
@@ -62,7 +62,7 @@ def get_classification_systems():
             },
             {
                 "href": f"{BASE_URL}/classification_systems/{class_system['id']}/styles",
-                "rel": "classes",
+                "rel": "styles",
                 "type": "application/json",
                 "title": "Link to Available Styles",
             },
@@ -142,10 +142,7 @@ def classification_systems_classes(system_id):
     :param system_id: identifier of a classification system
     """
     classes_list = data.get_classification_system_classes(system_id)
-    
-    if not len(classes_list) > 0:
-        abort(404, f"Classes not found.")
-    
+
     links = list()
     
     links += [
@@ -174,16 +171,19 @@ def classification_systems_classes(system_id):
             "title": "API landing page",
         },
     ]
+
+    if not len(classes_list) > 0:
+        return jsonify(links)
     
     for system_classes in classes_list:
-        links.append({
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}",
-            "rel": "child",
-            "type": "application/json",
-            "title": "Classification System Classes",
-        }
+        links.append(
+            {
+                "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}",
+                "rel": "child",
+                "type": "application/json",
+                "title": "Classification System Classes",
+            }
         )
-    
     return jsonify(links)
 
 

@@ -32,7 +32,7 @@ def get_classification_system(system_id):
     :type system_id: int
     """
     system = db.session.query(LucClassificationSystem) \
-        .filter(LucClassificationSystem.id == system_id).first()
+        .filter(LucClassificationSystem.id == system_id).first_or_404()
     return ClassificationSystemSchema().dump(system)
 
 
@@ -42,6 +42,9 @@ def get_classification_system_classes(system_id):
     :param system_id: identifier of a classification system
     :type system_id: int
     """
+    system = db.session.query(LucClassificationSystem) \
+        .filter(LucClassificationSystem.id == system_id).first_or_404()
+    
     classes = db.session.query(LucClass) \
         .join(LucClassificationSystem, LucClass.class_system_id == LucClassificationSystem.id) \
         .filter(LucClassificationSystem.id == system_id) \
