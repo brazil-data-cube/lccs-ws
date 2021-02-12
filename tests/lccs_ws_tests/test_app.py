@@ -15,7 +15,7 @@ from jsonschema import validate
 from pkg_resources import resource_filename
 
 from lccs_ws import app as lccs_app
-from lccs_ws.schemas import (classe_response, classes_response,
+from lccs_ws.schemas import (class_response, classes_response,
                              classification_system_response,
                              classification_system_type,
                              classification_systems_response,
@@ -109,7 +109,7 @@ class TestLCCSWS:
         response = client.get('/classification_systems/1/classes/1')
 
         self._assert_json(response, expected_code=200)
-        validate(instance=response.json, schema=classe_response)
+        validate(instance=response.json, schema=class_response)
 
     def test_class_404(self, client):
         response = client.get('/classification_systems/1/classes/10000')
