@@ -9,10 +9,12 @@
 License
 =======
 
+
 .. include:: ../../LICENSE
 
 
 Contact
 =======
 
-**Under Development!**
+
+`Brazil Data Cube Team <mailto: brazildatacube@inpe.br>`_

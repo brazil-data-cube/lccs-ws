@@ -79,9 +79,7 @@ The ``docker run`` command can be used to launch a container from the image ``lc
              --network=bdc_net \
              --env LCCS_URL="http://localhost:5000" \
              --env SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname" \
-             --env LCCS_UPLOAD_FOLDER="/lccs-ws/uploads" \
              --env LCCSWS_ENVIRONMENT="ProductionConfig" \
-             --volume ./uploads:/lccs-ws/uploads \
              lccs-ws:0.6.0
 
 
@@ -100,10 +98,6 @@ Let's take a look at each parameter in the above command:/
     - ``--env LCCS_URL="http://localhost:5000"``: Base URI of the service.
 
     - ``--env LCCSWS_ENVIRONMENT="ProductionConfig"``: execution mode (``ProductionConfig``, ``DevelopmentConfig``, ``TestingConfig``).
-
-    - ``LCCS_UPLOAD_FOLDER="/lccs-ws/uploads"``: The directory path to be use to save styles.
-
-    - ``--volume uploads:/lccs-ws/uploads``: bind a host folder (or volume) named ``uploads`` to the container folder ``/lccs-ws/uploads``.
 
     - ``lccs-ws:0.6.0``: the name of the base Docker image used to create the container.
 
