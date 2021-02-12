@@ -146,6 +146,10 @@ class TestLCCSWS:
     def test_delete_classification_system(self, client, mock_oauth2_cache):
         headers = self._configure_authentication_test(mock_oauth2_cache, roles=['admin'])
 
-        response = client.delete('/classification_systems/3', headers=headers)
+        systems = client.get('/classification_systems')
+
+        sys_id = max([system['id'] for system in systems.json])
+
+        response = client.delete(f'/classification_systems/{sys_id}', headers=headers)
 
         self._assert_json(response, expected_code=204)
