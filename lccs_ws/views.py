@@ -286,10 +286,10 @@ def get_mapping(system_id_source, system_id_target):
                 "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['source_class_id']}",
                 "rel": "item",
                 "type": "application/json",
-                "title": "Link to the source class",
+                "title": "Link to source class",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['target_class_id']}",
+                "href": f"{BASE_URL}/classification_systems/{system_id_target}/classes/{mp['target_class_id']}",
                 "rel": "item",
                 "type": "application/json",
                 "title": "Link to target class",
