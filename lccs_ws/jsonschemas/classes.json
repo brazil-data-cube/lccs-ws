@@ -1,9 +1,46 @@
 {
-  "links": [
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "classes.json#",
+  "title": "Land Use and Cover Classes",
+  "version": "0.6",
+  "description": "Array of land use and cover classes.",
+  "allOf": [
     {
-      "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes",
-      "rel": "child",
-      "title": "Child"
+      "$ref": "#/definitions/ClassesLinkType"
     }
-  ]
+  ],
+  "definitions": {
+    "LinkType": {
+      "title": "Link for related information.",
+      "description": "This is a generic way to link information in the service.",
+      "type": "object",
+      "properties": {
+        "href": {
+          "type": "string",
+          "format": "url",
+          "example": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes"
+        },
+        "rel": {
+          "type": "string",
+          "example": "child"
+        },
+        "title": {
+          "type": "string",
+          "example": "Child"
+        }
+      },
+      "required": [
+        "href",
+        "rel"
+      ]
+    },
+    "ClassesLinkType": {
+      "title": "Land Use and Cover Classes",
+      "description": "Array of land use and cover classes.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/LinkType"
+      }
+    }
+  }
 }

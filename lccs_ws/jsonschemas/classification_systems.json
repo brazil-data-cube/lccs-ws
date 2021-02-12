@@ -1,29 +1,104 @@
 {
-  "classification_systems": [
-    {
-      "id": 0,
-      "name": "string",
-      "authority_name": "string",
-      "description": "string",
-      "version": "string",
-      "links": [
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "class_systems_response.json#",
+  "title": "Land Use and Cover Classification Systems",
+  "version": "0.6",
+  "description": "This type represents the land use and cover classification systems.",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/ClassificationSystemMetadataType"
+  },
+  "definitions": {
+    "LinkType": {
+      "title": "Link for related information.",
+      "description": "This is a generic way to link information in the service.",
+      "type": "object",
+      "properties": {
+        "href": {
+          "type": "string",
+          "format": "url",
+          "example": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes"
+        },
+        "rel": {
+          "type": "string",
+          "example": "child"
+        },
+        "title": {
+          "type": "string",
+          "example": "Child"
+        }
+      },
+      "required": [
+        "href",
+        "rel"
+      ]
+    },
+    "ClassificationSystemType": {
+      "title": "Land Use and Cover Classification System",
+      "description": "This type represents a given land use and cover classification system.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "authority_name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "authority_name",
+        "version"
+      ]
+    },
+    "ClassificationSystemMetadataType": {
+      "allOf": [
         {
-          "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id",
-          "rel": "self"
+          "$ref": "#/definitions/ClassificationSystemType"
         },
         {
-          "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes",
-          "rel": "classes"
-        },
-        {
-          "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems",
-          "rel": "parent"
-        },
-        {
-          "href": "http://www.esensing.dpi.inpe.br/lccs/",
-          "rel": "root"
+          "type": "object",
+          "properties": {
+            "links": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LinkType"
+              },
+              "example": [
+                {
+                  "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id",
+                  "rel": "self"
+                },
+                {
+                  "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes",
+                  "rel": "classes"
+                },
+                {
+                  "href": "http://www.esensing.dpi.inpe.br/lccs/classification_systems",
+                  "rel": "parent"
+                },
+                {
+                  "href": "http://www.esensing.dpi.inpe.br/lccs/",
+                  "rel": "root"
+                }
+              ]
+            }
+          },
+          "required": [
+            "links"
+          ]
         }
       ]
     }
-  ]
+  }
 }

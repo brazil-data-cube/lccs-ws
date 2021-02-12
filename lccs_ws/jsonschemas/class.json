@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "class.json#",
+  "title": "Land Use and Cover Class",
+  "version": "0.6",
+  "description": "Describes a class from a classification system.",
+  "allOf": [
+    {
+      "$ref": "#/definitions/ClassMetadataType"
+    }
+  ],
+  "definitions": {
+    "LinkType": {
+      "title": "Link for related information.",
+      "description": "This is a generic way to link information in the service.",
+      "type": "object",
+      "properties": {
+        "href": {
+          "type": "string",
+          "format": "url",
+          "example": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes"
+        },
+        "rel": {
+          "type": "string",
+          "example": "child"
+        },
+        "title": {
+          "type": "string",
+          "example": "Child"
+        }
+      },
+      "required": [
+        "href",
+        "rel"
+      ]
+    },
+    "ClassesLinkType": {
+      "title": "Land Use and Cover Classes",
+      "description": "Array of land use and cover classes.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/LinkType"
+      }
+    },
+    "ClassType": {
+      "title": "Land Use and Cover Class",
+      "description": "Land Use and Cover Class.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "class_parent_id": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "code",
+        "description"
+      ]
+    },
+    "ClassesType": {
+      "type": "object",
+      "properties": {
+        "classes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ClassType"
+          }
+        }
+      }
+    },
+    "ClassMetadataType": {
+      "title": "Land Use and Cover Class",
+      "description": "Describes a class from a classification system.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClassType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "links": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LinkType"
+              }
+            }
+          }
+        }
+      ],
+      "required": [
+        "links"
+      ]
+    }
+  }
+}
