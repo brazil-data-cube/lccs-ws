@@ -28,4 +28,4 @@ RUN pip install gunicorn
 
 EXPOSE 5000
 
-CMD ["gunicorn", "-w4", "--bind=0.0.0.0:5000", "lccs_ws:app"]
+CMD ["gunicorn", "-w4", "--bind=0.0.0.0:5000", "lccs_ws:create_app()"]
