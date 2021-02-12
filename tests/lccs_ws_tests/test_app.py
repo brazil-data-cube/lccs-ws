@@ -14,7 +14,7 @@ import pytest
 from jsonschema import validate
 from pkg_resources import resource_filename
 
-from lccs_ws import app as lccs_app
+from lccs_ws import create_app as _create_app
 from lccs_ws.schemas import (class_response, classes_response,
                              classification_system_response,
                              classification_system_type,
@@ -23,7 +23,7 @@ from lccs_ws.schemas import (class_response, classes_response,
 
 url = os.environ.get('LCCS_SERVER_URL', 'http://localhost:5000')
 match_url = re.compile(url)
-
+lccs_app=_create_app()
 
 @pytest.fixture
 def requests_mock(requests_mock):

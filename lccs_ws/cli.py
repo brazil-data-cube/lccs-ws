@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # This file is part of Land Cover Classification System Web Service.
 # Copyright (C) 2020-2021 INPE.
@@ -7,8 +6,15 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
-pydocstyle lccs_ws setup.py && \
-isort lccs_ws tests setup.py --check-only --diff && \
-check-manifest --ignore ".drone.yml,.readthedocs.yml" && \
-sphinx-build -qnW --color -b doctest docs/sphinx/ docs/sphinx/_build/doctest && \
-pytest
+"""CLI interface for the LCCS Web Service."""
+
+import click
+from flask.cli import FlaskGroup
+
+from . import create_app as _create_app
+
+
+@click.group(cls=FlaskGroup, create_app=_create_app)
+@click.version_option()
+def cli():
+    """Create Flask application."""

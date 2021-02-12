@@ -10,6 +10,7 @@
 Land Cover Classification System Web Service 
 ============================================
 
+
 .. image:: https://img.shields.io/badge/license-MIT-green
         :target: https://github.com//brazil-data-cube/lccs-ws/blob/master/LICENSE
         :alt: Software License
@@ -42,6 +43,7 @@ Land Cover Classification System Web Service
 About
 =====
 
+
 Currently, there are several data sets on regional, national and global scales with information on land use and land cover that aim to support a large number of applications, including the management of natural resources, climate change and its impacts, and biodiversity conservation. These data products are generated using different approaches and methodologies, which present information about different classes of the earth's surface, such as forests, agricultural plantations, among others. Initiatives that generate land use and land cover maps normally develop their own classification system, with different nomenclatures and meanings of the classes used.
 
 
@@ -60,11 +62,13 @@ For more information on LCCS-WS, see:
 Installation
 ============
 
+
 See `INSTALL.rst <./INSTALL.rst>`_.
 
 
 Deploying
 =========
+
 
 See `DEPLOY.rst <./DEPLOY.rst>`_.
 
@@ -72,14 +76,16 @@ See `DEPLOY.rst <./DEPLOY.rst>`_.
 Developer Documentation
 =======================
 
+
 See https://lccs-ws.readthedocs.io/en/latest.
 
 
 License
 =======
 
+
 .. admonition::
-    Copyright (C) 2019-2020 INPE.
+    Copyright (C) 2020-2021 INPE.
 
     Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
