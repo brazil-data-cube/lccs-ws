@@ -60,7 +60,7 @@ class ClassesSchema(ModelSchema):
 
     @post_dump
     def remove_optional_none(self, data, **kwargs):
-        """Remove optional none fields."""
+        """Skip none values."""
         output = {
             key: value for key, value in data.items()
             if key not in self.SKIP_NONE_VALUES

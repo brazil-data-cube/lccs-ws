@@ -6,7 +6,6 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Views of Land Cover Classification System Web Service."""
-import json
 from io import BytesIO
 
 from bdc_auth_client.decorators import oauth2
@@ -37,6 +36,7 @@ def root():
     ]
     
     response["links"] = links
+    response["lccs_version"] = Config.BDC_LCCS_API_VERSION
     
     return response
 
