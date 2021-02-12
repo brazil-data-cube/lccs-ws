@@ -61,10 +61,10 @@ def get_classification_systems():
                 "title": "Link to Classification System Classes",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/styles",
-                "rel": "styles",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/style_formats",
+                "rel": "style_formats",
                 "type": "application/json",
-                "title": "Link to Available Styles",
+                "title": "Link to Available Style Formats",
             },
             {
                 "href": f"{BASE_URL}/mappings/{class_system['id']}",
@@ -116,10 +116,10 @@ def classification_systems(system_id):
             "title": "The classes related to this item",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/styles",
-            "rel": "styles",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
+            "rel": "styles_formats",
             "type": "application/json",
-            "title": "The styles related to this item",
+            "title": "The styles formats related to this item",
         },
         {
             "href": f"{BASE_URL}/mappings/{system_id}",
@@ -393,7 +393,7 @@ def get_style_formats_classification_system(system_id):
             "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
             "rel": "self",
             "type": "application/json",
-            "title": f"Styles of the classification system {system_id}",
+            "title": f"Available style formats for {system_id}",
         },
         {
             "href": f"{BASE_URL}/classification_systems/{system_id}",
@@ -421,7 +421,7 @@ def get_style_formats_classification_system(system_id):
                 "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_id[0]}",
                 "rel": "style",
                 "type": "application/json",
-                "title": "style_format",
+                "title": "Link to style",
             }
         )
     
