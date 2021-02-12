@@ -1,6 +1,6 @@
 #
 # This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2019 INPE.
+# Copyright (C) 2020-2021 INPE.
 #
 # Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -10,12 +10,12 @@ import lccs_ws
 import sphinx_rtd_theme
 
 # Create lccs_ws app to initialize `current_app` proxy object on `api.rst`.
-app = lccs_ws.app
+app = lccs_ws.create_app()
 
 # -- Project information -----------------------------------------------------
 
 project = 'Land Cover Classification System Web Service'
-copyright = '2020, INPE'
+copyright = '2020-2021, INPE'
 author = 'INPE'
 
 # The full version, including alpha/beta/rc tags

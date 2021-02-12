@@ -1,6 +1,6 @@
 #
 # This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2020 INPE.
+# Copyright (C) 2020-2021 INPE.
 #
 # Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -17,7 +17,7 @@ from lccs_ws.config import get_settings
 from .version import __version__
 
 
-def create_app(config_name):
+def create_app():
     """
     Create Brazil Data Cube LCCSWS application from config object.
 
@@ -29,7 +29,7 @@ def create_app(config_name):
     """
     app = Flask(__name__)
 
-    conf = get_settings(config_name)
+    conf = get_settings(os.environ.get('LCCSWS_ENVIRONMENT', 'DevelopmentConfig'))
     app.config.from_object(conf)
 
     with app.app_context():
@@ -73,6 +73,7 @@ def setup_app(app):
     from . import views
 
 
-app = create_app(os.environ.get('LCCSWS_ENVIRONMENT', 'DevelopmentConfig'))
-
-__all__ = ('__version__', 'create_app')
+__all__ = (
+    '__version__',
+    'create_app'
+)
