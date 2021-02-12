@@ -1,6 +1,6 @@
 #
 # This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2020 INPE.
+# Copyright (C) 2020-2021 INPE.
 #
 # Land Cover Classification System Web Service. is a free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -13,14 +13,14 @@ import pytest
 from jsonschema import validate
 from pkg_resources import resource_filename
 
-from lccs_ws import app as lccs_app
+from lccs_ws import create_app as _create_app
 from lccs_ws.schemas import (classe_response, classes_response,
                              classification_system_response,
                              classification_systems_response, root_response)
 
 url = os.environ.get('LCCS_SERVER_URL', 'http://localhost:5000')
 match_url = re.compile(url)
-
+lccs_app=_create_app()
 
 @pytest.fixture
 def requests_mock(requests_mock):
