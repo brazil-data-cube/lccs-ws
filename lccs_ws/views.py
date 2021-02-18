@@ -207,7 +207,7 @@ def classification_systems_class(system_id, class_id):
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_systems{system_id}/classes",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to this document",
