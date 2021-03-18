@@ -1,13 +1,10 @@
-#
-# This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2020-2021 INPE.
-#
-# Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
-#
-
+---
 kind: pipeline
 name: lccs-ws
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
 - name: build
@@ -43,20 +40,20 @@ steps:
       from_secret: discord_webhook
   when:
     status:
-      - failure
-      - success
+    - failure
+    - success
 
 - name: docker-registry
   image: plugins/docker
-  network_mode: bridge
   settings:
-    repo: registry.dpi.inpe.br/${DRONE_REPO}
-    registry: registry.dpi.inpe.br
-    username:
-      from_secret: registry_user
+    auto_tag: true
+    custom_dns: 150.163.2.4
     password:
       from_secret: registry_pass
-    auto_tag: true
+    registry: registry.dpi.inpe.br
+    repo: registry.dpi.inpe.br/${DRONE_REPO}
+    username:
+      from_secret: registry_user
 
 services:
 - name: pg_database
@@ -64,3 +61,5 @@ services:
   environment:
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_USER: postgres
+
+
