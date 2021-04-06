@@ -42,7 +42,7 @@ class ClassificationSystemMetadataSchema(Schema):
 class ClassesSchema(ModelSchema):
     """Marshmallow Forms for LucClass."""
 
-    SKIP_NONE_VALUES = ['class_parent_id']
+    SKIP_NONE_VALUES = set([None])
 
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
@@ -63,7 +63,7 @@ class ClassesSchema(ModelSchema):
         """Skip none values."""
         output = {
             key: value for key, value in data.items()
-            if key not in self.SKIP_NONE_VALUES
+            if value not in self.SKIP_NONE_VALUES
         }
         return output
 

@@ -65,7 +65,7 @@ def get_classification_system_class(system_id, class_id):
     
     where = [
         LucClassificationSystem.id == system_id,
-        (LucClass.id == class_id)
+        LucClass.id == class_id
     ]
     
     class_info = db.session.query(*columns) \
