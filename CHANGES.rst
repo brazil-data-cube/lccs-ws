@@ -10,6 +10,27 @@
 Changes
 =======
 
+Version 0.6.0 (2021-03-XX)
+--------------------------
+
+- Add Drone CI support (`#44 <https://github.com/brazil-data-cube/lccs-ws/issues/44>`_)
+
+- Add git submodule (`#28 <https://github.com/brazil-data-cube/lccs-ws/issues/28>`_)
+
+- Remove dependency of bdc-core and flask-restplus (`#36 <https://github.com/brazil-data-cube/lccs-ws/issues/36>`_)
+
+- Integrate with BDC-Auth (`#40 <https://github.com/brazil-data-cube/lccs-ws/issues/40>`_)
+
+- Add automatic deploy on dev and production sites (`#50 <https://github.com/brazil-data-cube/lccs-ws/issues/50>`_)
+
+- Update operations based on Spec 0.6  (`#51 <https://github.com/brazil-data-cube/lccs-ws/issues/51>`_)
+
+- Improve error handler (`#55 <https://github.com/brazil-data-cube/lccs-ws/issues/55>`_)
+
+- Bug fix: Fix parent link in classification_system (`#41 <https://github.com/brazil-data-cube/lccs-ws/issues/41>`_)
+
+- Bug fix: Failed to find attribute 'app' in 'lccs_ws' in Dockerfile (`#63 <https://github.com/brazil-data-cube/lccs-ws/issues/63>`_)
+
 
 Version 0.4.0-1 (2021-01-13)
 ----------------------------
