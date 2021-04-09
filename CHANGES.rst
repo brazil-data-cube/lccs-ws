@@ -10,7 +10,7 @@
 Changes
 =======
 
-Version 0.6.0 (2021-03-XX)
+Version 0.6.0 (2021-04-09)
 --------------------------
 
 - Add Drone CI support (`#44 <https://github.com/brazil-data-cube/lccs-ws/issues/44>`_)
@@ -30,6 +30,8 @@ Version 0.6.0 (2021-03-XX)
 - Bug fix: Fix parent link in classification_system (`#41 <https://github.com/brazil-data-cube/lccs-ws/issues/41>`_)
 
 - Bug fix: Failed to find attribute 'app' in 'lccs_ws' in Dockerfile (`#63 <https://github.com/brazil-data-cube/lccs-ws/issues/63>`_)
+
+- Upgrade lccd-db to 0.6.0 (`#63 <https://github.com/brazil-data-cube/lccs-ws/issues/66>`_)
 
 
 Version 0.4.0-1 (2021-01-13)
