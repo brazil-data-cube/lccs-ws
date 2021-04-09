@@ -31,7 +31,7 @@ Version 0.6.0 (2021-04-09)
 
 - Bug fix: Failed to find attribute 'app' in 'lccs_ws' in Dockerfile (`#63 <https://github.com/brazil-data-cube/lccs-ws/issues/63>`_)
 
-- Upgrade lccs-db to 0.6.0 (`#63 <https://github.com/brazil-data-cube/lccs-ws/issues/66>`_)
+- Upgrade lccs-db to 0.6.0 (`#66 <https://github.com/brazil-data-cube/lccs-ws/issues/66>`_)
 
 
 Version 0.4.0-1 (2021-01-13)
