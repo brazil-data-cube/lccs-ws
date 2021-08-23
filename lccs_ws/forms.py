@@ -18,10 +18,14 @@ class ClassificationSystemSchema(ModelSchema):
     
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
+    title = fields.String(required=True)
+    version = fields.String(required=True)
+    identifier = fields.String(dump_only=True)
     authority_name = fields.String(required=True)
     description = fields.String(required=True)
-    version = fields.String(required=True)
-    
+    version_successor = fields.Integer(required=False)
+    version_predecessor = fields.Integer(required=False)
+
     class Meta:
         """Generate marshmallow Schemas from LucClassificationSystem model."""
         
@@ -47,9 +51,10 @@ class ClassesSchema(ModelSchema):
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
     code = fields.String(required=True)
+    title = fields.String(required=True)
     description = fields.String(required=True)
     class_parent_id = fields.Integer(required=False)
-    
+
     class Meta:
         """Generate marshmallow Schemas from LucClass model."""
         
@@ -84,6 +89,10 @@ class ClassesMappingSchema(ModelSchema):
     target_class_id = fields.Integer(required=True)
     description = fields.String(required=True)
     degree_of_similarity = fields.Number(required=False)
+    source_class_name = fields.String(dump_only=True)
+    target_class_name = fields.String(dump_only=True)
+    source_class_title = fields.String(dump_only=True)
+    target_class_title = fields.String(dump_only=True)
     
     class Meta:
         """Generate marshmallow Schemas from ClassMapping model."""
