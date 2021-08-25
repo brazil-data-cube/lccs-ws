@@ -23,31 +23,39 @@ from sqlalchemy.orm.util import aliased
 from typing import Callable, Iterator, Union, Optional, List, Dict, Tuple
 
 
-def _get_classification_system(system_id_or_identifier: str) -> _LW:
+def _get_classification_system(system_id_or_identifier: str):
     """Return the classification system matching search criteria."""
-    columns = [
-        LucClassificationSystem.id,
-        LucClassificationSystem.name,
-        LucClassificationSystem.title.label("title"),
-        LucClassificationSystem.version,
-        LucClassificationSystem.identifier,
-        LucClassificationSystem.authority_name,
-        LucClassificationSystem.description.label("description"),
-        LucClassificationSystem.version_successor,
-        LucClassificationSystem.version_predecessor
-    ]
-
-    search_criteria = dict()
+    # columns = [
+    #     LucClassificationSystem.id,
+    #     LucClassificationSystem.name,
+    #     LucClassificationSystem.title.label("title"),
+    #     LucClassificationSystem.version,
+    #     LucClassificationSystem.identifier,
+    #     LucClassificationSystem.authority_name,
+    #     LucClassificationSystem.description.label("description"),
+    #     LucClassificationSystem.version_successor,
+    #     LucClassificationSystem.version_predecessor
+    # ]
+    #
+    # search_criteria = dict()
+    #
+    # try:
+    #     system_id = int(system_id_or_identifier)
+    #     search_criteria["id"] = system_id
+    # except ValueError:
+    #     search_criteria["identifier"] = system_id_or_identifier
+    #
+    # query = db.session.query(*columns).filter_by(**search_criteria).first_or_404()
 
     try:
         system_id = int(system_id_or_identifier)
-        search_criteria["id"] = system_id
+        where = [LucClassificationSystem.id == system_id]
     except ValueError:
-        search_criteria["identifier"] = system_id_or_identifier
+        where = [LucClassificationSystem.identifier == system_id_or_identifier]
 
-    query = db.session.query(*columns).filter_by(**search_criteria).first_or_404()
+    system = db.session.query(LucClassificationSystem).filter(*where).first_or_404()
 
-    return query
+    return system
 
 
 def get_classification_systems() -> List[dict]:
@@ -63,7 +71,8 @@ def get_classification_system(system_id_or_identifier: str) -> Dict:
     :type system_id_or_identifier: string
     """
     system = _get_classification_system(system_id_or_identifier)
-    return ClassificationSystemSchema().dump(system)
+    return ClassificationSystemSchema(only=("id", "name", "version", "title", "authority_name", "description",
+                                            "version_predecessor", "version_successor")).dump(system)
 
 
 def get_classification_system_classes(system_id_or_identifier: str) -> Tuple[int, list]:
@@ -131,24 +140,24 @@ def get_classification_system_class(system_id_or_identifier: str, class_id_or_na
 
 def get_style_formats() -> List[dict]:
     """Retrieve all styles formats available in service."""
-    style_formats = db.session.query(
-        StyleFormats.id,
-        StyleFormats.name,
-        StyleFormats.type,
-        StyleFormats.type_identifier,
-    ).all()
+    style_formats = db.session.query(StyleFormats).all()
     
     return StyleFormatsSchema().dump(style_formats, many=True)
 
 
-def get_style_format(style_format_id):
+def get_style_format(style_format_id_or_name) -> dict:
     """Retrieve information for a style format.
 
-    :param style_format_id: identifier of a style format
-    :type style_format_id: int
+    :param style_format_id_or_name: The id or name of a style format
+    :type style_format_id_or_name: string
     """
-    style_format = db.session.query(StyleFormats). \
-        filter(StyleFormats.id == style_format_id).first()
+    try:
+        style_f_id = int(style_format_id_or_name)
+        where = [StyleFormats.id == style_f_id]
+    except ValueError:
+        where = [StyleFormats.name == style_format_id_or_name]
+
+    style_format = db.session.query(StyleFormats).filter(*where).first_or_404()
     
     return StyleFormatsSchema().dump(style_format)
 
@@ -233,7 +242,6 @@ def get_system_mapping(system_id_source: int, system_id_target: int):
         .all()
 
     source_alias = aliased(LucClass)
-    # source_alias = aliased(LucClass)
 
     mappings = db.session.query(
         ClassMapping.source_class_id,
@@ -244,12 +252,11 @@ def get_system_mapping(system_id_source: int, system_id_target: int):
         source_alias.title.label('source_class_title'),
         LucClass.name.label('target_class_name'),
         LucClass.title.label('target_class_title'),
-    ) \
-        .filter(
+    ).filter(
             and_(ClassMapping.source_class_id.in_(classes_source), ClassMapping.target_class_id.in_(classes_target)),
             ClassMapping.source_class_id == source_alias.id,
             ClassMapping.target_class_id == LucClass.id
-        ).all()
+    ).all()
     
     return mappings
 
@@ -279,7 +286,7 @@ def classification_system(system_id):
     return LucClassificationSystem.query.filter_by(id=system_id).first_or_404()
 
 
-def create_classification_system(name, authority_name, version, description=None):
+def create_classification_system(name, authority_name, version, title, description=None) -> dict:
     """Create a full classification system.
 
     :param name: Classification system name
@@ -290,55 +297,70 @@ def create_classification_system(name, authority_name, version, description=None
     :type version: string
     :param description: Classification system description
     :type description: string
+    :title the classification system title
+    :type title: string
     """
-    system = db.session.query(LucClassificationSystem).filter(LucClassificationSystem.name == name,
-                                                              LucClassificationSystem.version == version).first()
+    system = db.session.query(LucClassificationSystem)\
+        .filter(LucClassificationSystem.identifier == f'{name}-{version}')\
+        .first()
+
     if system:
         abort(400, 'Classification System already registered!')
-    
-    classification_system_info = dict(name=name, authority_name=authority_name, version=version,
-                                      description=description)
-    
+
+    classification_system_info = dict(name=name,
+                                      authority_name=authority_name,
+                                      version=version,
+                                      title_translations=title,
+                                      description_translations=description)
+
     with db.session.begin_nested():
         system = LucClassificationSystem(**dict(classification_system_info))
         
         db.session.add(system)
     
     db.session.commit()
-    
-    return system
+
+    return ClassificationSystemSchema(only=("id", "name", "version", "title", "authority_name", "description",
+                                            "version_predecessor", "version_successor")).dump(system)
 
 
-def delete_classification_system(system_id):
+def delete_classification_system(system_id_or_identifier):
     """Delete an classification system by a identifier.
 
-    :param system_id: identifier of a classification system to be deleted
-    :type system_id: string
+    :param system_id_or_identifier: The id or identifier of a classification system to be deleted
+    :type system_id_or_identifier: string
     """
-    system = db.session.query(LucClassificationSystem).filter(LucClassificationSystem.id == system_id).first_or_404()
-    
+    system = _get_classification_system(system_id_or_identifier)
+
     db.session.delete(system)
-    
+
     db.session.commit()
 
 
-def update_classification_system(system_id, obj: dict):
+def update_classification_system(system_id_or_identifier, obj: dict) -> dict:
     """Update an classification system by a given name.
 
-    :param system_id: Classification System identifier.
-    :type system_id: string
+    :param system_id_or_identifier: Classification System identifier.
+    :type system_id_or_identifier: string
     :param obj: Object with classification system information to update
     :type obj: dict
     """
-    system = classification_system(system_id)
-    
+    system = _get_classification_system(system_id_or_identifier)
+
+    if 'title' in obj:
+        obj['title_translations'] = obj.pop('title')
+
+    if 'description' in obj:
+        obj['description_translations'] = obj.pop('description')
+
     with db.session.begin_nested():
         for attr in obj.keys():
             setattr(system, attr, obj.get(attr))
-    
+
     db.session.commit()
-    
-    return system
+
+    return ClassificationSystemSchema(only=("id", "name", "version", "title", "authority_name", "description",
+                                            "version_predecessor", "version_successor")).dump(system)
 
 
 def delete_classes(class_system):
@@ -375,7 +397,7 @@ def update_class(system_id: int, class_id: int, obj: dict):
     return system_class
 
 
-def insert_class(system_id: int, name, code, description, class_parent_id=None):
+def insert_class(system_id: int, name, code, title, description, class_parent_id=None) -> int:
     """Create a new class.
 
     :param system_id: identifier of classification system.
@@ -389,7 +411,7 @@ def insert_class(system_id: int, name, code, description, class_parent_id=None):
     :param class_parent_id: class class_parent_id.
     :type class_parent_id: integer
     """
-    system_class = db.session.query(LucClass).filter_by(class_system_id=system_id, name=name).first()
+    system_class = db.session.query(LucClass).filter_by(classification_system_id=system_id, name=name).first()
     
     if system_class:
         abort(409, f'Class already {name} registered in the system!')
@@ -397,37 +419,54 @@ def insert_class(system_id: int, name, code, description, class_parent_id=None):
     class_infos = dict(
         name=name,
         code=code,
-        description=description,
-        class_system_id=system_id,
+        title_translations=title,
+        description_translations=description,
+        classification_system_id=system_id,
         class_parent_id=class_parent_id
     )
-    
+
     system_class = LucClass(**dict(class_infos))
     
     db.session.add(system_class)
 
+    return system_class.id
 
-def insert_classes(system_id: str, classes_files_json: dict):
+
+def insert_classes(system_id_or_identifier: str, classes_files_json: dict):
     """Create classes for a given classification system.
 
     :param classes_files_json: classes file
     :type classes_files_json: dict
-    :param system_id: classification system identifier
-    :type system_id: string
+    :param system_id_or_identifier: The id or identifier of classification system
+    :type system_id_or_identifier: string
     """
-    system = classification_system(system_id)
+    system = _get_classification_system(system_id_or_identifier)
     
     if system is None:
-        abort(400, f'Error to add new class Classification System {system_id} not exist')
-    
-    with db.session.begin_nested():
-        for classes in classes_files_json:
-            insert_class(system_id, **classes)
-    db.session.commit()
-    
-    classes = db.session.query(LucClass).filter(LucClass.class_system_id == system_id).all()
+        abort(400, f'Error to add new class Classification System {system_id_or_identifier} not exist')
+
+    for system_class in classes_files_json:
+        _add_classes(system.id, system_class)
+
+    classes = db.session.query(LucClass).filter(LucClass.class_system_id == system.id).all()
     
     return classes
+
+
+def _add_classes(system_id, classes, class_parent_id=None):
+    """Add class to a classification system."""
+    if class_parent_id:
+        classes['class_parent_id'] = class_parent_id
+
+    with db.session.begin_nested():
+        class_id = insert_class(system_id, **classes)
+
+    db.session.commit()
+
+    if classes.get('children') is not None:
+        for child in classes['children']:
+            _add_classes(system_id, child, class_parent_id=class_id)
+    return
 
 
 def insert_file(style_format_id, system_id, file):
@@ -550,10 +589,10 @@ def update_mapping(system_id_source, system_id_target, target_class_id, source_c
     :type system_id_source: integer
     :param system_id_target: identifier of a target classification system
     :type system_id_target: string
-    :param target_id: identifier of a target class
-    :type target_id: integer
-    :param source_id: identifier of a source class
-    :type target_id: integer
+    :param target_class_id: identifier of a target class
+    :type target_class_id: integer
+    :param source_class_id: identifier of a source class
+    :type source_class_id: integer
     :param description: the mapping description
     :type description: string
     :param degree_of_similarity: the degree_of_similarity of a mapping

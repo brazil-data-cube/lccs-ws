@@ -9,8 +9,9 @@
 
 from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
-from marshmallow import Schema, fields, post_dump
+from marshmallow import Schema, fields, post_dump, pre_load
 from marshmallow_sqlalchemy import ModelSchema
+from marshmallow.validate import ValidationError
 
 
 class ClassificationSystemSchema(ModelSchema):
@@ -37,10 +38,32 @@ class ClassificationSystemSchema(ModelSchema):
 class ClassificationSystemMetadataSchema(Schema):
     """Define parser for classification system update."""
     
-    name = fields.String(required=False, allow_none=False)
-    authority_name = fields.String(required=False, allow_none=False)
-    description = fields.String(required=False, allow_none=False)
-    version = fields.String(required=False, allow_none=False)
+    name = fields.String(required=True, allow_none=False)
+    title = fields.Dict(required=True, allow_none=False)
+    authority_name = fields.String(required=True, allow_none=False)
+    description = fields.Dict(required=True, allow_none=False)
+    version = fields.String(required=True, allow_none=False)
+
+    @pre_load
+    def validate_system(self, in_data, **kwargs):
+        import re
+
+        if 'name' in in_data:
+            result = re.search(r'(^[A-Za-z0-9\-]{1,32}$)', in_data.get("name", ""))
+            if result is None:
+                raise ValidationError('Classification System name is not valid!')
+
+        if 'title' in in_data:
+            title = in_data['title']
+            if 'pt-br' not in title or 'en' not in title:
+                raise ValidationError(f"Title language not found in key 'title'. You must specify: 'en' or 'pt-br'")
+        if 'description' in in_data:
+            description = in_data['description']
+            if 'pt-br' not in description or 'en' not in description:
+                raise ValidationError(
+                    f"Description language not found in key 'description'. You must specify: 'en' or 'pt-br'")
+
+        return in_data
 
 
 class ClassesSchema(ModelSchema):
@@ -76,10 +99,17 @@ class ClassesSchema(ModelSchema):
 class ClassMetadataSchema(Schema):
     """Define parser for classification system update."""
     
-    name = fields.String(required=False, allow_none=False)
-    code = fields.String(required=False, allow_none=False)
-    description = fields.String(required=False, allow_none=False)
+    name = fields.String(required=True, allow_none=False)
+    title = fields.Dict(required=True, allow_none=False)
+    code = fields.String(required=True, allow_none=False)
+    description = fields.Dict(required=True, allow_none=False)
     class_parent_id = fields.Integer(required=False)
+    children = fields.Nested('ClassMetadataSchema', required=False, allow_none=None, many=True)
+
+
+class ClassMetadataForm(Schema):
+    """Define parser for classification system."""
+    classes = fields.List(fields.Nested('ClassMetadataSchema', required=True))
 
 
 class ClassesMappingSchema(ModelSchema):

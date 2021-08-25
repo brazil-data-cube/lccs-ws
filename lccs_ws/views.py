@@ -7,6 +7,7 @@
 #
 """Views of Land Cover Classification System Web Service."""
 from io import BytesIO
+from werkzeug.urls import url_encode
 
 from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
@@ -14,7 +15,7 @@ from lccs_db.utils import get_extension
 
 from lccs_ws.forms import (ClassesMappingMetadataSchema, ClassesMappingSchema,
                            ClassesSchema, ClassificationSystemMetadataSchema,
-                           ClassificationSystemSchema, ClassMetadataSchema,
+                           ClassificationSystemSchema, ClassMetadataSchema, ClassMetadataForm,
                            StyleFormatsMetadataSchema, StyleFormatsSchema)
 
 from . import data
@@ -24,18 +25,38 @@ from .utils import language
 BASE_URL = Config.LCCS_URL
 
 
+@current_app.before_request
+def before_request():
+    """Handle for before request processing."""
+    request.assets_kwargs = None
+
+    if Config.BDC_LCCS_ASSETS_ARGS:
+        assets_kwargs = {arg: request.args.get(arg) for arg in Config.BDC_LCCS_ASSETS_ARGS.split(",")}
+        if "access_token" in request.args:
+            assets_kwargs["access_token"] = request.args.get("access_token")
+        assets_kwargs = "?" + url_encode(assets_kwargs) if url_encode(assets_kwargs) else ""
+        request.assets_kwargs = assets_kwargs
+
+
 @current_app.route("/", methods=["GET"])
-def root():
+@oauth2(required=False)
+def root(**kwargs):
     """URL Handler for Land User Cover Classification System through REST API."""
     links = list()
     response = dict()
 
     links += [
         {"href": f"{BASE_URL}/", "rel": "self", "type": "application/json", "title": "Link to this document"},
-        {"href": f"{BASE_URL}/classification_systems", "rel": "classification_systems", "type": "application/json",
-         "title": "Classification Systems", },
-        {"href": f"{BASE_URL}/style_formats", "rel": "style_formats", "type": "application/json",
-         "title": "Style Formats"}
+        {
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+            "rel": "classification_systems", "type": "application/json",
+            "title": "Information about Classification Systems",
+        },
+        {
+            "href": f"{BASE_URL}/style_formats{request.assets_kwargs}",
+            "rel": "style_formats", "type": "application/json",
+            "title": "Information about Style Formats"
+        }
     ]
 
     response["links"] = links
@@ -46,38 +67,39 @@ def root():
 
 
 @current_app.route("/classification_systems", methods=["GET"])
-def get_classification_systems():
+@oauth2(required=True)
+def get_classification_systems(**kwargs):
     """Retrieve the list of available classification systems in the service."""
     classification_systems_list = data.get_classification_systems()
 
     for class_system in classification_systems_list:
         links = [
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['id']}",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}{request.assets_kwargs}",
                 "rel": "classification_system",
                 "type": "application/json",
                 "title": "Link to Classification System",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/classes",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/classes{request.assets_kwargs}",
                 "rel": "classes",
                 "type": "application/json",
                 "title": "Link to Classification System Classes",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/style_formats",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/style_formats{request.assets_kwargs}",
                 "rel": "style_formats",
                 "type": "application/json",
                 "title": "Link to Available Style Formats",
             },
             {
-                "href": f"{BASE_URL}/mappings/{class_system['id']}",
+                "href": f"{BASE_URL}/mappings/{class_system['id']}{request.assets_kwargs}",
                 "rel": "mappings",
                 "type": "application/json",
                 "title": "Link to Classification Mappings",
             },
             {
-                "href": f"{BASE_URL}/classification_systems",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
                 "rel": "self",
                 "type": "application/json",
                 "title": "Link to this document",
@@ -91,7 +113,8 @@ def get_classification_systems():
 
 @current_app.route("/classification_systems/<system_id_or_identifier>", methods=["GET"])
 @language()
-def classification_systems(system_id_or_identifier):
+@oauth2(required=True)
+def classification_systems(system_id_or_identifier, **kwargs):
     """Retrieve information about the classification system.
 
     :param system_id_or_identifier: The id or identifier of a classification system
@@ -109,25 +132,25 @@ def classification_systems(system_id_or_identifier):
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}",
+            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}{request.assets_kwargs}",
             "rel": "self",
             "type": "application/json",
             "title": "The classification_system",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}/classes",
+            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}/classes{request.assets_kwargs}",
             "rel": "classes",
             "type": "application/json",
             "title": "The classes related to this item",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}/style_formats",
+            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}/style_formats{request.assets_kwargs}",
             "rel": "styles_formats",
             "type": "application/json",
             "title": "The styles formats related to this item",
         },
         {
-            "href": f"{BASE_URL}/mappings/{classification_system['id']}",
+            "href": f"{BASE_URL}/mappings/{classification_system['id']}{request.assets_kwargs}",
             "rel": "mappings",
             "type": "application/json",
             "title": "The classification system mappings",
@@ -141,30 +164,29 @@ def classification_systems(system_id_or_identifier):
 
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes", methods=["GET"])
-def classification_systems_classes(system_id_or_identifier):
+@oauth2(required=True)
+def classification_systems_classes(system_id_or_identifier, **kwargs):
     """Retrieve the classes of a classification system.
     
     :param system_id_or_identifier: The id or identifier of a classification system
     """
     system_id, classes_list = data.get_classification_system_classes(system_id_or_identifier)
 
-    links = list()
-
-    links += [
+    links = [
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes{request.assets_kwargs}",
             "rel": "self",
             "type": "application/json",
-            "title": f"Classes of the classification system {system_id}",
+            "title": f"Classes of the classification system {system_id}{request.assets_kwargs}",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification system",
         },
         {
-            "href": f"{BASE_URL}/classification_systems",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
@@ -181,20 +203,23 @@ def classification_systems_classes(system_id_or_identifier):
         return jsonify(links)
 
     for system_classes in classes_list:
-        links.append(
+        system_classes["links"] = links
+        system_classes["links"].append(
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}{request.assets_kwargs}",
                 "rel": "child",
                 "type": "application/json",
                 "title": "Classification System Class",
             }
         )
-    return jsonify(links), 200
+
+    return jsonify(classes_list), 200
 
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes/<class_id_or_name>", methods=["GET"])
+@oauth2(required=True)
 @language()
-def classification_systems_class(system_id_or_identifier, class_id_or_name):
+def classification_systems_class(system_id_or_identifier, class_id_or_name, **kwargs):
     """Retrieve class information from a classification system.
 
     :param system_id_or_identifier: The id or identifier of a classification system
@@ -207,19 +232,19 @@ def classification_systems_class(system_id_or_identifier, class_id_or_name):
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{class_info['id']}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{class_info['id']}{request.assets_kwargs}",
             "rel": "self",
             "type": "application/json",
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_systems",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
@@ -239,8 +264,9 @@ def classification_systems_class(system_id_or_identifier, class_id_or_name):
 
 
 @current_app.route("/mappings/<system_id_or_identifier>", methods=["GET"])
+@oauth2(required=True)
 @language()
-def get_mappings(system_id_or_identifier):
+def get_mappings(system_id_or_identifier, **kwargs):
     """Retrieve available mappings for a classification system.
 
     :param system_id_or_identifier: The id or identifier of a classification system
@@ -254,7 +280,7 @@ def get_mappings(system_id_or_identifier):
 
     links += [
         {
-            "href": f"{BASE_URL}/classification_systems",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
@@ -270,7 +296,7 @@ def get_mappings(system_id_or_identifier):
     for sys in system_target:
         links.append(
             {
-                "href": f"{BASE_URL}/mappings/{system_source.id}/{sys.id}",
+                "href": f"{BASE_URL}/mappings/{system_source.id}/{sys.id}{request.assets_kwargs}",
                 "rel": "child",
                 "type": "application/json",
                 "title": "Mapping",
@@ -281,8 +307,9 @@ def get_mappings(system_id_or_identifier):
 
 
 @current_app.route("/mappings/<system_id_or_identifier_source>/<system_id_or_identifier_target>", methods=["GET"])
+@oauth2(required=True)
 @language()
-def get_mapping(system_id_or_identifier_source, system_id_or_identifier_target):
+def get_mapping(system_id_or_identifier_source, system_id_or_identifier_target, **kwargs):
     """Retrieve mapping.
 
     :param system_id_or_identifier_source: The id or identifier of source classification system
@@ -294,13 +321,13 @@ def get_mapping(system_id_or_identifier_source, system_id_or_identifier_target):
     for mp in mappings:
         links = [
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['source_class_id']}",
+                "href": f"{BASE_URL}/classification_systems/{system_id_source}/classes/{mp['source_class_id']}{request.assets_kwargs}",
                 "rel": "item",
                 "type": "application/json",
                 "title": "Link to source class",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id_target}/classes/{mp['target_class_id']}",
+                "href": f"{BASE_URL}/classification_systems/{system_id_target}/classes/{mp['target_class_id']}{request.assets_kwargs}",
                 "rel": "item",
                 "type": "application/json",
                 "title": "Link to target class",
@@ -314,14 +341,15 @@ def get_mapping(system_id_or_identifier_source, system_id_or_identifier_target):
 
 
 @current_app.route("/style_formats", methods=["GET"])
-def get_styles_formats():
+@oauth2(required=True)
+def get_styles_formats(**kwargs):
     """Retrieve available style formats in service."""
     styles_formats = data.get_style_formats()
 
     for st_f in styles_formats:
         links = [
             {
-                "href": f"{BASE_URL}/classification_systems",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification systems",
@@ -333,7 +361,7 @@ def get_styles_formats():
                 "title": "API landing page",
             },
             {
-                "href": f"{BASE_URL}/style_formats/{st_f['id']}",
+                "href": f"{BASE_URL}/style_formats/{st_f['id']}{request.assets_kwargs}",
                 "rel": "items",
                 "type": "application/json",
                 "title": f"Link to style format {st_f['id']}"
@@ -345,25 +373,21 @@ def get_styles_formats():
     return jsonify(styles_formats)
 
 
-# name, type, type_identifier
-# TODO: improve this route
-# @current_app.route("/style_formats/<style_format_id_or_name>", methods=["GET"])
-# @current_app.route("/style_formats/<style_format_id>/<style_format_type>", methods=["GET"])
-# @current_app.route("/style_formats/<style_format_id>/<style_format_type>/<style_format__identifier>", methods=["GET"])
-@current_app.route("/style_formats/<style_format_id>", methods=["GET"])
-def get_style_format(style_format_id):
+@current_app.route("/style_formats/<style_format_id_or_name>", methods=["GET"])
+@oauth2(required=True)
+def get_style_format(style_format_id_or_name, **kwargs):
     """Retrieve information of a style formats.
 
-    :param style_format_id: identifier of a style format
+    :param style_format_id_or_name: The id or name of a style format
     """
-    styles_format = data.get_style_format(style_format_id=style_format_id)
+    styles_format = data.get_style_format(style_format_id_or_name)
 
     if not len(styles_format) > 0:
         abort(404, f"Style Format not found.")
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_systems",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
             "rel": "classification_systems",
             "type": "application/json",
             "title": "Link to classification systems",
@@ -375,13 +399,13 @@ def get_style_format(style_format_id):
             "title": "API landing page",
         },
         {
-            "href": f"{BASE_URL}/style_formats/{styles_format['id']}",
+            "href": f"{BASE_URL}/style_formats/{styles_format['id']}{request.assets_kwargs}",
             "rel": "style_format",
             "type": "application/json",
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/style_formats/",
+            "href": f"{BASE_URL}/style_formats/{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
@@ -392,9 +416,10 @@ def get_style_format(style_format_id):
 
     return styles_format
 
-
+#TODO: review
 @current_app.route("/classification_systems/<system_id_or_identifier>/style_formats", methods=["GET"])
-def get_style_formats_classification_system(system_id_or_identifier):
+@oauth2(required=True)
+def get_style_formats_classification_system(system_id_or_identifier, **kwargs):
     """Retrieve available style formats for a classification system.
 
     :param system_id_or_identifier: The id or identifier of a source classification system
@@ -408,19 +433,19 @@ def get_style_formats_classification_system(system_id_or_identifier):
 
     links += [
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats{request.assets_kwargs}",
             "rel": "self",
             "type": "application/json",
-            "title": f"Available style formats for {system_id}",
+            "title": f"Available style formats for {system_id}{request.assets_kwargs}",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification system",
         },
         {
-            "href": f"{BASE_URL}/classification_systems",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
@@ -445,9 +470,10 @@ def get_style_formats_classification_system(system_id_or_identifier):
 
     return jsonify(links)
 
-
+#TODO: review
 @current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["GET"])
-def style_file(system_id, style_format_id):
+@oauth2(required=True)
+def style_file(system_id, style_format_id, **kwargs):
     """Retrieve available styles.
 
     :param system_id: identifier of a classification system
@@ -470,7 +496,8 @@ def style_file(system_id, style_format_id):
 
 
 @current_app.route("/classification_systems/search/<system_name>/<system_version>", methods=["GET"])
-def classification_system_search(system_name, system_version):
+@oauth2(required=True)
+def classification_system_search(system_name, system_version, **kwargs):
     """Return identifier of a classification system.
     
     :param system_name: name of a classification system
@@ -482,7 +509,8 @@ def classification_system_search(system_name, system_version):
 
 
 @current_app.route("/style_formats/search/<style_format_name>", methods=["GET"])
-def style_format_search(style_format_name):
+@oauth2(required=True)
+def style_format_search(style_format_name, **kwargs):
     """Return identifier of a style format.
     
     :param style_format_name: name of a style format
@@ -492,32 +520,15 @@ def style_format_search(style_format_name):
     return StyleFormatsSchema().dump(style_format), 200
 
 
-@current_app.route('/classification_systems', defaults={'system_id': None}, methods=["POST"])
-@current_app.route("/classification_systems/<system_id>", methods=["PUT", "DELETE"])
-@oauth2(roles=["admin"])
-def edit_classification_system(system_id, **kwargs):
+@current_app.route('/classification_systems', defaults={'system_id_or_identifier': None}, methods=["POST"])
+@current_app.route("/classification_systems/<system_id_or_identifier>", methods=["PUT", "DELETE"])
+@oauth2(roles=[['admin', 'editor']])
+def edit_classification_system(system_id_or_identifier, **kwargs):
     """Create or edit a specific classification system.
 
-    :param system_id: identifier of a classification system
+    :param system_id_or_identifier: The id or identifier of a classification system
     """
     if request.method == "POST":
-        args = request.get_json()
-
-        errors = ClassificationSystemSchema().validate(args)
-
-        if errors:
-            return abort(400, str(errors))
-
-        classification_system = data.create_classification_system(**args)
-
-        return ClassificationSystemSchema().dump(classification_system), 201
-
-    if request.method == "DELETE":
-        data.delete_classification_system(system_id)
-
-        return {'message': f'{system_id} deleted'}, 204
-
-    if request.method == "PUT":
         args = request.get_json()
 
         errors = ClassificationSystemMetadataSchema().validate(args)
@@ -525,9 +536,26 @@ def edit_classification_system(system_id, **kwargs):
         if errors:
             return abort(400, str(errors))
 
-        classification_system = data.update_classification_system(system_id, args)
+        classification_system = data.create_classification_system(**args)
 
-        return ClassificationSystemSchema().dump(classification_system), 200
+        return classification_system, 201
+
+    if request.method == "DELETE":
+        data.delete_classification_system(system_id_or_identifier)
+
+        return {'message': f'{system_id_or_identifier} deleted'}, 204
+
+    if request.method == "PUT":
+        args = request.get_json()
+
+        errors = ClassificationSystemMetadataSchema().validate(args, partial=True)
+
+        if errors:
+            return abort(400, str(errors))
+
+        classification_system = data.update_classification_system(system_id_or_identifier, args)
+
+        return classification_system, 200
 
 
 @current_app.route("/classification_systems/<system_id>/classes", methods=["POST"])
@@ -539,12 +567,12 @@ def create_class_system_classes(system_id, **kwargs):
     """
     args = request.get_json()
 
-    errors = ClassesSchema(many=True).validate(args)
+    errors = ClassMetadataForm().validate(args)
 
     if errors:
         return abort(400, str(errors))
 
-    classes = data.insert_classes(system_id, args)
+    classes = data.insert_classes(system_id_or_identifier=system_id, classes_files_json=args['classes'])
 
     result = ClassesSchema().dump(classes, many=True)
 
