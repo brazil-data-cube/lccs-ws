@@ -558,12 +558,12 @@ def edit_classification_system(system_id_or_identifier, **kwargs):
         return classification_system, 200
 
 
-@current_app.route("/classification_systems/<system_id>/classes", methods=["POST"])
+@current_app.route("/classification_systems/<system_id_or_identifier>/classes", methods=["POST"])
 @oauth2(roles=["admin"])
-def create_class_system_classes(system_id, **kwargs):
+def create_class_system_classes(system_id_or_identifier, **kwargs):
     """Create classes for a classification system.
 
-    :param system_id: identifier of a classification system
+    :param system_id_or_identifier: The id or identifier of a classification system
     """
     args = request.get_json()
 
@@ -572,65 +572,67 @@ def create_class_system_classes(system_id, **kwargs):
     if errors:
         return abort(400, str(errors))
 
-    classes = data.insert_classes(system_id_or_identifier=system_id, classes_files_json=args['classes'])
+    classes = data.insert_classes(system_id_or_identifier=system_id_or_identifier, classes_files_json=args['classes'])
 
-    result = ClassesSchema().dump(classes, many=True)
+    result = ClassesSchema(exclude=['classification_system_id']).dump(classes, many=True)
 
     return jsonify(result), 201
 
 
-@current_app.route("/classification_systems/<system_id>/classes/<class_id>", methods=["PUT", "DELETE"])
+@current_app.route("/classification_systems/<system_id_or_identifier>/classes/<class_id_or_identifier>",
+                   methods=["PUT", "DELETE"])
 @oauth2(roles=["admin"])
-def edit_class_system_class(system_id, class_id, **kwargs):
+def edit_class_system_class(system_id_or_identifier, class_id_or_identifier, **kwargs):
     """Delete class of a specific classification system.
     
-    :param system_id: identifier of a classification system
-    :param class_id: identifier of a class
+    :param system_id_or_identifier: The id or identifier of a classification system
+    :param class_id_or_identifier: The id or identifier of a class
     """
     if request.method == "DELETE":
-        data.delete_class(system_id, class_id)
+        data.delete_class(system_id_or_identifier, class_id_or_identifier)
 
-        return {'message': f'{class_id} deleted'}, 204
+        return {'message': f'{class_id_or_identifier} deleted'}, 204
 
     if request.method == "PUT":
 
         args = request.get_json()
 
-        errors = ClassMetadataSchema().validate(args)
+        errors = ClassMetadataSchema().validate(args, partial=True)
 
         if errors:
             return abort(400, str(errors))
 
-        system_class = data.update_class(system_id, class_id, args)
+        system_class = data.update_class(system_id_or_identifier, class_id_or_identifier, args)
 
-        return ClassesSchema().dump(system_class), 200
+        return system_class, 200
 
 
-@current_app.route("/mappings/<system_id_source>/<system_id_target>", methods=["POST", "PUT", "DELETE"])
+@current_app.route("/mappings/<system_id_or_identifier_source>/<system_id_or_identifier_target>", methods=["POST", "PUT", "DELETE"])
 @oauth2(roles=['admin'])
-def edit_mapping(system_id_source, system_id_target, **kwargs):
+def edit_mapping(system_id_or_identifier_source, system_id_or_identifier_target, **kwargs):
     """Create or edit mappings in service.
     
-    :param system_id_source: identifier of a source classification system
-    :param system_id_target: identifier of a target classification system
+    :param system_id_or_identifier_source: The id or identifier of a source classification system
+    :param system_id_or_identifier_target: The id or identifier of a target classification system
     """
     if request.method == "POST":
         args = request.get_json()
 
-        errors = ClassesMappingSchema(many=True).validate(args)
+        errors = ClassesMappingMetadataSchema(many=True).validate(args)
 
         if errors:
             return abort(400, str(errors))
 
-        mappings = data.insert_mappings(system_id_source, system_id_target, args)
+        mappings = data.insert_mappings(system_id_or_identifier_source, system_id_or_identifier_target, args)
 
-        return jsonify(ClassesMappingSchema().dump(mappings, many=True)), 201
+        return jsonify(mappings), 201
 
     if request.method == "DELETE":
-        data.delete_mappings(system_id_source, system_id_target)
+        data.delete_mappings(system_id_or_identifier_source, system_id_or_identifier_target)
 
         return {'message': 'Mapping delete!'}, 204
 
+    #TODO
     if request.method == "PUT":
         args = request.get_json()
 
@@ -639,40 +641,42 @@ def edit_mapping(system_id_source, system_id_target, **kwargs):
         if errors:
             return abort(400, str(errors))
 
-        mappings = data.update_mappings(system_id_source, system_id_target, args)
+        mappings = data.update_mappings(system_id_or_identifier_source, system_id_or_identifier_target, args)
 
         return jsonify(ClassesMappingSchema().dump(mappings, many=True)), 200
 
 
-@current_app.route("/classification_systems/<system_id>/styles", defaults={'style_format_id': None}, methods=["POST"])
-@current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["PUT", "DELETE"])
+@current_app.route("/classification_systems/<system_id_or_identifier>/styles",
+                   defaults={'style_format_id_or_name': None}, methods=["POST"])
+@current_app.route("/classification_systems/<system_id_or_identifier>/styles/<style_format_id_or_name>",
+                   methods=["PUT", "DELETE"])
 @oauth2(roles=['admin'])
-def edit_styles(system_id, style_format_id, **kwargs):
+def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
     """Create or edit styles.
 
-    :param system_id: identifier of a specific classification system
-    :param style_format_id: identifier of a specific style format.
+    :param system_id_or_identifier: The id or identifier of a specific classification system
+    :param style_format_id_or_name: The id or identifier of a specific style format.
     """
     if request.method == "POST":
 
-        if 'style_format_id' not in request.form:
+        if 'style_format' not in request.form:
             return abort(404, "Invalid parameter.")
 
-        style_format_id = request.form.get('style_format_id')
+        style_format = request.form.get('style_format')
 
         if 'style' not in request.files:
             return abort(404, "Invalid parameter.")
 
         file = request.files['style']
 
-        data.insert_file(style_format_id=style_format_id,
-                         system_id=system_id,
-                         file=file)
+        system_id, format_id = data.insert_file(style_format_id_or_name=style_format,
+                                                system_id_or_identifier=system_id_or_identifier,
+                                                file=file)
 
         links = list()
         links += [
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_format_id}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{format_id}",
                 "rel": "style",
                 "type": "application/json",
                 "title": "style",
@@ -710,9 +714,9 @@ def edit_styles(system_id, style_format_id, **kwargs):
 
         file = request.files['style']
 
-        data.update_file(style_format_id=style_format_id,
-                         system_id=system_id,
-                         file=file)
+        system_id, style_format_id = data.update_file(style_format_id_or_name=style_format_id_or_name,
+                                                      system_id_or_identifier=system_id_or_identifier,
+                                                      file=file)
 
         links = list()
         links += [
@@ -750,18 +754,18 @@ def edit_styles(system_id, style_format_id, **kwargs):
         return jsonify(links)
 
     if request.method == "DELETE":
-        data.delete_file(style_format_id, system_id)
+        data.delete_file(style_format_id_or_name, system_id_or_identifier)
 
         return {'message': 'deleted!'}, 204
 
 
-@current_app.route("/style_formats", defaults={'style_format_id': None}, methods=["POST"])
-@current_app.route("/style_formats/<style_format_id>", methods=["PUT", "DELETE"])
+@current_app.route("/style_formats", defaults={'style_format_id_or_name': None}, methods=["POST"])
+@current_app.route("/style_formats/<style_format_id_or_name>", methods=["PUT", "DELETE"])
 @oauth2(roles=['admin'])
-def edit_style_formats(style_format_id, **kwargs):
+def edit_style_formats(style_format_id_or_name, **kwargs):
     """Create or edit styles formats.
     
-    :param style_format_id: identifier of a specific style format
+    :param style_format_id_or_name: The id or name of a specific style format
     """
     if request.method == "POST":
         args = request.get_json()
@@ -773,10 +777,10 @@ def edit_style_formats(style_format_id, **kwargs):
 
         style_format = data.create_style_format(**args)
 
-        return jsonify(StyleFormatsSchema().dump(style_format)), 201
+        return style_format, 201
 
     if request.method == "DELETE":
-        data.delete_style_format(style_format_id)
+        data.delete_style_format(style_format_id_or_name)
 
         return {'message': 'deleted'}, 204
 
@@ -788,6 +792,6 @@ def edit_style_formats(style_format_id, **kwargs):
         if errors:
             return abort(400, str(errors))
 
-        style_format = data.update_style_format(style_format_id, **args)
+        style_format = data.update_style_format(style_format_id_or_name, **args)
 
-        return jsonify(StyleFormatsSchema().dump(style_format)), 200
+        return style_format, 200

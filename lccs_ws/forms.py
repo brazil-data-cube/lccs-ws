@@ -77,6 +77,7 @@ class ClassesSchema(ModelSchema):
     title = fields.String(required=True)
     description = fields.String(required=True)
     class_parent_id = fields.Integer(required=False)
+    classification_system_id = fields.Integer(dump_only=True)
 
     class Meta:
         """Generate marshmallow Schemas from LucClass model."""
@@ -115,14 +116,10 @@ class ClassMetadataForm(Schema):
 class ClassesMappingSchema(ModelSchema):
     """Marshmallow Forms for ClassMapping."""
     
-    source_class_id = fields.Integer(required=True)
-    target_class_id = fields.Integer(required=True)
+    source_class_id = fields.String(required=True)
+    target_class_id = fields.String(required=True)
     description = fields.String(required=True)
     degree_of_similarity = fields.Number(required=False)
-    source_class_name = fields.String(dump_only=True)
-    target_class_name = fields.String(dump_only=True)
-    source_class_title = fields.String(dump_only=True)
-    target_class_title = fields.String(dump_only=True)
     
     class Meta:
         """Generate marshmallow Schemas from ClassMapping model."""
@@ -136,8 +133,8 @@ class ClassesMappingSchema(ModelSchema):
 class ClassesMappingMetadataSchema(Schema):
     """Define parser for classification system update."""
     
-    source_class_id = fields.Integer(required=True, allow_none=False)
-    target_class_id = fields.Integer(required=True, allow_none=False)
+    source_class = fields.Integer(required=True, allow_none=False)
+    target_class = fields.Integer(required=True, allow_none=False)
     description = fields.String(required=False, allow_none=False)
     degree_of_similarity = fields.Number(required=False)
 
