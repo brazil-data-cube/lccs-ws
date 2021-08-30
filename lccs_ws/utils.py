@@ -10,16 +10,17 @@
 
 from functools import wraps
 
-from lccs_db.models.base import translation_hybrid
 from flask import request
+from lccs_db.models.base import translation_hybrid
 
 
 def set_locale(locale: str):
+    """Update the location."""
     translation_hybrid.current_locale = locale
 
 
 def language(locale=None, required=False):
-    """Decorator for locale."""
+    """Decorate for locale."""
     def _language(func):
         @wraps(func)
         def wrapped(*args, **kwargs):

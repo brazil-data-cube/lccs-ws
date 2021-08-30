@@ -6,14 +6,13 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Views of Land Cover Classification System Web Service."""
-from werkzeug.urls import url_encode
-
 from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
+from werkzeug.urls import url_encode
 
-from lccs_ws.forms import (ClassesMappingMetadataSchema, ClassesMappingSchema,
-                           ClassesSchema, ClassificationSystemMetadataSchema,
-                           ClassificationSystemSchema, ClassMetadataSchema, ClassMetadataForm,
+from lccs_ws.forms import (ClassesMappingMetadataSchema, ClassesSchema,
+                           ClassificationSystemMetadataSchema,
+                           ClassMetadataForm, ClassMetadataSchema,
                            StyleFormatsMetadataSchema, StyleFormatsSchema)
 
 from . import data

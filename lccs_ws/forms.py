@@ -10,8 +10,8 @@
 from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
 from marshmallow import Schema, fields, post_dump, pre_load
-from marshmallow_sqlalchemy import ModelSchema
 from marshmallow.validate import ValidationError
+from marshmallow_sqlalchemy import ModelSchema
 
 
 class ClassificationSystemSchema(ModelSchema):
@@ -46,6 +46,7 @@ class ClassificationSystemMetadataSchema(Schema):
 
     @pre_load
     def validate_system(self, in_data, **kwargs):
+        """Validate the classification system fields."""
         import re
 
         if 'name' in in_data:
@@ -110,6 +111,7 @@ class ClassMetadataSchema(Schema):
 
 class ClassMetadataForm(Schema):
     """Define parser for classification system."""
+
     classes = fields.List(fields.Nested('ClassMetadataSchema', required=True))
 
 

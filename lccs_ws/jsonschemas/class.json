@@ -53,6 +53,9 @@
         "name": {
           "type": "string"
         },
+        "title": {
+          "type": "string"
+        },
         "code": {
           "type": "string"
         },
@@ -66,7 +69,7 @@
       "required": [
         "name",
         "code",
-        "description"
+        "title"
       ]
     },
     "ClassesType": {

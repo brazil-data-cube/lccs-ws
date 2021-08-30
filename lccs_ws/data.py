@@ -6,23 +6,21 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Data module of Land Cover Classification System Web Service."""
-from io import BytesIO
+
 import json
-import os
+from io import BytesIO
+from typing import Dict, List, Tuple, Union
 
 from flask import abort
 from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
-from lccs_db.utils import get_mimetype, get_extension
+from lccs_db.utils import get_extension, get_mimetype
 from sqlalchemy import and_, distinct
+from sqlalchemy.orm.util import aliased
+from werkzeug.datastructures import FileStorage
 
 from .forms import (ClassesMappingSchema, ClassesSchema,
                     ClassificationSystemSchema, StyleFormatsSchema)
-
-from sqlalchemy.util._collections import _LW
-from sqlalchemy.orm.util import aliased
-from typing import Callable, Iterator, Union, Optional, List, Dict, Tuple
-from werkzeug.datastructures import FileStorage
 
 
 def _get_classification_system(system_id_or_identifier: str):
@@ -61,7 +59,14 @@ def _get_style_format(style_format_id_or_name: str):
 
 def get_classification_systems() -> List[dict]:
     """Retrieve all classification systems available in service."""
-    system = db.session.query(LucClassificationSystem.id, LucClassificationSystem.identifier).all()
+    system = db.session.query(LucClassificationSystem.id,
+                              LucClassificationSystem.identifier,
+                              LucClassificationSystem.title.label("title"),
+                              LucClassificationSystem.name,
+                              LucClassificationSystem.authority_name,
+                              LucClassificationSystem.version,
+                              LucClassificationSystem.description.label("description"),
+                              ).all()
     return ClassificationSystemSchema().dump(system, many=True)
 
 
@@ -295,14 +300,14 @@ def create_classification_system(name: str, authority_name: str, version: str, t
 
     :param name: Classification system name
     :type name: string
-    :param authority_name: Classification system authority name
+    :param authority_name: The authority name of Classification system
     :type authority_name: string
-    :param version: Classification system version
+    :param version: The Classification system version
     :type version: string
-    :param description: Classification system description
-    :type description: string
-    :title the classification system title
+    :param title: The Classification system title
     :type title: string
+    :param description: The Classification system description
+    :type description: string
     """
     system = db.session.query(LucClassificationSystem)\
         .filter(LucClassificationSystem.identifier == f'{name}-{version}')\
@@ -672,7 +677,6 @@ def update_mapping(target_class_id, source_class_id, description=None,
     :param degree_of_similarity: the degree_of_similarity of a mapping
     :type degree_of_similarity: float
     """
-
     mapping = db.session.query(ClassMapping) \
         .filter(ClassMapping.source_class_id == source_class_id, ClassMapping.target_class_id == target_class_id) \
         .first_or_404()

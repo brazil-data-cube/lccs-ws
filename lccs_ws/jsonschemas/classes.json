@@ -34,12 +34,39 @@
         "rel"
       ]
     },
+    "ClassLinkType":{
+      "title": "Land Use and Cover Class",
+      "description": "Land use and cover class.",
+      "type": "object",
+      "properties": {
+         "title": {
+          "type": "string",
+          "example": "Child"
+        },
+        "name": {
+          "type": "string",
+          "example": "Child"
+        },
+        "code": {
+          "type": "string",
+          "example": "Child"
+        },
+        "id": {
+          "type": "integer",
+          "example": "Child"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
     "ClassesLinkType": {
       "title": "Land Use and Cover Classes",
       "description": "Array of land use and cover classes.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/LinkType"
+        "$ref": "#/definitions/ClassLinkType"
       }
     }
   }

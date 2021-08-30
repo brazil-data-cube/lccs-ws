@@ -80,39 +80,51 @@ class TestLCCSWS:
 
         validate(instance=response.json, schema=root_response)
 
-    def test_classification_systems(self, client, requests_mock, mocks):
-        response = client.get('/classification_systems')
+    def test_classification_systems(self, client, mock_oauth2_cache):
+        headers = self._configure_authentication_test(mock_oauth2_cache, roles=[])
+
+        response = client.get('/classification_systems', headers=headers)
 
         self._assert_json(response, expected_code=200)
 
         validate(instance=response.json, schema=classification_systems_response)
 
-    def test_classification_system(self, client, requests_mock, mocks):
-        response = client.get('/classification_systems/1')
+    def test_classification_system(self, client, mock_oauth2_cache):
+        headers = self._configure_authentication_test(mock_oauth2_cache, roles=[])
+
+        response = client.get('/classification_systems/1', headers=headers)
 
         self._assert_json(response, expected_code=200)
 
         validate(instance=response.json, schema=classification_system_response)
 
-    def test_classification_system_404(self, client):
-        response = client.get('/classification_systems/1000')
+    def test_classification_system_404(self, client, mock_oauth2_cache):
+        headers = self._configure_authentication_test(mock_oauth2_cache, roles=[])
+
+        response = client.get('/classification_systems/1000', headers=headers)
 
         self._assert_json(response, expected_code=404)
 
-    def test_classes(self, client, requests_mock, mocks):
-        response = client.get('/classification_systems/1/classes')
+    def test_classes(self, client, mock_oauth2_cache):
+        headers = self._configure_authentication_test(mock_oauth2_cache, roles=[])
+
+        response = client.get('/classification_systems/1/classes', headers=headers)
 
         self._assert_json(response, expected_code=200)
         validate(instance=response.json, schema=classes_response)
 
-    def test_class(self, client, requests_mock, mocks):
-        response = client.get('/classification_systems/1/classes/1')
+    def test_class(self, client, mock_oauth2_cache):
+        headers = self._configure_authentication_test(mock_oauth2_cache, roles=[])
+
+        response = client.get('/classification_systems/1/classes/1', headers=headers)
 
         self._assert_json(response, expected_code=200)
         validate(instance=response.json, schema=class_response)
 
-    def test_class_404(self, client):
-        response = client.get('/classification_systems/1/classes/10000')
+    def test_class_404(self, client, mock_oauth2_cache):
+        headers = self._configure_authentication_test(mock_oauth2_cache, roles=[])
+
+        response = client.get('/classification_systems/1/classes/10000', headers=headers)
 
         self._assert_json(response, expected_code=404)
 
@@ -131,9 +143,16 @@ class TestLCCSWS:
 
     def test_create_classification_system(self, client, mock_oauth2_cache):
         creation_data = dict(
-            authority_name='INPE-2',
-            name='BDC-2',
-            description='BDC Description',
+            authority_name='INPE',
+            name='BDC',
+            description={
+                "en": "BDC Description.",
+                "pt-br": "BDC Descricao."
+            },
+            title={
+                "en": "Brazil Data Cube",
+                "pt-br": "Cubo de Dados do Brasil"
+            },
             version='1.0'
         )
 
@@ -146,7 +165,7 @@ class TestLCCSWS:
     def test_delete_classification_system(self, client, mock_oauth2_cache):
         headers = self._configure_authentication_test(mock_oauth2_cache, roles=['admin'])
 
-        systems = client.get('/classification_systems')
+        systems = client.get('/classification_systems', headers=headers)
 
         sys_id = max([system['id'] for system in systems.json])
 

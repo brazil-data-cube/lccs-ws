@@ -11,7 +11,6 @@ import os
 from flask import Flask
 from lccs_db.ext import LCCSDatabase
 from lccs_db.models.base import translation_hybrid
-
 from werkzeug.exceptions import HTTPException, InternalServerError
 
 from lccs_ws.config import get_settings
