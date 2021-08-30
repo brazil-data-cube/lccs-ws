@@ -6,12 +6,10 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Views of Land Cover Classification System Web Service."""
-from io import BytesIO
 from werkzeug.urls import url_encode
 
 from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
-from lccs_db.utils import get_extension
 
 from lccs_ws.forms import (ClassesMappingMetadataSchema, ClassesMappingSchema,
                            ClassesSchema, ClassificationSystemMetadataSchema,
@@ -393,7 +391,7 @@ def get_style_format(style_format_id_or_name, **kwargs):
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/",
+            "href": f"{BASE_URL}/{request.assets_kwargs}",
             "rel": "root",
             "type": "application/json",
             "title": "API landing page",
@@ -416,7 +414,7 @@ def get_style_format(style_format_id_or_name, **kwargs):
 
     return styles_format
 
-#TODO: review
+
 @current_app.route("/classification_systems/<system_id_or_identifier>/style_formats", methods=["GET"])
 @oauth2(required=True)
 def get_style_formats_classification_system(system_id_or_identifier, **kwargs):
@@ -451,7 +449,7 @@ def get_style_formats_classification_system(system_id_or_identifier, **kwargs):
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/",
+            "href": f"{BASE_URL}/{request.assets_kwargs}",
             "rel": "root",
             "type": "application/json",
             "title": "API landing page",
@@ -461,7 +459,7 @@ def get_style_formats_classification_system(system_id_or_identifier, **kwargs):
     for style_id in style_formats_id:
         links.append(
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_id[0]}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_id[0]}{request.assets_kwargs}",
                 "rel": "style",
                 "type": "application/json",
                 "title": "Link to style",
@@ -470,54 +468,24 @@ def get_style_formats_classification_system(system_id_or_identifier, **kwargs):
 
     return jsonify(links)
 
-#TODO: review
-@current_app.route("/classification_systems/<system_id>/styles/<style_format_id>", methods=["GET"])
+
+@current_app.route("/classification_systems/<system_id_or_identifier>/styles/<style_format_id_or_name>",
+                   methods=["GET"])
 @oauth2(required=True)
-def style_file(system_id, style_format_id, **kwargs):
+def style_file(system_id_or_identifier, style_format_id_or_name, **kwargs):
     """Retrieve available styles.
 
-    :param system_id: identifier of a classification system
-    :param style_format_id: identifier of a style format
+    :param system_id_or_identifier: The id or identifier of a classification system
+    :param style_format_id_or_name: The id or name of a style format
     """
-    system_style_file = data.get_classification_system_style(system_id, style_format_id)
+    file_name, file = data.get_classification_system_style(system_id_or_identifier=system_id_or_identifier,
+                                                           style_format_id_or_name=style_format_id_or_name)
 
-    if not system_style_file:
+    if not file:
         abort(404, f"Style File not found.")
 
-    extension = get_extension(system_style_file.mime_type)
-
-    system = data.classification_system(system_id)
-    style_format = data.get_style_format(style_format_id)
-
-    file_name = f"{system.name}_version-{system.version}_{style_format['name']}" + extension
-
-    return send_file(BytesIO(system_style_file.style), mimetype='application/octet-stream', as_attachment=True,
+    return send_file(file, mimetype='application/octet-stream', as_attachment=True,
                      attachment_filename=file_name)
-
-
-@current_app.route("/classification_systems/search/<system_name>/<system_version>", methods=["GET"])
-@oauth2(required=True)
-def classification_system_search(system_name, system_version, **kwargs):
-    """Return identifier of a classification system.
-    
-    :param system_name: name of a classification system
-    :param system_version: version of a classification system
-    """
-    system = data.get_identifier_system(system_name, system_version)
-
-    return ClassificationSystemSchema().dump(system), 200
-
-
-@current_app.route("/style_formats/search/<style_format_name>", methods=["GET"])
-@oauth2(required=True)
-def style_format_search(style_format_name, **kwargs):
-    """Return identifier of a style format.
-    
-    :param style_format_name: name of a style format
-    """
-    style_format = data.get_identifier_style_format(style_format_name)
-
-    return StyleFormatsSchema().dump(style_format), 200
 
 
 @current_app.route('/classification_systems', defaults={'system_id_or_identifier': None}, methods=["POST"])
@@ -607,11 +575,12 @@ def edit_class_system_class(system_id_or_identifier, class_id_or_identifier, **k
         return system_class, 200
 
 
-@current_app.route("/mappings/<system_id_or_identifier_source>/<system_id_or_identifier_target>", methods=["POST", "PUT", "DELETE"])
+@current_app.route("/mappings/<system_id_or_identifier_source>/<system_id_or_identifier_target>",
+                   methods=["POST", "PUT", "DELETE"])
 @oauth2(roles=['admin'])
 def edit_mapping(system_id_or_identifier_source, system_id_or_identifier_target, **kwargs):
     """Create or edit mappings in service.
-    
+
     :param system_id_or_identifier_source: The id or identifier of a source classification system
     :param system_id_or_identifier_target: The id or identifier of a target classification system
     """
@@ -632,18 +601,17 @@ def edit_mapping(system_id_or_identifier_source, system_id_or_identifier_target,
 
         return {'message': 'Mapping delete!'}, 204
 
-    #TODO
     if request.method == "PUT":
         args = request.get_json()
 
-        errors = ClassesMappingMetadataSchema(many=True).validate(args)
+        errors = ClassesMappingMetadataSchema().validate(args)
 
         if errors:
             return abort(400, str(errors))
 
-        mappings = data.update_mappings(system_id_or_identifier_source, system_id_or_identifier_target, args)
+        mappings = data.update_mapping(system_id_or_identifier_source, system_id_or_identifier_target, **args)
 
-        return jsonify(ClassesMappingSchema().dump(mappings, many=True)), 200
+        return mappings, 200
 
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/styles",
@@ -676,31 +644,31 @@ def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
         links = list()
         links += [
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{format_id}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{format_id}{request.assets_kwargs}",
                 "rel": "style",
                 "type": "application/json",
                 "title": "style",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats{request.assets_kwargs}",
                 "rel": "self",
                 "type": "application/json",
-                "title": f"Styles of the classification system {system_id}",
+                "title": f"Styles of the classification system {system_id}{request.assets_kwargs}",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification system",
             },
             {
-                "href": f"{BASE_URL}/classification_systems",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification systems",
             },
             {
-                "href": f"{BASE_URL}/",
+                "href": f"{BASE_URL}/{request.assets_kwargs}",
                 "rel": "root",
                 "type": "application/json",
                 "title": "API landing page",
@@ -721,31 +689,31 @@ def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
         links = list()
         links += [
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_format_id}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/styles/{style_format_id}{request.assets_kwargs}",
                 "rel": "style",
                 "type": "application/json",
                 "title": "style",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/style_formats{request.assets_kwargs}",
                 "rel": "self",
                 "type": "application/json",
-                "title": f"Styles of the classification system {system_id}",
+                "title": f"Styles of the classification system {system_id}{request.assets_kwargs}",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification system",
             },
             {
-                "href": f"{BASE_URL}/classification_systems",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification systems",
             },
             {
-                "href": f"{BASE_URL}/",
+                "href": f"{BASE_URL}/{request.assets_kwargs}",
                 "rel": "root",
                 "type": "application/json",
                 "title": "API landing page",

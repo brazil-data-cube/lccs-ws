@@ -6,13 +6,14 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 """Data module of Land Cover Classification System Web Service."""
+from io import BytesIO
 import json
 import os
 
 from flask import abort
 from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
-from lccs_db.utils import get_mimetype
+from lccs_db.utils import get_mimetype, get_extension
 from sqlalchemy import and_, distinct
 
 from .forms import (ClassesMappingSchema, ClassesSchema,
@@ -174,30 +175,37 @@ def get_system_style_format(system_id_or_identifier) -> Tuple[int, List[int]]:
     return system.id, style_formats_id
 
 
-def get_classification_system_style(system_id, style_format_id):
+def get_classification_system_style(system_id_or_identifier: str, style_format_id_or_name: str) -> Union[str, BytesIO]:
     """Return the style of a classification system.
 
-    :param system_id: identifier of a specific classification system
-    :type system_id: int
-    :param style_format_id: identifier of a specific of Style Format
-    :type style_format_id: int
+    :param system_id_or_identifier: The id or identifier of a specific classification system
+    :type system_id_or_identifier: string
+    :param style_format_id_or_name: The id or name of a specific of Style Format
+    :type style_format_id_or_name: string
     """
+    system = _get_classification_system(system_id_or_identifier)
+    style_format = _get_style_format(style_format_id_or_name)
+
     columns = [
         Styles.style,
         Styles.mime_type
     ]
     
     where = [
-        Styles.class_system_id == system_id,
-        and_(Styles.style_format_id == style_format_id),
+        Styles.classification_system_id == system.id,
+        and_(Styles.style_format_id == style_format.id),
     ]
     
     style_file = db.session.query(*columns) \
         .join(StyleFormats, StyleFormats.id == Styles.style_format_id) \
         .filter(*where) \
         .first()
-    
-    return style_file
+
+    extension = get_extension(style_file.mime_type)
+
+    file_name = f"{system.identifier}_{style_format.name}" + extension
+
+    return file_name, BytesIO(style_file.style)
 
 
 def get_mappings(system_id_or_identifier: str) -> [LucClassificationSystem, list]:
@@ -270,7 +278,7 @@ def get_mapping(system_id_or_identifier_source: str, system_id_or_identifier_tar
 
     mappings = get_system_mapping(system_source.id, system_target.id)
 
-    return ClassesMappingSchema().dump(mappings, many=True)
+    return system_source.id, system_target.id, ClassesMappingSchema().dump(mappings, many=True)
 
 
 def classification_system(system_id):
@@ -328,7 +336,8 @@ def delete_classification_system(system_id_or_identifier: str):
     """
     system = _get_classification_system(system_id_or_identifier)
 
-    db.session.delete(system)
+    with db.session.begin_nested():
+        db.session.delete(system)
 
     db.session.commit()
 
@@ -650,14 +659,10 @@ def insert_mappings(system_id_or_identifier_source: str, system_id_or_identifier
     return ClassesMappingSchema().dump(mappings, many=True)
 
 
-def update_mapping(system_id_source, system_id_target, target_class_id, source_class_id, description=None,
+def update_mapping(target_class_id, source_class_id, description=None,
                    degree_of_similarity=None):
     """Update a exist mapping.
-    
-    :param system_id_source: identifier of a source classification system
-    :type system_id_source: integer
-    :param system_id_target: identifier of a target classification system
-    :type system_id_target: string
+
     :param target_class_id: identifier of a target class
     :type target_class_id: integer
     :param source_class_id: identifier of a source class
@@ -681,24 +686,56 @@ def update_mapping(system_id_source, system_id_target, target_class_id, source_c
     db.session.commit()
 
 
-def update_mappings(system_id_or_identifier_source, system_id_or_identifier_target, mappings):
+def update_mapping(system_id_or_identifier_source: str, system_id_or_identifier_target: str, degree_of_similarity: int,
+                    description: str, source_class: str, target_class: str) -> dict:
     """Update mappings.
 
     :param system_id_or_identifier_source: The id or identifier of Source Classification System
     :type system_id_or_identifier_source: string
     :param system_id_or_identifier_target: The id or identifier of  Target Classification System
     :type system_id_or_identifier_target: string
-    :param mappings: mappings to update
-    :type mappings: json
     """
-    mapping_all = get_mapping(system_id_or_identifier_source, system_id_or_identifier_target)
+    system_source = _get_classification_system(system_id_or_identifier_source)
+    system_target = _get_classification_system(system_id_or_identifier_target)
 
-    for mapping in mappings:
-        update_mapping(system_source.id, system_target.id, **mapping)
-    
-    mappings = get_mapping(system_id_source, system_id_target)
-    
-    return mappings
+    where_source = [LucClass.classification_system_id == system_source.id]
+    where_target = [LucClass.classification_system_id == system_target.id]
+
+    if isinstance(source_class, int) and isinstance(target_class, int):
+        where_source.append(LucClass.id == source_class)
+        where_target.append(LucClass.id == target_class)
+
+    else:
+        where_source.append(LucClass.name == source_class)
+        where_target.append(LucClass.name == target_class)
+
+    classes_source = db.session.query(LucClass.id) \
+        .filter(*where_source) \
+        .first_or_404()
+
+    classes_target = db.session.query(LucClass.id) \
+        .filter(*where_target) \
+        .first_or_404()
+
+    source_alias = aliased(LucClass)
+
+    mappings = db.session.query(
+        ClassMapping
+    ).filter(
+        and_(ClassMapping.source_class_id.in_(classes_source), ClassMapping.target_class_id.in_(classes_target)),
+        ClassMapping.source_class_id == source_alias.id,
+        ClassMapping.target_class_id == LucClass.id
+    ).first_or_404()
+
+    with db.session.begin_nested():
+        if description:
+            mappings.description = description
+        if degree_of_similarity:
+            mappings.degree_of_similarity = degree_of_similarity
+
+    db.session.commit()
+
+    return ClassesMappingSchema().dump(mappings)
 
 
 def delete_mappings(system_id_or_identifier_source: str, system_id_or_identifier_target: str):

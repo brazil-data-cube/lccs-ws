@@ -17,7 +17,7 @@ from flask import request
 def set_locale(locale: str):
     translation_hybrid.current_locale = locale
 
-#TODO: see cache
+
 def language(locale=None, required=False):
     """Decorator for locale."""
     def _language(func):
