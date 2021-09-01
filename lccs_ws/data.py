@@ -78,7 +78,7 @@ def get_classification_system(system_id_or_identifier: str) -> Dict:
     """
     system = _get_classification_system(system_id_or_identifier)
     return ClassificationSystemSchema(only=("id", "name", "version", "title", "authority_name", "description",
-                                            "version_predecessor", "version_successor")).dump(system)
+                                            "version_predecessor", "identifier", "version_successor")).dump(system)
 
 
 def get_classification_system_classes(system_id_or_identifier: str) -> Tuple[int, list]:
