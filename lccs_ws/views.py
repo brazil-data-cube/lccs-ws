@@ -27,12 +27,18 @@ def before_request():
     """Handle for before request processing."""
     request.assets_kwargs = None
 
-    if Config.BDC_LCCS_ASSETS_ARGS:
-        assets_kwargs = {arg: request.args.get(arg) for arg in Config.BDC_LCCS_ASSETS_ARGS.split(",")}
+    if Config.BDC_LCCS_ARGS:
+        assets_kwargs = {arg: request.args.get(arg) for arg in Config.BDC_LCCS_ARGS.split(",")}
         if "access_token" in request.args:
             assets_kwargs["access_token"] = request.args.get("access_token")
         assets_kwargs = "?" + url_encode(assets_kwargs) if url_encode(assets_kwargs) else ""
         request.assets_kwargs = assets_kwargs
+    if Config.BDC_LCCS_ARGS_I18N:
+        intern_kwargs = {arg: request.args.get(arg) for arg in Config.BDC_LCCS_ARGS_I18N.split(",")}
+        if "language" in request.args:
+            intern_kwargs["language"] = request.args.get("language")
+        intern_kwargs = "&" + url_encode(intern_kwargs) if url_encode(intern_kwargs) else ""
+        request.intern_kwargs = intern_kwargs
 
 
 @current_app.route("/", methods=["GET"])
@@ -43,9 +49,14 @@ def root(**kwargs):
     response = dict()
 
     links += [
-        {"href": f"{BASE_URL}/", "rel": "self", "type": "application/json", "title": "Link to this document"},
         {
-            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+            "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
+            "rel": "self",
+            "type": "application/json",
+            "title": "Link to this document"
+        },
+        {
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "classification_systems", "type": "application/json",
             "title": "Information about Classification Systems",
         },
@@ -65,6 +76,7 @@ def root(**kwargs):
 
 @current_app.route("/classification_systems", methods=["GET"])
 @oauth2(required=True)
+@language()
 def get_classification_systems(**kwargs):
     """Retrieve the list of available classification systems in the service."""
     classification_systems_list = data.get_classification_systems()
@@ -72,13 +84,13 @@ def get_classification_systems(**kwargs):
     for class_system in classification_systems_list:
         links = [
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['id']}{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "classification_system",
                 "type": "application/json",
                 "title": "Link to Classification System",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/classes{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems/{class_system['id']}/classes{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "classes",
                 "type": "application/json",
                 "title": "Link to Classification System Classes",
@@ -96,7 +108,7 @@ def get_classification_systems(**kwargs):
                 "title": "Link to Classification Mappings",
             },
             {
-                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "self",
                 "type": "application/json",
                 "title": "Link to this document",
@@ -123,19 +135,19 @@ def classification_systems(system_id_or_identifier, **kwargs):
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_systems",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "self",
             "type": "application/json",
             "title": "The classification_system",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}/classes{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems/{classification_system['id']}/classes{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "classes",
             "type": "application/json",
             "title": "The classes related to this item",
@@ -152,7 +164,12 @@ def classification_systems(system_id_or_identifier, **kwargs):
             "type": "application/json",
             "title": "The classification system mappings",
         },
-        {"href": f"{BASE_URL}/", "rel": "root", "type": "application/json", "title": "API landing page."},
+        {
+            "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
+            "rel": "root",
+            "type": "application/json",
+            "title": "API landing page."
+        },
     ]
 
     classification_system["links"] = links
@@ -171,25 +188,25 @@ def classification_systems_classes(system_id_or_identifier, **kwargs):
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "self",
             "type": "application/json",
             "title": f"Classes of the classification system {system_id}{request.assets_kwargs}",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification system",
         },
         {
-            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/",
+            "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "root",
             "type": "application/json",
             "title": "API landing page",
@@ -203,7 +220,7 @@ def classification_systems_classes(system_id_or_identifier, **kwargs):
         system_classes["links"] = links
         system_classes["links"].append(
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{system_classes['id']}{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "child",
                 "type": "application/json",
                 "title": "Classification System Class",
@@ -229,25 +246,25 @@ def classification_systems_class(system_id_or_identifier, class_id_or_name, **kw
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{class_info['id']}{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes/{class_info['id']}{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "self",
             "type": "application/json",
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}/classes{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}/classes{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to this document",
         },
         {
-            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/",
+            "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "root",
             "type": "application/json",
             "title": "API landing page",
@@ -277,13 +294,13 @@ def get_mappings(system_id_or_identifier, **kwargs):
 
     links += [
         {
-            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/",
+            "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "root",
             "type": "application/json",
             "title": "API landing page",
@@ -346,13 +363,13 @@ def get_styles_formats(**kwargs):
     for st_f in styles_formats:
         links = [
             {
-                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification systems",
             },
             {
-                "href": f"{BASE_URL}/",
+                "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "root",
                 "type": "application/json",
                 "title": "API landing page",
@@ -384,13 +401,13 @@ def get_style_format(style_format_id_or_name, **kwargs):
 
     links = [
         {
-            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "classification_systems",
             "type": "application/json",
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/{request.assets_kwargs}",
+            "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "root",
             "type": "application/json",
             "title": "API landing page",
@@ -436,19 +453,19 @@ def get_style_formats_classification_system(system_id_or_identifier, **kwargs):
             "title": f"Available style formats for {system_id}{request.assets_kwargs}",
         },
         {
-            "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification system",
         },
         {
-            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+            "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "parent",
             "type": "application/json",
             "title": "Link to classification systems",
         },
         {
-            "href": f"{BASE_URL}/{request.assets_kwargs}",
+            "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
             "rel": "root",
             "type": "application/json",
             "title": "API landing page",
@@ -655,19 +672,19 @@ def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
                 "title": f"Styles of the classification system {system_id}{request.assets_kwargs}",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification system",
             },
             {
-                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification systems",
             },
             {
-                "href": f"{BASE_URL}/{request.assets_kwargs}",
+                "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "root",
                 "type": "application/json",
                 "title": "API landing page",
@@ -700,19 +717,19 @@ def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
                 "title": f"Styles of the classification system {system_id}{request.assets_kwargs}",
             },
             {
-                "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems/{system_id}{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification system",
             },
             {
-                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}",
+                "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "parent",
                 "type": "application/json",
                 "title": "Link to classification systems",
             },
             {
-                "href": f"{BASE_URL}/{request.assets_kwargs}",
+                "href": f"{BASE_URL}/{request.assets_kwargs}{request.intern_kwargs}",
                 "rel": "root",
                 "type": "application/json",
                 "title": "API landing page",

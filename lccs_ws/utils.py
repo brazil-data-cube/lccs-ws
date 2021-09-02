@@ -19,17 +19,17 @@ def set_locale(locale: str):
     translation_hybrid.current_locale = locale
 
 
-def language(locale=None, required=False):
+def language(language=None, required=False):
     """Decorate for locale."""
     def _language(func):
         @wraps(func)
         def wrapped(*args, **kwargs):
-            support_locale = ['pt-br', 'en']
-            locale_str = request.headers['locale'] if request.headers.get('locale') else \
-                            request.args.get('locale')
-            if locale_str:
-                if locale_str in support_locale:
-                    set_locale(locale_str)
+            support_language = ['pt-br', 'en']
+            language_str = request.headers['language'] if request.headers.get('language') else \
+                            request.args.get('language')
+            if language_str:
+                if language_str in support_language:
+                    set_locale(language_str)
             return func(*args, **kwargs)
         return wrapped
     return _language

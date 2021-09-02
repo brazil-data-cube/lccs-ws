@@ -66,6 +66,8 @@ def get_classification_systems() -> List[dict]:
                               LucClassificationSystem.authority_name,
                               LucClassificationSystem.version,
                               LucClassificationSystem.description.label("description"),
+                              LucClassificationSystem.version_successor,
+                              LucClassificationSystem.version_predecessor
                               ).all()
     return ClassificationSystemSchema().dump(system, many=True)
 
