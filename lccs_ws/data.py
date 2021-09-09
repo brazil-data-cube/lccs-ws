@@ -811,7 +811,7 @@ def get_identifier_system(system_name, system_version):
         .filter(LucClassificationSystem.name == system_name, LucClassificationSystem.version == system_version) \
         .first_or_404()
     
-    return system
+    return ClassificationSystemSchema().dump(system), 200
 
 
 def get_identifier_style_format(style_format_name):
@@ -824,4 +824,4 @@ def get_identifier_style_format(style_format_name):
         .filter_by(name=style_format_name)\
         .first_or_404()
     
-    return style
+    return StyleFormatsSchema().dump(style)

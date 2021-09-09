@@ -504,6 +504,29 @@ def style_file(system_id_or_identifier, style_format_id_or_name, **kwargs):
                      attachment_filename=file_name)
 
 
+@current_app.route("/classification_systems/search/<system_name>/<system_version>", methods=["GET"])
+def classification_system_search(system_name, system_version):
+    """Return identifier of a classification system.
+
+    :param system_name: name of a classification system
+    :param system_version: version of a classification system
+    """
+    system = data.get_identifier_system(system_name, system_version)
+
+    return system, 200
+
+
+@current_app.route("/style_formats/search/<style_format_name>", methods=["GET"])
+def style_format_search(style_format_name):
+    """Return identifier of a style format.
+
+    :param style_format_name: name of a style format
+    """
+    style_format = data.get_identifier_style_format(style_format_name)
+
+    return style_format, 200
+
+
 @current_app.route('/classification_systems', defaults={'system_id_or_identifier': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id_or_identifier>", methods=["PUT", "DELETE"])
 @oauth2(roles=[['admin', 'editor']])
