@@ -215,7 +215,7 @@ def get_classification_system_style(system_id_or_identifier: str, style_format_i
     return file_name, BytesIO(style_file.style)
 
 
-def get_mappings(system_id_or_identifier: str) -> [LucClassificationSystem, list]:
+def get_mappings(system_id_or_identifier: str) -> Tuple[LucClassificationSystem, List]:
     """Return available mapping for a classification system.
 
     :param system_id_or_identifier: identification of a source classification system
@@ -267,7 +267,7 @@ def get_system_mapping(system_id_source: int, system_id_target: int) -> ClassMap
     return mappings
 
 
-def get_mapping(system_id_or_identifier_source: str, system_id_or_identifier_target: str) -> [int, int, list]:
+def get_mapping(system_id_or_identifier_source: str, system_id_or_identifier_target: str) -> Tuple[int, int, list]:
     """Return the classes mapping between the classification system.
     
     :param system_id_or_identifier_source: id or identifier of a source classification system
@@ -643,7 +643,8 @@ def insert_mapping(system_id_source: int, system_id_target: int, target_class: s
     db.session.add(mapping)
 
 
-def insert_mappings(system_id_or_identifier_source: str, system_id_or_identifier_target: str, mapping_file: dict) -> List:
+def insert_mappings(system_id_or_identifier_source: str, system_id_or_identifier_target: str, mapping_file: dict) \
+        -> List:
     """Create classes for a given classification system.
 
     :param system_id_or_identifier_source: identifier of a source classification system
@@ -661,7 +662,7 @@ def insert_mappings(system_id_or_identifier_source: str, system_id_or_identifier
             insert_mapping(system_source.id, system_target.id, **mapping)
     db.session.commit()
     
-    mappings = get_mapping(system_source.id, system_target.id)
+    _, _, mappings = get_mapping(system_source.id, system_target.id)
 
     return ClassesMappingSchema().dump(mappings, many=True)
 
