@@ -14,6 +14,19 @@ from marshmallow.validate import ValidationError
 from marshmallow_sqlalchemy import ModelSchema
 
 
+def validate_fields_in(in_data: dict):
+    """Validate title and description."""
+    if 'title' in in_data:
+        title = in_data['title']
+        if 'pt-br' not in title or 'en' not in title:
+            raise ValidationError(f"Title language not found in key 'title'. You must specify: 'en' or 'pt-br'")
+    if 'description' in in_data:
+        description = in_data['description']
+        if 'pt-br' not in description or 'en' not in description:
+            raise ValidationError(
+                f"Description language not found in key 'description'. You must specify: 'en' or 'pt-br'")
+
+
 class ClassificationSystemSchema(ModelSchema):
     """Form definition for the model LucClassificationSystem."""
     
@@ -70,7 +83,7 @@ class ClassificationSystemMetadataSchema(Schema):
 class ClassesSchema(ModelSchema):
     """Marshmallow Forms for LucClass."""
 
-    SKIP_NONE_VALUES = set([None])
+    # SKIP_NONE_VALUES = set([None])
 
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
@@ -88,14 +101,14 @@ class ClassesSchema(ModelSchema):
         include_fk = True,
         exclude = ('created_at', 'updated_at', 'classification_system', 'class_parent')
 
-    @post_dump
-    def remove_optional_none(self, data, **kwargs):
-        """Skip none values."""
-        output = {
-            key: value for key, value in data.items()
-            if value not in self.SKIP_NONE_VALUES
-        }
-        return output
+    # @post_dump
+    # def remove_optional_none(self, data, **kwargs):
+    #     """Skip none values."""
+    #     output = {
+    #         key: value for key, value in data.items()
+    #         if value not in self.SKIP_NONE_VALUES
+    #     }
+    #     return output
 
 
 class ClassMetadataSchema(Schema):
@@ -107,6 +120,19 @@ class ClassMetadataSchema(Schema):
     description = fields.Dict(required=True, allow_none=False)
     class_parent_id = fields.Integer(required=False)
     children = fields.Nested('ClassMetadataSchema', required=False, allow_none=None, many=True)
+
+    @pre_load
+    def validate_class(self, in_data, **kwargs):
+        """Validate the classification system fields."""
+        import re
+        if 'name' in in_data:
+            result = re.search(r'(^[A-Za-z0-9\-]{1,32}$)', in_data.get("name", ""))
+            if result is None:
+                raise ValidationError('Class name is not valid!')
+
+        validate_fields_in(in_data)
+
+        return in_data
 
 
 class ClassMetadataForm(Schema):
@@ -153,6 +179,16 @@ class StyleFormatsSchema(ModelSchema):
         model = StyleFormats
         sqla_session = db.session
         exclude = ('created_at', 'updated_at',)
+
+    @pre_load
+    def validate_style_format(self, in_data, **kwargs):
+        """Validate the classification system fields."""
+        import re
+        if 'name' in in_data:
+            result = re.search(r'(^[A-Za-z0-9\-]{1,64}$)', in_data.get("name", ""))
+            if result is None:
+                raise ValidationError('Style Format name is not valid!')
+        return in_data
 
 
 class StyleFormatsMetadataSchema(Schema):

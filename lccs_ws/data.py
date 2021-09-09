@@ -23,7 +23,7 @@ from .forms import (ClassesMappingSchema, ClassesSchema,
                     ClassificationSystemSchema, StyleFormatsSchema)
 
 
-def _get_classification_system(system_id_or_identifier: str):
+def _get_classification_system(system_id_or_identifier: str) -> LucClassificationSystem:
     """Return the classification system matching search criteria.
 
     :param system_id_or_identifier: The id or identifier of a classification system
@@ -40,7 +40,7 @@ def _get_classification_system(system_id_or_identifier: str):
     return system
 
 
-def _get_style_format(style_format_id_or_name: str):
+def _get_style_format(style_format_id_or_name: str) -> StyleFormats:
     """Return the style format matching search criteria.
 
     :param style_format_id_or_name: The id or identifier of a classification system
@@ -239,7 +239,7 @@ def get_mappings(system_id_or_identifier: str) -> [LucClassificationSystem, list
     return system, systems
 
 
-def get_system_mapping(system_id_source: int, system_id_target: int):
+def get_system_mapping(system_id_source: int, system_id_target: int) -> ClassMapping:
     """Return a Mapping.
 
     :param system_id_source: identification of a source classification system
@@ -254,21 +254,16 @@ def get_system_mapping(system_id_source: int, system_id_target: int):
     classes_target = db.session.query(LucClass.id) \
         .filter(LucClass.classification_system_id == system_id_target) \
         .all()
-    #
+
     source_alias = aliased(LucClass)
 
-    mappings = db.session.query(
-        ClassMapping
-        # source_alias.name.label('source_class_name'),
-        # source_alias.title.label('source_class_title'),
-        # LucClass.name.label('target_class_name'),
-        # LucClass.title.label('target_class_title'),
-    ).filter(
+    mappings = db.session.query(ClassMapping)\
+        .filter(
             and_(ClassMapping.source_class_id.in_(classes_source), ClassMapping.target_class_id.in_(classes_target)),
             ClassMapping.source_class_id == source_alias.id,
             ClassMapping.target_class_id == LucClass.id
     ).all()
-    
+
     return mappings
 
 
@@ -335,7 +330,7 @@ def create_classification_system(name: str, authority_name: str, version: str, t
                                             "version_predecessor", "version_successor")).dump(system)
 
 
-def delete_classification_system(system_id_or_identifier: str):
+def delete_classification_system(system_id_or_identifier: str) -> None:
     """Delete an classification system by a identifier.
 
     :param system_id_or_identifier: The id or identifier of a classification system to be deleted
@@ -375,17 +370,22 @@ def update_classification_system(system_id_or_identifier: str, obj: dict) -> dic
                                             "version_predecessor", "version_successor")).dump(system)
 
 
-def delete_classes(class_system):
-    """Delete all class by a given classification system."""
-    classes = LucClass.filter(class_system_id=class_system.id)
-    
+def delete_classes(system_id_or_identifier: str) -> None:
+    """Delete all class by a given classification system.
+
+    :param system_id_or_identifier: The id or identifier of Classification System.
+    :type system_id_or_identifier: string
+    """
+    system = _get_classification_system(system_id_or_identifier)
+    classes = db.session.query(LucClass).filter(LucClass.classification_system_id == system.id)
+
     with db.session.begin_nested():
         for c in classes:
             db.session.delete(c)
     db.session.commit()
 
 
-def delete_class(system_id_or_identifier: int, class_id_or_identifier: int):
+def delete_class(system_id_or_identifier: str, class_id_or_identifier: str):
     """Delete an class by a given name and classification system."""
     system = _get_classification_system(system_id_or_identifier)
 
@@ -590,7 +590,7 @@ def update_file(style_format_id_or_name: str, system_id_or_identifier: str, file
     return system.id, style_format.id
 
 
-def delete_file(style_format_id_or_name: str, system_id_or_identifier: str):
+def delete_file(style_format_id_or_name: str, system_id_or_identifier: str) -> None:
     """Delete a style from a classification system.
 
     :param style_format_id_or_name: The id or name of style format
@@ -613,7 +613,7 @@ def delete_file(style_format_id_or_name: str, system_id_or_identifier: str):
 
 
 def insert_mapping(system_id_source: int, system_id_target: int, target_class: str, source_class: str, description,
-                   degree_of_similarity):
+                   degree_of_similarity) -> None:
     """Insert mapping."""
     target_class_alias = aliased(LucClass)
 
@@ -666,40 +666,22 @@ def insert_mappings(system_id_or_identifier_source: str, system_id_or_identifier
     return ClassesMappingSchema().dump(mappings, many=True)
 
 
-def update_mapping(target_class_id, source_class_id, description=None,
-                   degree_of_similarity=None):
-    """Update a exist mapping.
-
-    :param target_class_id: identifier of a target class
-    :type target_class_id: integer
-    :param source_class_id: identifier of a source class
-    :type source_class_id: integer
-    :param description: the mapping description
-    :type description: string
-    :param degree_of_similarity: the degree_of_similarity of a mapping
-    :type degree_of_similarity: float
-    """
-    mapping = db.session.query(ClassMapping) \
-        .filter(ClassMapping.source_class_id == source_class_id, ClassMapping.target_class_id == target_class_id) \
-        .first_or_404()
-    
-    with db.session.begin_nested():
-        if description:
-            mapping.description = description
-        if degree_of_similarity:
-            mapping.degree_of_similarity = degree_of_similarity
-    
-    db.session.commit()
-
-
-def update_mapping(system_id_or_identifier_source: str, system_id_or_identifier_target: str, degree_of_similarity: int,
-                    description: str, source_class: str, target_class: str) -> dict:
+def update_mapping(system_id_or_identifier_source: str, system_id_or_identifier_target: str, degree_of_similarity: float,
+                   description: str, source_class: str, target_class: str) -> dict:
     """Update mappings.
 
     :param system_id_or_identifier_source: The id or identifier of Source Classification System
     :type system_id_or_identifier_source: string
     :param system_id_or_identifier_target: The id or identifier of  Target Classification System
     :type system_id_or_identifier_target: string
+    :param degree_of_similarity: The degree of similarity in mapping
+    :type degree_of_similarity: float
+    :param description: The description of mapping
+    :type description: string
+    :param source_class: The id or identifier of source class
+    :type source_class: string
+    :param target_class: The id or identifier of target class
+    :type target_class: string
     """
     system_source = _get_classification_system(system_id_or_identifier_source)
     system_target = _get_classification_system(system_id_or_identifier_target)

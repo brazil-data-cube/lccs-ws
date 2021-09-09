@@ -1,12 +1,12 @@
 #
-# This file is part of BDC-Auth-Client.
-# Copyright (C) 2020 INPE.
+# This file is part of  Land Cover Classification System Web Service.
+# Copyright (C) 2021 INPE.
 #
-# BDC-Auth-Client is free software; you can redistribute it and/or modify it
+#  Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
-"""Decorators used to integrate with BDC-Auth Provider."""
+"""Decorators used to integrate with Land Cover Classification System Web Service."""
 
 from functools import wraps
 

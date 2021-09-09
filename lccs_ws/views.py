@@ -123,7 +123,7 @@ def get_classification_systems(**kwargs):
 @current_app.route("/classification_systems/<system_id_or_identifier>", methods=["GET"])
 @language()
 @oauth2(required=True)
-def classification_systems(system_id_or_identifier, **kwargs):
+def get_classification_system(system_id_or_identifier, **kwargs):
     """Retrieve information about the classification system.
 
     :param system_id_or_identifier: The id or identifier of a classification system
@@ -259,7 +259,7 @@ def classification_systems_class(system_id_or_identifier, class_id_or_name, **kw
         },
         {
             "href": f"{BASE_URL}/classification_systems{request.assets_kwargs}{request.intern_kwargs}",
-            "rel": "parent",
+            "rel": "classification_systems",
             "type": "application/json",
             "title": "Link to classification systems",
         },
@@ -507,6 +507,7 @@ def style_file(system_id_or_identifier, style_format_id_or_name, **kwargs):
 @current_app.route('/classification_systems', defaults={'system_id_or_identifier': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id_or_identifier>", methods=["PUT", "DELETE"])
 @oauth2(roles=[['admin', 'editor']])
+@language()
 def edit_classification_system(system_id_or_identifier, **kwargs):
     """Create or edit a specific classification system.
 
@@ -542,40 +543,48 @@ def edit_classification_system(system_id_or_identifier, **kwargs):
         return classification_system, 200
 
 
-@current_app.route("/classification_systems/<system_id_or_identifier>/classes", methods=["POST"])
+@current_app.route("/classification_systems/<system_id_or_identifier>/classes", methods=["POST", "DELETE"])
 @oauth2(roles=["admin"])
-def create_class_system_classes(system_id_or_identifier, **kwargs):
+@language()
+def create_delete_classes(system_id_or_identifier, **kwargs):
     """Create classes for a classification system.
 
     :param system_id_or_identifier: The id or identifier of a classification system
     """
-    args = request.get_json()
+    if request.method == "DELETE":
+        data.delete_classes(system_id_or_identifier)
 
-    errors = ClassMetadataForm().validate(args)
+        return {'message': f'Classes of {system_id_or_identifier} deleted'}, 204
 
-    if errors:
-        return abort(400, str(errors))
+    if request.method == "POST":
+        args = request.get_json()
 
-    classes = data.insert_classes(system_id_or_identifier=system_id_or_identifier, classes_files_json=args['classes'])
+        errors = ClassMetadataForm().validate(args)
 
-    result = ClassesSchema(exclude=['classification_system_id']).dump(classes, many=True)
+        if errors:
+            return abort(400, str(errors))
 
-    return jsonify(result), 201
+        classes = data.insert_classes(system_id_or_identifier=system_id_or_identifier, classes_files_json=args['classes'])
+
+        result = ClassesSchema(exclude=['classification_system_id']).dump(classes, many=True)
+
+        return jsonify(result), 201
 
 
-@current_app.route("/classification_systems/<system_id_or_identifier>/classes/<class_id_or_identifier>",
+@current_app.route("/classification_systems/<system_id_or_identifier>/classes/<class_id_or_name>",
                    methods=["PUT", "DELETE"])
 @oauth2(roles=["admin"])
-def edit_class_system_class(system_id_or_identifier, class_id_or_identifier, **kwargs):
+@language()
+def edit_class(system_id_or_identifier, class_id_or_name, **kwargs):
     """Delete class of a specific classification system.
     
     :param system_id_or_identifier: The id or identifier of a classification system
-    :param class_id_or_identifier: The id or identifier of a class
+    :param class_id_or_name: The id or identifier of a class
     """
     if request.method == "DELETE":
-        data.delete_class(system_id_or_identifier, class_id_or_identifier)
+        data.delete_class(system_id_or_identifier, class_id_or_name)
 
-        return {'message': f'{class_id_or_identifier} deleted'}, 204
+        return {'message': f'{class_id_or_name} deleted'}, 204
 
     if request.method == "PUT":
 
@@ -586,7 +595,7 @@ def edit_class_system_class(system_id_or_identifier, class_id_or_identifier, **k
         if errors:
             return abort(400, str(errors))
 
-        system_class = data.update_class(system_id_or_identifier, class_id_or_identifier, args)
+        system_class = data.update_class(system_id_or_identifier, class_id_or_name, args)
 
         return system_class, 200
 
