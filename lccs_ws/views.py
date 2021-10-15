@@ -642,7 +642,7 @@ def edit_mapping(system_id_or_identifier_source, system_id_or_identifier_target,
 
         mappings = data.insert_mappings(system_id_or_identifier_source, system_id_or_identifier_target, args)
 
-        return mappings, 201
+        return jsonify(mappings), 201
 
     if request.method == "DELETE":
         data.delete_mappings(system_id_or_identifier_source, system_id_or_identifier_target)
