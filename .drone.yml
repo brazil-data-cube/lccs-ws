@@ -22,6 +22,7 @@ steps:
   - pip install -e .[tests,docs]
   - lccs-db db init
   - lccs-db db create-namespaces
+  - lccs-db db create-extension-hstore
   - lccs-db alembic upgrade
   - lccs-db db load-scripts
   - ./run-tests.sh

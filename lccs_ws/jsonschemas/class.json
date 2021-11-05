@@ -6,7 +6,7 @@
   "description": "Describes a class from a classification system.",
   "allOf": [
     {
-      "$ref": "#/definitions/ClassMetadataType"
+      "$ref": "#/definitions/ClassType"
     }
   ],
   "definitions": {
@@ -34,14 +34,6 @@
         "rel"
       ]
     },
-    "ClassesLinkType": {
-      "title": "Land Use and Cover Classes",
-      "description": "Array of land use and cover classes.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/LinkType"
-      }
-    },
     "ClassType": {
       "title": "Land Use and Cover Class",
       "description": "Land Use and Cover Class.",
@@ -53,6 +45,9 @@
         "name": {
           "type": "string"
         },
+        "title": {
+          "type": "string"
+        },
         "code": {
           "type": "string"
         },
@@ -61,46 +56,18 @@
         },
         "class_parent_id": {
           "type": "integer"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LinkType"
+          }
         }
       },
       "required": [
         "name",
         "code",
-        "description"
-      ]
-    },
-    "ClassesType": {
-      "type": "object",
-      "properties": {
-        "classes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ClassType"
-          }
-        }
-      }
-    },
-    "ClassMetadataType": {
-      "title": "Land Use and Cover Class",
-      "description": "Describes a class from a classification system.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/ClassType"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "links": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/LinkType"
-              }
-            }
-          }
-        }
-      ],
-      "required": [
-        "links"
+        "title"
       ]
     }
   }

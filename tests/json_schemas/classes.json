@@ -1,64 +1,410 @@
-{
-  "links": [
-    {
-      "href": "http://localhost:5000/classification_system/1/classes",
-      "rel": "self",
-      "title": "Classes of the classification system PRODES",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_system/1",
-      "rel": "parent",
-      "title": "Link to classification system",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_systems",
-      "rel": "parent",
-      "title": "Link to classification systems",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/",
-      "rel": "root",
-      "title": "API landing page",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_system/1/classes/Desflorestamento",
-      "rel": "child",
-      "title": "Classification System Classes",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_system/1/classes/Floresta",
-      "rel": "child",
-      "title": "Classification System Classes",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_system/1/classes/Hidrografia",
-      "rel": "child",
-      "title": "Classification System Classes",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_system/1/classes/Não Floresta",
-      "rel": "child",
-      "title": "Classification System Classes",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_system/1/classes/Nuvem",
-      "rel": "child",
-      "title": "Classification System Classes",
-      "type": "application/json"
-    },
-    {
-      "href": "http://localhost:5000/classification_system/1/classes/Resíduo",
-      "rel": "child",
-      "title": "Classification System Classes",
-      "type": "application/json"
-    }
-  ]
-}
+[
+  {
+    "code": "DESFLORESTAMENTO",
+    "id": 1,
+    "links": [
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes",
+        "rel": "self",
+        "title": "Classes of the classification system 1",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1",
+        "rel": "parent",
+        "title": "Link to classification system",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems",
+        "rel": "parent",
+        "title": "Link to classification systems",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/",
+        "rel": "root",
+        "title": "API landing page",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/1",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/2",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/3",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/4",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/5",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/6",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      }
+    ],
+    "name": "desflorestamento",
+    "title": "Desflorestamento"
+  },
+  {
+    "code": "FLORESTA",
+    "id": 2,
+    "links": [
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes",
+        "rel": "self",
+        "title": "Classes of the classification system 1",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1",
+        "rel": "parent",
+        "title": "Link to classification system",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems",
+        "rel": "parent",
+        "title": "Link to classification systems",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/",
+        "rel": "root",
+        "title": "API landing page",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/1",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/2",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/3",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/4",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/5",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/6",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      }
+    ],
+    "name": "floresta",
+    "title": "Floresta"
+  },
+  {
+    "code": "HIDROGRAFIA",
+    "id": 3,
+    "links": [
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes",
+        "rel": "self",
+        "title": "Classes of the classification system 1",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1",
+        "rel": "parent",
+        "title": "Link to classification system",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems",
+        "rel": "parent",
+        "title": "Link to classification systems",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/",
+        "rel": "root",
+        "title": "API landing page",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/1",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/2",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/3",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/4",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/5",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/6",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      }
+    ],
+    "name": "hidrografia",
+    "title": "Hidrografia"
+  },
+  {
+    "code": "NAO_FLORESTA",
+    "id": 4,
+    "links": [
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes",
+        "rel": "self",
+        "title": "Classes of the classification system 1",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1",
+        "rel": "parent",
+        "title": "Link to classification system",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems",
+        "rel": "parent",
+        "title": "Link to classification systems",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/",
+        "rel": "root",
+        "title": "API landing page",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/1",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/2",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/3",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/4",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/5",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/6",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      }
+    ],
+    "name": "nao-floresta",
+    "title": "Não Floresta"
+  },
+  {
+    "code": "NUVEM",
+    "id": 5,
+    "links": [
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes",
+        "rel": "self",
+        "title": "Classes of the classification system 1",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1",
+        "rel": "parent",
+        "title": "Link to classification system",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems",
+        "rel": "parent",
+        "title": "Link to classification systems",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/",
+        "rel": "root",
+        "title": "API landing page",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/1",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/2",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/3",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/4",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/5",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/6",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      }
+    ],
+    "name": "nuvem",
+    "title": "Nuvem"
+  },
+  {
+    "code": "RESIDUO",
+    "id": 6,
+    "links": [
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes",
+        "rel": "self",
+        "title": "Classes of the classification system 1",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1",
+        "rel": "parent",
+        "title": "Link to classification system",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems",
+        "rel": "parent",
+        "title": "Link to classification systems",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/",
+        "rel": "root",
+        "title": "API landing page",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/1",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/2",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/3",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/4",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/5",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      },
+      {
+        "href": "http://localhost:5000/classification_systems/1/classes/6",
+        "rel": "child",
+        "title": "Classification System Class",
+        "type": "application/json"
+      }
+    ],
+    "name": "residuo",
+    "title": "Resíduo"
+  }
+]

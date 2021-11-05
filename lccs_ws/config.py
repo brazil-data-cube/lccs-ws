@@ -38,6 +38,9 @@ class Config:
 
     BDC_LCCS_API_VERSION = _version.parse(__version__).base_version
 
+    BDC_LCCS_ARGS = os.getenv("BDC_LCCS_ARGS", "access_token")
+    BDC_LCCS_ARGS_I18N = os.getenv("BDC_LCCS_ARGS", "language")
+
 
 class ProductionConfig(Config):
     """Production Mode."""

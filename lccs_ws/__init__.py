@@ -10,6 +10,7 @@ import os
 
 from flask import Flask
 from lccs_db.ext import LCCSDatabase
+from lccs_db.models.base import translation_hybrid
 from werkzeug.exceptions import HTTPException, InternalServerError
 
 from lccs_ws.config import get_settings
@@ -35,6 +36,7 @@ def create_app():
     with app.app_context():
         # Initialize Flask SQLAlchemy
         LCCSDatabase(app)
+        translation_hybrid.current_locale = 'pt-br'
 
         setup_app(app)
 

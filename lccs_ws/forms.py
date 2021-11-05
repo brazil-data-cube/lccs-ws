@@ -9,8 +9,22 @@
 
 from lccs_db.models import (ClassMapping, LucClass, LucClassificationSystem,
                             StyleFormats, Styles, db)
-from marshmallow import Schema, fields, post_dump
+from marshmallow import Schema, fields, post_dump, pre_load
+from marshmallow.validate import ValidationError
 from marshmallow_sqlalchemy import ModelSchema
+
+
+def validate_fields_in(in_data: dict):
+    """Validate title and description."""
+    if 'title' in in_data:
+        title = in_data['title']
+        if 'pt-br' not in title or 'en' not in title:
+            raise ValidationError(f"Title language not found in key 'title'. You must specify: 'en' or 'pt-br'")
+    if 'description' in in_data:
+        description = in_data['description']
+        if 'pt-br' not in description or 'en' not in description:
+            raise ValidationError(
+                f"Description language not found in key 'description'. You must specify: 'en' or 'pt-br'")
 
 
 class ClassificationSystemSchema(ModelSchema):
@@ -18,10 +32,14 @@ class ClassificationSystemSchema(ModelSchema):
     
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
+    title = fields.String(required=True)
+    version = fields.String(required=True)
+    identifier = fields.String(dump_only=True)
     authority_name = fields.String(required=True)
     description = fields.String(required=True)
-    version = fields.String(required=True)
-    
+    version_successor = fields.Integer(required=False)
+    version_predecessor = fields.Integer(required=False)
+
     class Meta:
         """Generate marshmallow Schemas from LucClassificationSystem model."""
         
@@ -33,10 +51,33 @@ class ClassificationSystemSchema(ModelSchema):
 class ClassificationSystemMetadataSchema(Schema):
     """Define parser for classification system update."""
     
-    name = fields.String(required=False, allow_none=False)
-    authority_name = fields.String(required=False, allow_none=False)
-    description = fields.String(required=False, allow_none=False)
-    version = fields.String(required=False, allow_none=False)
+    name = fields.String(required=True, allow_none=False)
+    title = fields.Dict(required=True, allow_none=False)
+    authority_name = fields.String(required=True, allow_none=False)
+    description = fields.Dict(required=True, allow_none=False)
+    version = fields.String(required=True, allow_none=False)
+
+    @pre_load
+    def validate_system(self, in_data, **kwargs):
+        """Validate the classification system fields."""
+        import re
+
+        if 'name' in in_data:
+            result = re.search(r'(^[A-Za-z0-9\-]{1,32}$)', in_data.get("name", ""))
+            if result is None:
+                raise ValidationError('Classification System name is not valid!')
+
+        if 'title' in in_data:
+            title = in_data['title']
+            if 'pt-br' not in title or 'en' not in title:
+                raise ValidationError(f"Title language not found in key 'title'. You must specify: 'en' or 'pt-br'")
+        if 'description' in in_data:
+            description = in_data['description']
+            if 'pt-br' not in description or 'en' not in description:
+                raise ValidationError(
+                    f"Description language not found in key 'description'. You must specify: 'en' or 'pt-br'")
+
+        return in_data
 
 
 class ClassesSchema(ModelSchema):
@@ -47,9 +88,11 @@ class ClassesSchema(ModelSchema):
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
     code = fields.String(required=True)
+    title = fields.String(required=True)
     description = fields.String(required=True)
     class_parent_id = fields.Integer(required=False)
-    
+    classification_system_id = fields.Integer(dump_only=True)
+
     class Meta:
         """Generate marshmallow Schemas from LucClass model."""
         
@@ -71,17 +114,38 @@ class ClassesSchema(ModelSchema):
 class ClassMetadataSchema(Schema):
     """Define parser for classification system update."""
     
-    name = fields.String(required=False, allow_none=False)
-    code = fields.String(required=False, allow_none=False)
-    description = fields.String(required=False, allow_none=False)
+    name = fields.String(required=True, allow_none=False)
+    title = fields.Dict(required=True, allow_none=False)
+    code = fields.String(required=True, allow_none=False)
+    description = fields.Dict(required=True, allow_none=False)
     class_parent_id = fields.Integer(required=False)
+    children = fields.Nested('ClassMetadataSchema', required=False, allow_none=None, many=True)
+
+    @pre_load
+    def validate_class(self, in_data, **kwargs):
+        """Validate the classification system fields."""
+        import re
+        if 'name' in in_data:
+            result = re.search(r'(^[A-Za-z0-9\-]{1,32}$)', in_data.get("name", ""))
+            if result is None:
+                raise ValidationError('Class name is not valid!')
+
+        validate_fields_in(in_data)
+
+        return in_data
+
+
+class ClassMetadataForm(Schema):
+    """Define parser for classification system."""
+
+    classes = fields.List(fields.Nested('ClassMetadataSchema', required=True))
 
 
 class ClassesMappingSchema(ModelSchema):
     """Marshmallow Forms for ClassMapping."""
     
-    source_class_id = fields.Integer(required=True)
-    target_class_id = fields.Integer(required=True)
+    source_class_id = fields.String(required=True)
+    target_class_id = fields.String(required=True)
     description = fields.String(required=True)
     degree_of_similarity = fields.Number(required=False)
     
@@ -97,8 +161,8 @@ class ClassesMappingSchema(ModelSchema):
 class ClassesMappingMetadataSchema(Schema):
     """Define parser for classification system update."""
     
-    source_class_id = fields.Integer(required=True, allow_none=False)
-    target_class_id = fields.Integer(required=True, allow_none=False)
+    source_class = fields.Integer(required=True, allow_none=False)
+    target_class = fields.Integer(required=True, allow_none=False)
     description = fields.String(required=False, allow_none=False)
     degree_of_similarity = fields.Number(required=False)
 
@@ -115,6 +179,16 @@ class StyleFormatsSchema(ModelSchema):
         model = StyleFormats
         sqla_session = db.session
         exclude = ('created_at', 'updated_at',)
+
+    @pre_load
+    def validate_style_format(self, in_data, **kwargs):
+        """Validate the classification system fields."""
+        import re
+        if 'name' in in_data:
+            result = re.search(r'(^[A-Za-z0-9\-]{1,64}$)', in_data.get("name", ""))
+            if result is None:
+                raise ValidationError('Style Format name is not valid!')
+        return in_data
 
 
 class StyleFormatsMetadataSchema(Schema):
