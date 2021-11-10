@@ -34,6 +34,35 @@
         "rel"
       ]
     },
+    "supported_language": {
+      "title": "Supported language.",
+      "description": "Define the supported language of service",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/supported_language_items"
+      }
+    },
+    "supported_language_items": {
+      "title": "Supported language item.",
+      "description": "This is a generic way to link information in the service.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "format": "url",
+          "example": "http://www.esensing.dpi.inpe.br/lccs/classification_systems/system_id/classes"
+        },
+        "language": {
+          "type": "string",
+          "example": "child"
+        }
+      },
+      "required": [
+        "description",
+        "language"
+      ]
+
+    },
     "RootType": {
       "title": "The landing page provides links to the API definition. Links to the classification systems endpoint.",
       "description": "Provides link to the classification system.",
@@ -44,10 +73,31 @@
           "items": {
             "$ref": "#/definitions/LinkType"
           }
+        },
+        "application_name": {
+          "$id": "#/properties/application_name",
+          "type": "string",
+          "title": "The application name",
+          "description": "Defines the service name",
+          "example": "0.6"
+        },
+        "version": {
+          "$id": "#/properties/version",
+          "type": "string",
+          "title": "The service version",
+          "description": "Defines the service version",
+          "example": "0.6"
+        },
+        "supported_language": {
+          "type": "object",
+          "$ref": "#/definitions/supported_language"
         }
       },
       "required": [
-        "links"
+        "links",
+        "application_name",
+        "version",
+        "supported_language"
       ]
     }
   }

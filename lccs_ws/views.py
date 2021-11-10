@@ -8,6 +8,7 @@
 """Views of Land Cover Classification System Web Service."""
 from bdc_auth_client.decorators import oauth2
 from flask import abort, current_app, jsonify, request, send_file
+from lccs_db.config import Config as Config_db
 from werkzeug.urls import url_encode
 
 from lccs_ws.forms import (ClassesMappingMetadataSchema, ClassesSchema,
@@ -70,6 +71,14 @@ def root(**kwargs):
     response["links"] = links
     response["application_name"] = "Land Cover Classification System Service"
     response["version"] = Config.BDC_LCCS_API_VERSION
+
+    response["supported_language"] = []
+    for _, name in Config_db.I18N_LANGUAGES.items():
+        response["supported_language"].append({
+            "language": name[0],
+            "description": name[1]
+        })
+
 
     return response, 200
 
