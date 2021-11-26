@@ -6,6 +6,8 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
+"""Utility functions Land Cover Classification System Web Service."""
+
 """Decorators used to integrate with Land Cover Classification System Web Service."""
 
 from functools import wraps
