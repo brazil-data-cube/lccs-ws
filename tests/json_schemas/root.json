@@ -1,4 +1,5 @@
 {
+  "application_name": "Land Cover Classification System Service",
   "links": [
     {
       "href": "http://localhost:5000/",
@@ -9,8 +10,25 @@
     {
       "href": "http://localhost:5000/classification_systems",
       "rel": "classification_systems",
-      "title": "List classification_systems",
+      "title": "Information about Classification Systems",
+      "type": "application/json"
+    },
+    {
+      "href": "http://localhost:5000/style_formats",
+      "rel": "style_formats",
+      "title": "Information about Style Formats",
       "type": "application/json"
     }
-  ]
+  ],
+  "supported_language": [
+    {
+      "description": "English",
+      "language": "en"
+    },
+    {
+      "description": "Brazilian Portuguese",
+      "language": "pt-br"
+    }
+  ],
+  "version": "0.8.0"
 }
