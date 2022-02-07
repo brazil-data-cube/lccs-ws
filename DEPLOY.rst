@@ -1,6 +1,6 @@
 ..
     This file is part of Land Cover Classification System Web Service.
-    Copyright (C) 2020-2021 INPE.
+    Copyright (C) 2020-2022 INPE.
 
     Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
@@ -29,15 +29,15 @@ Building the Docker Image
 
 On the command line use the ``docker build`` command to create the docker image for the service::
 
-    docker build -t lccs-ws:0.6.0 . --no-cache
+    docker build -t lccs-ws:0.8.0 . --no-cache
 
 
-The above command will create a Docker image named ``lccs-ws`` and tag ``0.6.0``, as one can see with the ``docker images`` command::
+The above command will create a Docker image named ``lccs-ws`` and tag ``0.8.0``, as one can see with the ``docker images`` command::
 
     docker images
 
     REPOSITORY      TAG       IMAGE ID         CREATED         SIZE
-    lccs-ws         0.6.0     ce2ba6a67896     16 hours ago    752MB
+    lccs-ws         0.8.0     ce2ba6a67896     16 hours ago    752MB
 
 
 Preparing the Network for Containers
@@ -69,7 +69,7 @@ Launching the Docker Container with the LCCS-WS
 -----------------------------------------------
 
 
-The ``docker run`` command can be used to launch a container from the image ``lccs-ws:0.6.0``. The command below shows an example on how to accomplish the launch of a container:
+The ``docker run`` command can be used to launch a container from the image ``lccs-ws:0.8.0``. The command below shows an example on how to accomplish the launch of a container:
 
 .. code-block:: shell
 
@@ -80,7 +80,7 @@ The ``docker run`` command can be used to launch a container from the image ``lc
              --env LCCS_URL="http://localhost:5000" \
              --env SQLALCHEMY_DATABASE_URI="postgresql://user:password@localhost:5432/dbname" \
              --env LCCSWS_ENVIRONMENT="ProductionConfig" \
-             lccs-ws:0.6.0
+             lccs-ws:0.8.0
 
 
 Let's take a look at each parameter in the above command:/
@@ -99,7 +99,7 @@ Let's take a look at each parameter in the above command:/
 
     - ``--env LCCSWS_ENVIRONMENT="ProductionConfig"``: execution mode (``ProductionConfig``, ``DevelopmentConfig``, ``TestingConfig``).
 
-    - ``lccs-ws:0.6.0``: the name of the base Docker image used to create the container.
+    - ``lccs-ws:0.8.0``: the name of the base Docker image used to create the container.
 
 
 If you have launched the container, you can check if the service has initialized::

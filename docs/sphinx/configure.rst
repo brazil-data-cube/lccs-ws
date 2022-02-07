@@ -19,6 +19,9 @@ Configure
     +-----------------------------+-------------------------------------------------------------------------------------+
     + ``LCCS_URL``                | Base URI of the service.                                                            |
     +-----------------------------+-------------------------------------------------------------------------------------+
-    + ``LCCSWS_ENVIRONMENT``      +  execution mode: ``ProductionConfig``, ``DevelopmentConfig``, or ``TestingConfig``. |
+    + ``LCCSWS_ENVIRONMENT``      + Execution mode: ``ProductionConfig``, ``DevelopmentConfig``, or ``TestingConfig``.  |
     +-----------------------------+-------------------------------------------------------------------------------------+
-
+    + ``BDC_LCCS_ARGS``           + Argument to handle before request processing: BDC Access token.                     |
+    +-----------------------------+-------------------------------------------------------------------------------------+
+    + ``BDC_LCCS_ARGS_I18N``      + Argument to handle before request processing: Languages supported by the service.   |
+    +-----------------------------+-------------------------------------------------------------------------------------+
