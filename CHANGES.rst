@@ -10,6 +10,16 @@
 Changes
 =======
 
+Version 0.8.0 (2022-02-07)
+--------------------------
+
+- Upgrade to lccs-db 0.8.0 dependency (`#71 <https://github.com/brazil-data-cube/lccs-ws/issues/71>`_).
+- Add supported languages in API root (`#74 <https://github.com/brazil-data-cube/lccs-ws/issues/74>`_).
+- Improve API resource links (`#73 <https://github.com/brazil-data-cube/lccs-ws/issues/73>`_).
+- Add support I18N with lccs-db (`#72 <https://github.com/brazil-data-cube/lccs-ws/issues/72>`_).
+- Upgrade Oauth2 library (bdc-auth-client) to 0.2.3 (`#71 <https://github.com/brazil-data-cube/lccs-ws/issues/71>`_).
+
+
 Version 0.6.0 (2021-04-09)
 --------------------------
 
