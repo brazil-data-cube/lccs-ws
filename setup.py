@@ -1,9 +1,19 @@
 #
-# This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2020-2021 INPE.
+# This file is part of LCCS-WS.
+# Copyright (C) 2022 INPE.
 #
-# Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 #
 """Land Cover Classification System Web Service."""
 
@@ -44,10 +54,12 @@ setup_requires = [
 ]
 
 install_requires = [
+    'itsdangerous<2.1.0,>=1.1.0',
     'Flask>=1.1.1',
     'marshmallow-sqlalchemy==0.18.0',
     'jsonschema>=3.2',
-    'lccs-db @ git+https://github.com/brazil-data-cube/lccs-db@v0.8.0',
+    'MarkupSafe==2.0.1',
+    'lccs-db @ git+https://github.com/fabianazioti/lccs-db@0.8.1',
     'bdc-auth-client @ git+https://github.com/brazil-data-cube/bdc-auth-client@v0.2.3',
 ]
 
