@@ -25,7 +25,7 @@ app = lccs_ws.create_app()
 # -- Project information -----------------------------------------------------
 
 project = 'Land Cover Classification System Web Service'
-copyright = '2019-2022, INPE'
+copyright = '2022, INPE'
 author = 'INPE'
 
 # The full version, including alpha/beta/rc tags
