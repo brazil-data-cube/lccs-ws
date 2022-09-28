@@ -21,8 +21,8 @@ Land Cover Classification System Web Service
 ============================================
 
 
-.. image:: https://img.shields.io/badge/license-MIT-green
-        :target: https://github.com//brazil-data-cube/lccs-ws/blob/master/LICENSE
+.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+        :target: https://github.com/brazil-data-cube/bdc-catalog/blob/master/LICENSE
         :alt: Software License
 
 .. image:: https://drone.dpi.inpe.br/api/badges/brazil-data-cube/lccs-ws/status.svg
