@@ -28,11 +28,11 @@ def validate_fields_in(in_data: dict):
     """Validate title and description."""
     if 'title' in in_data:
         title = in_data['title']
-        if 'pt-br' not in title or 'en' not in title:
+        if 'pt-br' not in title and 'en' not in title:
             raise ValidationError(f"Title language not found in key 'title'. You must specify: 'en' or 'pt-br'")
     if 'description' in in_data:
         description = in_data['description']
-        if 'pt-br' not in description or 'en' not in description:
+        if 'pt-br' not in description and 'en' not in description:
             raise ValidationError(
                 f"Description language not found in key 'description'. You must specify: 'en' or 'pt-br'")
 
