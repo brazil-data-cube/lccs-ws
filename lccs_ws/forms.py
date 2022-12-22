@@ -138,7 +138,7 @@ class ClassMetadataSchema(Schema):
         if 'name' in in_data:
             result = re.search(r'(^[A-Za-z0-9\-]{1,32}$)', in_data.get("name", ""))
             if result is None:
-                raise ValidationError('Class name is not valid!')
+                raise ValidationError(f'Class name {in_data.get("name", "")} is not valid!')
 
         validate_fields_in(in_data)
 
