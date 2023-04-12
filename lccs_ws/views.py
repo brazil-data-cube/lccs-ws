@@ -548,7 +548,7 @@ def style_format_search(style_format_name):
 
 @current_app.route('/classification_systems', defaults={'system_id_or_identifier': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id_or_identifier>", methods=["PUT", "DELETE"])
-@oauth2(roles=[['admin', 'editor']])
+@oauth2(roles=[['admin', 'editor', 'creator']])
 @language()
 def edit_classification_system(system_id_or_identifier, **kwargs):
     """Create or edit a specific classification system.
@@ -586,7 +586,7 @@ def edit_classification_system(system_id_or_identifier, **kwargs):
 
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes", methods=["POST", "DELETE"])
-@oauth2(roles=["admin"])
+@oauth2(roles = [['admin', 'creator']])
 @language()
 def create_delete_classes(system_id_or_identifier, **kwargs):
     """Create classes for a classification system.
@@ -615,7 +615,7 @@ def create_delete_classes(system_id_or_identifier, **kwargs):
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes/<class_id_or_name>",
                    methods=["PUT", "DELETE"])
-@oauth2(roles=["admin"])
+@oauth2(roles = [['admin', 'creator']])
 @language()
 def edit_class(system_id_or_identifier, class_id_or_name, **kwargs):
     """Delete class of a specific classification system.
@@ -685,7 +685,7 @@ def edit_mapping(system_id_or_identifier_source, system_id_or_identifier_target,
                    defaults={'style_format_id_or_name': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id_or_identifier>/styles/<style_format_id_or_name>",
                    methods=["PUT", "DELETE"])
-@oauth2(roles=['admin'])
+@oauth2(roles = [['admin', 'creator']])
 def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
     """Create or edit styles.
 
@@ -796,7 +796,7 @@ def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
 
 @current_app.route("/style_formats", defaults={'style_format_id_or_name': None}, methods=["POST"])
 @current_app.route("/style_formats/<style_format_id_or_name>", methods=["PUT", "DELETE"])
-@oauth2(roles=['admin'])
+@oauth2(roles = [['admin', 'creator']])
 def edit_style_formats(style_format_id_or_name, **kwargs):
     """Create or edit styles formats.
     
