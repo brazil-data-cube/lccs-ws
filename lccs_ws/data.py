@@ -527,12 +527,17 @@ def insert_classes(system_id_or_identifier: str, classes_files_json: dict) -> Li
 
 def _add_classes(system_id: int, classes: dict):
     """Add class to a classification system."""
-    class_id = insert_class(system_id, **classes)
+    class_info = dict(name=classes['name'], title=classes['title'],
+                      code=classes['code'], description=classes['description'])
+
+    class_id = insert_class(system_id, **class_info)
 
     if classes.get('children') is not None:
         for child in classes['children']:
-            child["class_parent_id"] = class_id
-            _add_classes(system_id, child)
+            child_info = dict(name=child['name'], title=child['title'],
+                              code=child['code'], description=child['description'],
+                             class_parent_id=class_id)
+            _add_classes(system_id, child_info)
     return
 
 
