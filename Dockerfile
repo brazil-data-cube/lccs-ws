@@ -16,7 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 #
 
-FROM python:3.7-slim-buster
+FROM python:3.11
 
 RUN apt-get update && \
     apt-get install -y libpq-dev build-essential git vim && \
