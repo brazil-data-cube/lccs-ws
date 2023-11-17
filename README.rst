@@ -1,6 +1,6 @@
 ..
     This file is part of LCCS-WS.
-    Copyright (C) 2022 INPE.
+    Copyright (C) 2023 INPE.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,10 +24,6 @@ Land Cover Classification System Web Service
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
         :target: https://github.com/brazil-data-cube/bdc-catalog/blob/master/LICENSE
         :alt: Software License
-
-.. image:: https://drone.dpi.inpe.br/api/badges/brazil-data-cube/lccs-ws/status.svg
-        :target: https://drone.dpi.inpe.br/brazil-data-cube/lccs-ws
-        :alt: Build Status
 
 .. image:: https://codecov.io/gh/brazil-data-cube/lccs-ws/branch/master/graph/badge.svg?token=XFD6QREW99
         :target: https://codecov.io/gh/brazil-data-cube/lccs-ws
@@ -95,7 +91,7 @@ License
 
 
 .. admonition::
-    Copyright (C) 2022 INPE.
+    Copyright (C) 2023 INPE.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

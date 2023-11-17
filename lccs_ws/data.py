@@ -236,14 +236,18 @@ def get_mappings(system_id_or_identifier: str) -> Tuple[LucClassificationSystem,
     classes_source = db.session.query(LucClass.id) \
         .filter(LucClass.classification_system_id == system.id) \
         .all()
+
+    classes_source_ids = [value for (value,) in classes_source]
     
-    targets_class_id = db.session.query(distinct(ClassMapping.target_class_id)) \
-        .filter(ClassMapping.source_class_id.in_(classes_source)) \
+    targets_classes = db.session.query(distinct(ClassMapping.target_class_id)) \
+        .filter(ClassMapping.source_class_id.in_(classes_source_ids)) \
         .all()
+
+    targets_class_ids = [value for (value,) in targets_classes]
 
     systems = db.session.query(LucClassificationSystem) \
         .join(LucClass, LucClass.classification_system_id == LucClassificationSystem.id) \
-        .filter(LucClass.id.in_(targets_class_id)) \
+        .filter(LucClass.id.in_(targets_class_ids)) \
         .all()
 
     return system, systems
