@@ -265,15 +265,19 @@ def get_system_mapping(system_id_source: int, system_id_target: int) -> ClassMap
         .filter(LucClass.classification_system_id == system_id_source) \
         .all()
 
+    classes_source_ids = [value for (value,) in classes_source]
+
     classes_target = db.session.query(LucClass.id) \
         .filter(LucClass.classification_system_id == system_id_target) \
         .all()
+
+    classes_target_ids = [value for (value,) in classes_target]
 
     source_alias = aliased(LucClass)
 
     mappings = db.session.query(ClassMapping)\
         .filter(
-            and_(ClassMapping.source_class_id.in_(classes_source), ClassMapping.target_class_id.in_(classes_target)),
+            and_(ClassMapping.source_class_id.in_(classes_source_ids), ClassMapping.target_class_id.in_(classes_target_ids)),
             ClassMapping.source_class_id == source_alias.id,
             ClassMapping.target_class_id == LucClass.id
     ).all()
