@@ -1,9 +1,19 @@
 #
-# This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2020-2021 INPE.
+# This file is part of LCCS-WS.
+# Copyright (C) 2022 INPE.
 #
-# Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 #
 """Data module of Land Cover Classification System Web Service."""
 
@@ -226,14 +236,18 @@ def get_mappings(system_id_or_identifier: str) -> Tuple[LucClassificationSystem,
     classes_source = db.session.query(LucClass.id) \
         .filter(LucClass.classification_system_id == system.id) \
         .all()
+
+    classes_source_ids = [value for (value,) in classes_source]
     
-    targets_class_id = db.session.query(distinct(ClassMapping.target_class_id)) \
-        .filter(ClassMapping.source_class_id.in_(classes_source)) \
+    targets_classes = db.session.query(distinct(ClassMapping.target_class_id)) \
+        .filter(ClassMapping.source_class_id.in_(classes_source_ids)) \
         .all()
+
+    targets_class_ids = [value for (value,) in targets_classes]
 
     systems = db.session.query(LucClassificationSystem) \
         .join(LucClass, LucClass.classification_system_id == LucClassificationSystem.id) \
-        .filter(LucClass.id.in_(targets_class_id)) \
+        .filter(LucClass.id.in_(targets_class_ids)) \
         .all()
 
     return system, systems
@@ -251,15 +265,19 @@ def get_system_mapping(system_id_source: int, system_id_target: int) -> ClassMap
         .filter(LucClass.classification_system_id == system_id_source) \
         .all()
 
+    classes_source_ids = [value for (value,) in classes_source]
+
     classes_target = db.session.query(LucClass.id) \
         .filter(LucClass.classification_system_id == system_id_target) \
         .all()
+
+    classes_target_ids = [value for (value,) in classes_target]
 
     source_alias = aliased(LucClass)
 
     mappings = db.session.query(ClassMapping)\
         .filter(
-            and_(ClassMapping.source_class_id.in_(classes_source), ClassMapping.target_class_id.in_(classes_target)),
+            and_(ClassMapping.source_class_id.in_(classes_source_ids), ClassMapping.target_class_id.in_(classes_target_ids)),
             ClassMapping.source_class_id == source_alias.id,
             ClassMapping.target_class_id == LucClass.id
     ).all()
@@ -515,19 +533,19 @@ def insert_classes(system_id_or_identifier: str, classes_files_json: dict) -> Li
     return classes
 
 
-def _add_classes(system_id: int, classes, class_parent_id: int = None):
+def _add_classes(system_id: int, classes: dict):
     """Add class to a classification system."""
     class_info = dict(name=classes['name'], title=classes['title'],
                       code=classes['code'], description=classes['description'])
-
-    if class_parent_id:
-        class_info['class_parent_id'] = class_parent_id
 
     class_id = insert_class(system_id, **class_info)
 
     if classes.get('children') is not None:
         for child in classes['children']:
-            _add_classes(system_id, child, class_parent_id=class_id)
+            child_info = dict(name=child['name'], title=child['title'],
+                              code=child['code'], description=child['description'],
+                             class_parent_id=class_id)
+            _add_classes(system_id, child_info)
     return
 
 

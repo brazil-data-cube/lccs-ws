@@ -1,9 +1,19 @@
 #
-# This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2020-2021 INPE.
+# This file is part of LCCS-WS.
+# Copyright (C) 2022 INPE.
 #
-# Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 #
 """Defines Marshmallow Forms for LCCSWS abstractions."""
 
@@ -18,11 +28,11 @@ def validate_fields_in(in_data: dict):
     """Validate title and description."""
     if 'title' in in_data:
         title = in_data['title']
-        if 'pt-br' not in title or 'en' not in title:
+        if 'pt-br' not in title and 'en' not in title:
             raise ValidationError(f"Title language not found in key 'title'. You must specify: 'en' or 'pt-br'")
     if 'description' in in_data:
         description = in_data['description']
-        if 'pt-br' not in description or 'en' not in description:
+        if 'pt-br' not in description and 'en' not in description:
             raise ValidationError(
                 f"Description language not found in key 'description'. You must specify: 'en' or 'pt-br'")
 
@@ -69,11 +79,11 @@ class ClassificationSystemMetadataSchema(Schema):
 
         if 'title' in in_data:
             title = in_data['title']
-            if 'pt-br' not in title or 'en' not in title:
+            if 'pt-br' not in title and 'en' not in title:
                 raise ValidationError(f"Title language not found in key 'title'. You must specify: 'en' or 'pt-br'")
         if 'description' in in_data:
             description = in_data['description']
-            if 'pt-br' not in description or 'en' not in description:
+            if 'pt-br' not in description and 'en' not in description:
                 raise ValidationError(
                     f"Description language not found in key 'description'. You must specify: 'en' or 'pt-br'")
 
@@ -128,7 +138,7 @@ class ClassMetadataSchema(Schema):
         if 'name' in in_data:
             result = re.search(r'(^[A-Za-z0-9\-]{1,32}$)', in_data.get("name", ""))
             if result is None:
-                raise ValidationError('Class name is not valid!')
+                raise ValidationError(f'Class name {in_data.get("name", "")} is not valid!')
 
         validate_fields_in(in_data)
 

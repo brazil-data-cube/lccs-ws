@@ -1,9 +1,19 @@
 #
-# This file is part of Land Cover Classification System Web Service.
-# Copyright (C) 2020-2021 INPE.
+# This file is part of LCCS-WS.
+# Copyright (C) 2022 INPE.
 #
-# Land Cover Classification System Web Service is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 #
 """Views of Land Cover Classification System Web Service."""
 from bdc_auth_client.decorators import oauth2
@@ -84,7 +94,7 @@ def root(**kwargs):
 
 
 @current_app.route("/classification_systems", methods=["GET"])
-@oauth2(required=True)
+@oauth2(required=False)
 @language()
 def get_classification_systems(**kwargs):
     """Retrieve the list of available classification systems in the service."""
@@ -131,7 +141,7 @@ def get_classification_systems(**kwargs):
 
 @current_app.route("/classification_systems/<system_id_or_identifier>", methods=["GET"])
 @language()
-@oauth2(required=True)
+@oauth2(required=False)
 def get_classification_system(system_id_or_identifier, **kwargs):
     """Retrieve information about the classification system.
 
@@ -187,7 +197,7 @@ def get_classification_system(system_id_or_identifier, **kwargs):
 
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes", methods=["GET"])
-@oauth2(required=True)
+@oauth2(required=False)
 def classification_systems_classes(system_id_or_identifier, **kwargs):
     """Retrieve the classes of a classification system.
     
@@ -240,7 +250,7 @@ def classification_systems_classes(system_id_or_identifier, **kwargs):
 
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes/<class_id_or_name>", methods=["GET"])
-@oauth2(required=True)
+@oauth2(required=False)
 @language()
 def classification_systems_class(system_id_or_identifier, class_id_or_name, **kwargs):
     """Retrieve class information from a classification system.
@@ -287,7 +297,7 @@ def classification_systems_class(system_id_or_identifier, class_id_or_name, **kw
 
 
 @current_app.route("/mappings/<system_id_or_identifier>", methods=["GET"])
-@oauth2(required=True)
+@oauth2(required=False)
 @language()
 def get_mappings(system_id_or_identifier, **kwargs):
     """Retrieve available mappings for a classification system.
@@ -330,7 +340,7 @@ def get_mappings(system_id_or_identifier, **kwargs):
 
 
 @current_app.route("/mappings/<system_id_or_identifier_source>/<system_id_or_identifier_target>", methods=["GET"])
-@oauth2(required=True)
+@oauth2(required=False)
 @language()
 def get_mapping(system_id_or_identifier_source, system_id_or_identifier_target, **kwargs):
     """Retrieve mapping.
@@ -538,7 +548,7 @@ def style_format_search(style_format_name):
 
 @current_app.route('/classification_systems', defaults={'system_id_or_identifier': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id_or_identifier>", methods=["PUT", "DELETE"])
-@oauth2(roles=[['admin', 'editor']])
+@oauth2(roles=[['admin', 'editor', 'creator']])
 @language()
 def edit_classification_system(system_id_or_identifier, **kwargs):
     """Create or edit a specific classification system.
@@ -576,7 +586,7 @@ def edit_classification_system(system_id_or_identifier, **kwargs):
 
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes", methods=["POST", "DELETE"])
-@oauth2(roles=["admin"])
+@oauth2(roles = [['admin', 'creator']])
 @language()
 def create_delete_classes(system_id_or_identifier, **kwargs):
     """Create classes for a classification system.
@@ -605,7 +615,7 @@ def create_delete_classes(system_id_or_identifier, **kwargs):
 
 @current_app.route("/classification_systems/<system_id_or_identifier>/classes/<class_id_or_name>",
                    methods=["PUT", "DELETE"])
-@oauth2(roles=["admin"])
+@oauth2(roles = [['admin', 'creator']])
 @language()
 def edit_class(system_id_or_identifier, class_id_or_name, **kwargs):
     """Delete class of a specific classification system.
@@ -675,7 +685,7 @@ def edit_mapping(system_id_or_identifier_source, system_id_or_identifier_target,
                    defaults={'style_format_id_or_name': None}, methods=["POST"])
 @current_app.route("/classification_systems/<system_id_or_identifier>/styles/<style_format_id_or_name>",
                    methods=["PUT", "DELETE"])
-@oauth2(roles=['admin'])
+@oauth2(roles = [['admin', 'creator']])
 def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
     """Create or edit styles.
 
@@ -786,7 +796,7 @@ def edit_styles(system_id_or_identifier, style_format_id_or_name, **kwargs):
 
 @current_app.route("/style_formats", defaults={'style_format_id_or_name': None}, methods=["POST"])
 @current_app.route("/style_formats/<style_format_id_or_name>", methods=["PUT", "DELETE"])
-@oauth2(roles=['admin'])
+@oauth2(roles = [['admin', 'creator']])
 def edit_style_formats(style_format_id_or_name, **kwargs):
     """Create or edit styles formats.
     
