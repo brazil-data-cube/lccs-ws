@@ -1,6 +1,6 @@
 #
 # This file is part of LCCS-WS.
-# Copyright (C) 2022 INPE.
+# Copyright (C) 2023 INPE.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ app = lccs_ws.create_app()
 # -- Project information -----------------------------------------------------
 
 project = 'Land Cover Classification System Web Service'
-copyright = '2022, INPE'
+copyright = '2023, INPE'
 author = 'INPE'
 
 # The full version, including alpha/beta/rc tags

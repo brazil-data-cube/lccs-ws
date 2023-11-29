@@ -1,6 +1,6 @@
 #
 # This file is part of LCCS-WS.
-# Copyright (C) 2022 INPE.
+# Copyright (C) 2023 INPE.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,14 +18,20 @@
 
 version: 2
 
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.12"
+    # You can also specify other tool versions:
+    # nodejs: "19"
+    # rust: "1.64"
+    # golang: "1.19"
+
 sphinx:
     configuration: docs/sphinx/conf.py
 
-formats: []
-
 python:
-    version: 3.7
-
     install:
         - method: pip
           path: .
