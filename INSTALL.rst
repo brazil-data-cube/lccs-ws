@@ -1,6 +1,6 @@
 ..
     This file is part of LCCS-WS.
-    Copyright (C) 2022 INPE.
+    Copyright (C) 2023 INPE.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ Build the Documentation
 
 Generate the documentation::
 
-    python setup.py build_sphinx
+    sphinx-build docs/sphinx docs/sphinx/_build/html
 
 
 The above command will generate the documentation in HTML and it will place it under::
