@@ -18,17 +18,18 @@
 
 version: 2
 
-# Set the OS, Python version and other tools you might need
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.12"
-
+    python: "3.11"
 
 sphinx:
     configuration: docs/sphinx/conf.py
 
+formats: []
+
 python:
+
     install:
         - method: pip
           path: .

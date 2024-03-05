@@ -30,7 +30,6 @@ from lccs_ws.forms import (ClassesMappingMetadataSchema, ClassesSchema,
 from . import data
 from .config import Config
 
-
 BASE_URL = Config.LCCS_URL
 
 

@@ -20,6 +20,16 @@
 Changes
 =======
 
+Version 0.8.1 (2024-03-05)
+--------------------------
+
+- Upgrade to lccs-db 0.8.2 dependency (`#90 <https://github.com/brazil-data-cube/lccs-ws/issues/90>`_).
+- Bug fix: Child classes are not relating to the parent (`#84 <https://github.com/brazil-data-cube/lccs-ws/issues/84>`_).
+- Bug fix: ImportError: cannot import name soft_unicode from markupsafe (`#81 <https://github.com/brazil-data-cube/lccs-ws/issues/81>`_).
+- Bug fix: Config env DC_LCCS_ARGS (`#78 <https://github.com/brazil-data-cube/lccs-ws/issues/78>`_).
+- Bug fix: Migration Issue Can't Adapt Type Row (`#85 <https://github.com/brazil-data-cube/lccs-ws/issues/85>`_).
+
+
 Version 0.8.0 (2022-02-07)
 --------------------------
 
