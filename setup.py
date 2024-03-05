@@ -55,11 +55,11 @@ setup_requires = [
 
 install_requires = [
     'itsdangerous<2.1.0,>=1.1.0',
-    'Flask>=1.1.1',
+    'Flask>=1.1.4,<2',
     'marshmallow-sqlalchemy==0.18.0',
     'jsonschema>=3.2',
     'MarkupSafe==2.0.1',
-    'lccs-db @ git+https://github.com/fabianazioti/lccs-db@0.8.1',
+    'lccs-db @ git+https://github.com/fabianazioti/lccs-db@0.8.2',
     'bdc-auth-client @ git+https://github.com/brazil-data-cube/bdc-auth-client@v0.2.3',
 ]
 
