@@ -59,7 +59,7 @@ install_requires = [
     'marshmallow-sqlalchemy==0.18.0',
     'jsonschema>=3.2',
     'MarkupSafe==2.0.1',
-    'lccs-db @ git+https://github.com/brazil-data-cube/lccs-db@0.8.2',
+    'lccs-db @ git+https://github.com/brazil-data-cube/lccs-db@v0.8.2',
     'bdc-auth-client @ git+https://github.com/brazil-data-cube/bdc-auth-client@v0.2.3',
 ]
 
