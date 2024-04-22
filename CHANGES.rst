@@ -20,6 +20,11 @@
 Changes
 =======
 
+Version 0.8.2 (2024-04-22)
+--------------------------
+
+- Upgrade lccs-db dependency (`#93 <https://github.com/brazil-data-cube/lccs-ws/issues/93>`_).
+
 Version 0.8.1 (2024-03-05)
 --------------------------
 
